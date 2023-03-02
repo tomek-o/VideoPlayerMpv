@@ -1,0 +1,1 @@
+implib -a libmpv-2.lib libmpv-2.dll
