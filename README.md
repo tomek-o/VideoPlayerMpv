@@ -1,4 +1,4 @@
 # VideoPlayer
-Simple Win32 GUI for MPV
+Simple Win32 GUI for mpv
 
 http://tomeko.net/software/VideoPlayerMpv/
