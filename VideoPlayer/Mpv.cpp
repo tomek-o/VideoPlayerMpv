@@ -126,16 +126,13 @@ int MPlayer::play(AnsiString filename, int softVolLevel, AnsiString extraParams)
 #endif
 
 	{
-		AnsiString str = cfg.softVolMax;
-		const char *cmd[] = { "volume-max", str.c_str(), NULL };
-    	mpv_command(mpv, cmd);
+		int64_t val = cfg.softVolMax;
+		if (mpv_set_property(mpv, "volume-max", MPV_FORMAT_INT64, &val) < 0) {
+			LOG("failed to set mpv volume-max");
+		}
 	}
 
-	{
-		AnsiString str = cfg.softVolLevel;
-		const char *cmd[] = { "volume", str.c_str(), NULL };
-		mpv_command(mpv, cmd);
-	}
+	changeVolumeAbs(cfg.softVolLevel);
 
 	const char *cmd[] = { "loadfile", filename.c_str(), NULL };
 	int status = mpv_command(mpv, cmd);
@@ -190,10 +187,13 @@ int MPlayer::setOsdLevel(int level)
 {
 	if (mpv == NULL)
 		return -1;
-	AnsiString msg = level;
-	const char *cmd[] = { "osd-level", msg.c_str(), NULL };
-	int TODO__PROPERTY;
-	return mpv_command(mpv, cmd);
+
+	int64_t val = level;
+	if (mpv_set_property(mpv, "osd-level", MPV_FORMAT_INT64, &val) < 0) {
+		LOG("failed to set mpv osd level");
+		return -2;
+	}
+	return 0;
 }
 
 int MPlayer::changeVolume(int delta)
@@ -205,10 +205,12 @@ int MPlayer::changeVolume(int delta)
 		return 0;
 	cfg.softVolLevel += delta;
 
-	AnsiString msg;
-	msg.sprintf("%d", cfg.softVolLevel);
-	const char *cmd[] = { "volume", msg.c_str(), NULL };
-	return mpv_command(mpv, cmd);
+	int64_t val = cfg.softVolLevel;
+	if (mpv_set_property(mpv, "volume", MPV_FORMAT_INT64, &val) < 0) {
+		LOG("failed to set mpv volume");
+		return -2;
+	}
+	return 0;
 }
 
 int MPlayer::changeVolumeAbs(int val)
@@ -218,9 +220,12 @@ int MPlayer::changeVolumeAbs(int val)
 
 	AnsiString msg;
 	cfg.softVolLevel = val;
-	msg.sprintf("%d", val);
-	const char *cmd[] = { "volume", msg.c_str(), NULL };
-	return mpv_command(mpv, cmd);
+	int64_t val64 = cfg.softVolLevel;
+	if (mpv_set_property(mpv, "volume", MPV_FORMAT_INT64, &val64) < 0) {
+		LOG("failed to set mpv volume");
+		return -2;
+	}
+	return 0;
 }
 
 int MPlayer::osdShowText(AnsiString text, int duration)
