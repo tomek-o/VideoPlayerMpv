@@ -51,7 +51,6 @@ public:
 	} Logging;
 	struct _Mplayer
 	{
-		bool softVol;
 		int softVolLevel;
 		int softVolMax;
 		enum { SOFTVOL_MAX_LIMIT = 1000 };
@@ -61,10 +60,8 @@ public:
 		enum { OSD_LEVEL_DEFAULT = 1 };
 		enum { OSD_LEVEL_MAX = 3 };
 		bool showFileNameOnPlayStart;
-		AnsiString asExtraParams;
 		bool useSeparateVolumeForEachFile;
 		_Mplayer(void):
-			softVol(true),
 			softVolLevel(50),
 			softVolMax(SOFTVOL_MAX_DEF),
 			osdLevel(OSD_LEVEL_DEFAULT),

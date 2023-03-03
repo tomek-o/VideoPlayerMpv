@@ -247,7 +247,8 @@ void MPlayer::OnMpvEvent(const mpv_event &e)
 		const mpv_event_property *prop = (mpv_event_property *)e.data;
 		if (strcmp(prop->name, "time-pos") &&
 			strcmp(prop->name, "video-bitrate") &&
-			strcmp(prop->name, "audio-bitrate")
+			strcmp(prop->name, "audio-bitrate") &&
+			strcmp(prop->name, "volume")
 			) {
 			LOG("Event: id = %d (%s: %s)", static_cast<int>(e.event_id), mpv_event_name(e.event_id), prop->name);
 		}

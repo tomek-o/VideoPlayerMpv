@@ -33,15 +33,12 @@ __published:	// IDE-managed Components
 	TOpenDialog *OpenDialog;
 	TButton *btnShowLogWindow;
 	TCheckBox *chbExitFullscreenOnStop;
-	TCheckBox *chbMplayerSoftVol;
 	TLabel *lblSoftVolMax;
 	TEdit *edMplayerSoftVolMax;
 	TLabel *lblMplayerPercent;
 	TButton *btnAbout;
 	TCheckBox *chbMplayerShowFileNameOnPlayStart;
 	TTabSheet *tsHotkeys;
-	TLabel *lblMplayerExtraParams;
-	TEdit *edMplayerExtraParams;
 	TLabel *lblControlPanelPosition;
 	TComboBox *cbControlPanelPosition;
 	TCheckBox *chbUseSeparateVolumeForEachFile;
@@ -51,8 +48,6 @@ __published:	// IDE-managed Components
 	void __fastcall chbAlwaysOnTopClick(TObject *Sender);
 	void __fastcall cmbMaxUiLogLinesChange(TObject *Sender);
 	void __fastcall btnShowLogWindowClick(TObject *Sender);
-	void __fastcall chbMplayerSoftVolClick(TObject *Sender);
-	void __fastcall chbMplayerSoftVolKeyPress(TObject *Sender, char &Key);
 	void __fastcall btnAboutClick(TObject *Sender);
 	void __fastcall FormKeyPress(TObject *Sender, char &Key);
 private:	// User declarations

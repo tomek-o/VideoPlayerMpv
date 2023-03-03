@@ -214,7 +214,6 @@ int Settings::Read(AnsiString asFileName)
 
 	{
 		const Json::Value &jv = root["Mplayer"];
-		Mplayer.softVol = jv.get("SoftVol", Mplayer.softVol).asBool();
 		Mplayer.softVolMax = jv.get("SoftVolMax", Mplayer.softVolMax).asInt();
 		if (Mplayer.softVolMax < 50 || Mplayer.softVolMax > _Mplayer::SOFTVOL_MAX_LIMIT)
 		{
@@ -227,7 +226,6 @@ int Settings::Read(AnsiString asFileName)
 		if (Mplayer.osdLevel < _Mplayer::OSD_LEVEL_MIN || Mplayer.osdLevel > _Mplayer::OSD_LEVEL_MAX)
 			Mplayer.osdLevel = _Mplayer::OSD_LEVEL_DEFAULT;
 		jv.getBool("ShowFileNameOnPlayStart", Mplayer.showFileNameOnPlayStart);
-		jv.getAString("ExtraParams", Mplayer.asExtraParams);
 		jv.getBool("UseSeparateVolumeForEachFile", Mplayer.useSeparateVolumeForEachFile);
 	}
 
@@ -307,12 +305,10 @@ int Settings::Write(AnsiString asFileName)
 
 	{
 		Json::Value &jv = root["Mplayer"];
-		jv["SoftVol"] =  Mplayer.softVol;
 		jv["SoftVolMax"] =  Mplayer.softVolMax;
 		jv["SoftVolLevel"] = Mplayer.softVolLevel;
 		jv["OsdLevel"] = Mplayer.osdLevel;
 		jv["ShowFileNameOnPlayStart"] = Mplayer.showFileNameOnPlayStart;
-		jv["ExtraParams"] = Mplayer.asExtraParams;
 		jv["UseSeparateVolumeForEachFile"] = Mplayer.useSeparateVolumeForEachFile;
 	}
 

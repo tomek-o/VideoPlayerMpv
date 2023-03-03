@@ -190,10 +190,8 @@ void TfrmMain::ApplySettings(const Settings &prev)
 
 	MPlayer::Cfg mcfg;
 
-	mcfg.softVol = appSettings.Mplayer.softVol;
 	mcfg.softVolLevel = appSettings.Mplayer.softVolLevel;
 	mcfg.softVolMax = appSettings.Mplayer.softVolMax;
-	mcfg.asExtraParams = appSettings.Mplayer.asExtraParams;
 	mplayer.Configure(mcfg);
 
 	if (prev.hotKeyConf != appSettings.hotKeyConf)

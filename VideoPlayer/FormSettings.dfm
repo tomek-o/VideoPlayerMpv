@@ -159,71 +159,45 @@ object frmSettings: TfrmSettings
       end
     end
     object tsMplayer: TTabSheet
-      Caption = 'Mplayer'
+      Caption = 'mpv'
       ImageIndex = 2
       object lblSoftVolMax: TLabel
-        Left = 51
-        Top = 63
-        Width = 145
+        Left = 3
+        Top = 3
+        Width = 182
         Height = 13
-        Caption = 'Maximum level (50 ... 1000%)'
+        Caption = 'Maximum volume level (50 ... 1000%)'
       end
       object lblMplayerPercent: TLabel
-        Left = 311
-        Top = 63
+        Left = 263
+        Top = 3
         Width = 11
         Height = 13
         Caption = '%'
       end
-      object lblMplayerExtraParams: TLabel
-        Left = 3
-        Top = 134
-        Width = 84
-        Height = 13
-        Caption = 'Extra parameters'
-      end
-      object chbMplayerSoftVol: TCheckBox
-        Left = 3
-        Top = 40
-        Width = 318
-        Height = 17
-        Caption = 'Enable software volume amplification (for quiet files)'
-        TabOrder = 0
-        OnClick = chbMplayerSoftVolClick
-        OnKeyPress = chbMplayerSoftVolKeyPress
-      end
       object edMplayerSoftVolMax: TEdit
-        Left = 254
-        Top = 60
+        Left = 198
+        Top = 0
         Width = 51
         Height = 21
-        TabOrder = 1
+        TabOrder = 0
         Text = '200'
       end
       object chbMplayerShowFileNameOnPlayStart: TCheckBox
         Left = 3
-        Top = 111
+        Top = 72
         Width = 318
         Height = 17
         Caption = 'Show file name (OSD) on playback start'
-        TabOrder = 2
-      end
-      object edMplayerExtraParams: TEdit
-        Left = 104
-        Top = 131
-        Width = 377
-        Height = 21
-        TabOrder = 3
+        TabOrder = 1
       end
       object chbUseSeparateVolumeForEachFile: TCheckBox
-        Left = 51
-        Top = 85
+        Left = 3
+        Top = 22
         Width = 318
         Height = 17
         Caption = 'Use separate volume for each file from playlist'
-        TabOrder = 4
-        OnClick = chbMplayerSoftVolClick
-        OnKeyPress = chbMplayerSoftVolKeyPress
+        TabOrder = 2
       end
     end
     object tsHotkeys: TTabSheet

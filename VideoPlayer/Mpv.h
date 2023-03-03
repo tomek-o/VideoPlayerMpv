@@ -52,11 +52,8 @@ public:
 	}
 	struct Cfg
 	{
-		AnsiString asInstance;
-		bool softVol;
 		int softVolLevel;
 		int softVolMax;
-		AnsiString asExtraParams;
 	};
 	int Configure(const Cfg& cfg);
 	const Cfg& getCfg(void)
