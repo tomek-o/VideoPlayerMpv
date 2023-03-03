@@ -41,7 +41,7 @@ MPlayer::MPlayer():
 	timer->Enabled = true;
 }
 
-int MPlayer::Configure(const Cfg& cfg)
+int MPlayer::configure(const Cfg& cfg)
 {
 	this->cfg = cfg;
 	return 0;
@@ -54,7 +54,7 @@ MPlayer::~MPlayer()
 		delete timer;
 		timer = NULL;
 	}
-	MpvDestroy();
+	mpvDestroy();
 }
 
 int MPlayer::run(AnsiString cmdLine)
@@ -62,7 +62,7 @@ int MPlayer::run(AnsiString cmdLine)
 	return 0;
 }
 
-void MPlayer::OnStopPlayingFn(void)
+void MPlayer::onStopPlayingFn(void)
 {
 	if (callbackStopPlaying)
 		callbackStopPlaying();
@@ -74,7 +74,7 @@ int MPlayer::play(AnsiString filename, int softVolLevel, AnsiString extraParams)
 	this->filename = filename;
 
 	if (mpv == NULL)
-		MpvCreate();
+		mpvCreate();
 	if (mpv == NULL)
 		return -1;
 	LOG("play %s", filename.c_str());
@@ -112,7 +112,7 @@ int MPlayer::pause(bool state)
 	return mpv_set_property(mpv, "pause", MPV_FORMAT_FLAG, &flag);
 }
 
-int MPlayer::frame_step(void)
+int MPlayer::frameStep(void)
 {
 	if (mpv == NULL)
 		return -1;
@@ -226,11 +226,11 @@ void __fastcall MPlayer::timerTimer(TObject *Sender)
         const mpv_event *e = mpv_wait_event(mpv, 0);
         if (e->event_id == MPV_EVENT_NONE)
             break;
-        OnMpvEvent(*e);
+        onMpvEvent(*e);
     }
 }
 
-void MPlayer::OnMpvEvent(const mpv_event &e)
+void MPlayer::onMpvEvent(const mpv_event &e)
 {
 	if (e.event_id != MPV_EVENT_LOG_MESSAGE && e.event_id != MPV_EVENT_PROPERTY_CHANGE)
 	{
@@ -332,16 +332,16 @@ void MPlayer::OnMpvEvent(const mpv_event &e)
 			callbackStopPlaying();	
 		break;
     case MPV_EVENT_SHUTDOWN:
-        MpvDestroy();
+        mpvDestroy();
         break;
     default:
         break;
 	}
 }
 
-int MPlayer::MpvCreate(void)
+int MPlayer::mpvCreate(void)
 {
-	MpvDestroy();
+	mpvDestroy();
 	
 	mpv = mpv_create();
 	if (!mpv) {
@@ -354,13 +354,13 @@ int MPlayer::MpvCreate(void)
 	int64_t wid = reinterpret_cast<int64_t>(parent);
 	if (mpv_set_property(mpv, "wid", MPV_FORMAT_INT64, &wid) < 0) {
 		LOG("failed to set mpv wid");
-		MpvDestroy();
+		mpvDestroy();
 		return -2;
 	}
 
 	if (mpv_initialize(mpv) < 0) {
 		LOG("failed to initialize mpv");
-		MpvDestroy();
+		mpvDestroy();
 		return -3;
 	}
 
@@ -391,7 +391,7 @@ int MPlayer::MpvCreate(void)
 	return 0;
 }
 
-void MPlayer::MpvDestroy(void)
+void MPlayer::mpvDestroy(void)
 {
 	if (mpv) {
 		mpv_terminate_destroy(mpv);

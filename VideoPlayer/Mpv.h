@@ -39,14 +39,14 @@ private:
 	typedef void (__closure *CallbackMediaInfoUpdate)(void);
 
 	void __fastcall timerTimer(System::TObject *Sender);
-	void OnMpvEvent(const mpv_event &e);
-	int MpvCreate(void);
-	void MpvDestroy(void);
+	void onMpvEvent(const mpv_event &e);
+	int mpvCreate(void);
+	void mpvDestroy(void);
 
 public:
 	MPlayer(void);
 	~MPlayer();
-	void SetParent(HANDLE parent)
+	void setParent(HANDLE parent)
 	{
     	this->parent = parent;
 	}
@@ -55,7 +55,7 @@ public:
 		int softVolLevel;
 		int softVolMax;
 	};
-	int Configure(const Cfg& cfg);
+	int configure(const Cfg& cfg);
 	const Cfg& getCfg(void)
 	{
     	return cfg;
@@ -69,7 +69,7 @@ public:
 	{
     	return filename;
 	}
-	int frame_step(void);
+	int frameStep(void);
 	int pause(bool state);
 	int seekRelative(int seconds);
 	int seekAbsolute(double pos);
@@ -79,7 +79,7 @@ public:
 	int osdShowText(AnsiString text, int duration);
 	int stop(bool useCallback = true);
 
-	void OnStopPlayingFn(void);
+	void onStopPlayingFn(void);
 	CallbackStopPlaying callbackStopPlaying;
 	CallbackMediaInfoUpdate callbackMediaInfoUpdate;
 

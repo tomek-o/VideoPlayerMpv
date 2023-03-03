@@ -41,7 +41,7 @@ __fastcall TfrmMain::TfrmMain(TComponent* Owner)
 {
 	// inform OS that we accepting dropping files
 	DragAcceptFiles(Handle, True);
-	mplayer.SetParent(pnlMain->Handle);
+	mplayer.setParent(pnlMain->Handle);
 }
 //---------------------------------------------------------------------------
 void __fastcall TfrmMain::FormCreate(TObject *Sender)
@@ -192,7 +192,7 @@ void TfrmMain::ApplySettings(const Settings &prev)
 
 	mcfg.softVolLevel = appSettings.Mplayer.softVolLevel;
 	mcfg.softVolMax = appSettings.Mplayer.softVolMax;
-	mplayer.Configure(mcfg);
+	mplayer.configure(mcfg);
 
 	if (prev.hotKeyConf != appSettings.hotKeyConf)
 	{
@@ -600,7 +600,7 @@ void __fastcall TfrmMain::btnPauseStillClick(TObject *Sender)
 	}
 	else if (state == PAUSE)
 	{
-		mplayer.frame_step();
+		mplayer.frameStep();
 		SetState(PAUSE);
 	}
 	else
