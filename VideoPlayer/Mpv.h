@@ -33,8 +33,6 @@ private:
 	bool fileLengthValid;
 	double fileLength;
 
-	int run(AnsiString cmdLine);
-
 	typedef void (__closure *CallbackStopPlaying)(void);
 	typedef void (__closure *CallbackMediaInfoUpdate)(void);
 
@@ -42,6 +40,7 @@ private:
 	void onMpvEvent(const mpv_event &e);
 	int mpvCreate(void);
 	void mpvDestroy(void);
+	void applyConfiguration(void);
 
 public:
 	MPlayer(void);

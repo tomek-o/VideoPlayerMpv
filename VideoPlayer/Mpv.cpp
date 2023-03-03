@@ -44,6 +44,7 @@ MPlayer::MPlayer():
 int MPlayer::configure(const Cfg& cfg)
 {
 	this->cfg = cfg;
+    applyConfiguration();	
 	return 0;
 }
 
@@ -55,11 +56,6 @@ MPlayer::~MPlayer()
 		timer = NULL;
 	}
 	mpvDestroy();
-}
-
-int MPlayer::run(AnsiString cmdLine)
-{
-	return 0;
 }
 
 void MPlayer::onStopPlayingFn(void)
@@ -86,17 +82,6 @@ int MPlayer::play(AnsiString filename, int softVolLevel, AnsiString extraParams)
 	{
     	callbackMediaInfoUpdate();
 	}
-
-	{
-		int64_t val = cfg.softVolMax;
-		if (mpv_set_property(mpv, "volume-max", MPV_FORMAT_INT64, &val) < 0) {
-			LOG("failed to set mpv volume-max");
-		} else {
-        	LOG("mpv volume-max set to %d", cfg.softVolMax);
-		}
-	}
-
-	changeVolumeAbs(cfg.softVolLevel);
 
 	const char *cmd[] = { "loadfile", filename.c_str(), NULL };
 	int status = mpv_command(mpv, cmd);
@@ -388,6 +373,8 @@ int MPlayer::mpvCreate(void)
 	mpv_observe_property(mpv, 0, "time-pos", MPV_FORMAT_DOUBLE);
 	mpv_observe_property(mpv, 0, "volume", MPV_FORMAT_DOUBLE);
 
+    applyConfiguration();
+
 	return 0;
 }
 
@@ -397,5 +384,22 @@ void MPlayer::mpvDestroy(void)
 		mpv_terminate_destroy(mpv);
 		mpv = NULL;
 	}
+}
+
+void MPlayer::applyConfiguration(void)
+{
+	if (mpv == NULL)
+		return;
+
+	{
+		int64_t val = cfg.softVolMax;
+		if (mpv_set_property(mpv, "volume-max", MPV_FORMAT_INT64, &val) < 0) {
+			LOG("failed to set mpv volume-max");
+		} else {
+			LOG("mpv volume-max set to %d", cfg.softVolMax);
+		}
+	}
+
+	changeVolumeAbs(cfg.softVolLevel);
 }
 
