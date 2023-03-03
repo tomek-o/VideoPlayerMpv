@@ -86,47 +86,6 @@ int MPlayer::play(AnsiString filename, int softVolLevel, AnsiString extraParams)
 	{
     	callbackMediaInfoUpdate();
 	}
-#if 0
-	cmdLine.cat_printf("\"%s\" ", cfg.asInstance.c_str());
-	cmdLine.cat_printf("-slave -identify -colorkey 0x%x -quiet -keepaspect ", cfg.colorkey);
-	if (cfg.softVol)
-	{
-		int db;
-		if (softVolLevel > 0)
-		{
-        	cfg.softVolLevel = softVolLevel;
-		}
-
-		if (cfg.softVolLevel <= 0)
-		{
-			db = -120;
-		}
-		else
-		{
-			db = (int)(20.0f * log10((float)cfg.softVolLevel*cfg.softVolMax/100.0f/100.0f));
-		}
-		cmdLine.cat_printf("-softvol -af volume=%d -softvol-max %u ", db, cfg.softVolMax);
-	}
-	//cmdLine.cat_printf("-framedrop -nofs -noterm-osd -idx -hr-mp3-seek -nobps -ni ");
-	//cmdLine.cat_printf("-wid %d ", (int)cfg.parent);
-	if (cfg.asExtraParams != "")
-	{
-		cmdLine.cat_printf("%s ", cfg.asExtraParams.c_str());
-	}
-	if (extraParams != "")
-	{
-		cmdLine.cat_printf("%s ", extraParams.c_str());
-	}
-
-	cmdLine.cat_printf("\"%s\"", filename.c_str());
-	LOG("******************************\nRun: %s", cmdLine.c_str());
-	int status = run(cmdLine);
-	if (status)
-	{
-		if (callbackStopPlaying)
-			callbackStopPlaying();
-	}
-#endif
 
 	{
 		int64_t val = cfg.softVolMax;
