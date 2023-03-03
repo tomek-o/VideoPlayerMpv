@@ -494,8 +494,8 @@ void __fastcall TfrmMain::FormMouseWheel(TObject *Sender, TShiftState Shift,
 	int val = mplayer.getCfg().softVolLevel + delta;
 	if (val < 0)
 		val = 0;
-	else if (val > 100)
-		val = 100; //mplayer.getCfg().softVolMax;
+	else if (val > mplayer.getCfg().softVolMax)
+		val = mplayer.getCfg().softVolMax;
 	appSettings.Mplayer.softVolLevel = val;
 	mplayer.changeVolumeAbs(val);
 	if (appSettings.Mplayer.useSeparateVolumeForEachFile)
