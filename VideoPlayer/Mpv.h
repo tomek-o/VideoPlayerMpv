@@ -114,6 +114,8 @@ public:
 
 private:
 	Cfg cfg;
+	bool fileStarted;
+	double absoluteSeekRequested;
 };
 
 extern class MPlayer mplayer;

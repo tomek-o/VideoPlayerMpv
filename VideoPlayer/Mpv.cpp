@@ -31,7 +31,9 @@ MPlayer::MPlayer():
 	fileLengthValid(false),
 	fileLength(0.0),
 	callbackStopPlaying(NULL),
-	callbackMediaInfoUpdate(NULL)
+	callbackMediaInfoUpdate(NULL),
+	fileStarted(false),
+	absoluteSeekRequested(-1)
 {
 	timer = new TTimer(NULL);
 	timer->Interval = 20;
@@ -75,6 +77,7 @@ int MPlayer::play(AnsiString filename, int softVolLevel, AnsiString extraParams)
 		MpvCreate();
 	if (mpv == NULL)
 		return -1;
+	LOG("play %s", filename.c_str());
 
 	mediaInfo.videoBitrate = mediaInfo.audioBitrateKnown = false;
 	filePositionValid = false;
@@ -169,13 +172,22 @@ int MPlayer::seekAbsolute(double seconds)
 {
 	if (mpv == NULL)
 		return -1;
+	if (!fileStarted)
+	{
+		LOG("Delaying seekAbsolute to %.1f", seconds);
+		absoluteSeekRequested = seconds;
+		return 0;
+	}
 	if (fileLengthValid)
 	{
 		if (seconds > fileLength)
 		{
+			absoluteSeekRequested = -1;
 			return -1;
 		}
 	}
+	LOG("seekAbsolute to %.1f", seconds);
+	absoluteSeekRequested = -1;
 	AnsiString msg;
 	msg.sprintf("%f", seconds);
 	AnsiString secondsStr = seconds;
@@ -233,12 +245,6 @@ int MPlayer::osdShowText(AnsiString text, int duration)
 	if (mpv == NULL)
 		return -1;
 
-	AnsiString msg;
-	if (text.Pos("'") != 0)
-	{
-		// not sure how to escape this...
-		return -1;
-	}
 	AnsiString durationStr = duration;
 	const char* cmd[] = { "show-text", text.c_str(), durationStr.c_str(), "0", NULL };
 	return mpv_command(mpv, cmd);
@@ -249,6 +255,7 @@ int MPlayer::stop(bool useCallback)
 	if (mpv == NULL)
 		return -1;
 	LOG("Stopping");
+	fileStarted = false;	
     const char *cmd[] = { "stop", NULL };
 	return mpv_command(mpv, cmd);
 }
@@ -282,7 +289,10 @@ void MPlayer::OnMpvEvent(const mpv_event &e)
 	}
 	case MPV_EVENT_PROPERTY_CHANGE: {
 		const mpv_event_property *prop = (mpv_event_property *)e.data;
-		if (strcmp(prop->name, "time-pos")) {
+		if (strcmp(prop->name, "time-pos") &&
+			strcmp(prop->name, "video-bitrate") &&
+			strcmp(prop->name, "audio-bitrate")
+			) {
 			LOG("Event: id = %d (%s: %s)", static_cast<int>(e.event_id), mpv_event_name(e.event_id), prop->name);
 		}
         if (strcmp(prop->name, "media-title") == 0) {
@@ -346,7 +356,16 @@ void MPlayer::OnMpvEvent(const mpv_event &e)
 		}
         break;
 	}
+	case MPV_EVENT_START_FILE:
+		break;
+	case MPV_EVENT_FILE_LOADED:
+		fileStarted = true;
+		if (absoluteSeekRequested > 0) {
+			seekAbsolute(absoluteSeekRequested);
+		}
+		break;
 	case MPV_EVENT_END_FILE:
+		fileStarted = false;
 		if (callbackStopPlaying)
 			callbackStopPlaying();	
 		break;
