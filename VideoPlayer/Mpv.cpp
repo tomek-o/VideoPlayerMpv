@@ -132,6 +132,8 @@ int MPlayer::play(AnsiString filename, int softVolLevel, AnsiString extraParams)
 		int64_t val = cfg.softVolMax;
 		if (mpv_set_property(mpv, "volume-max", MPV_FORMAT_INT64, &val) < 0) {
 			LOG("failed to set mpv volume-max");
+		} else {
+        	LOG("mpv volume-max set to %d", cfg.softVolMax);
 		}
 	}
 
@@ -199,7 +201,6 @@ int MPlayer::setOsdLevel(int level)
 {
 	if (mpv == NULL)
 		return -1;
-
 	int64_t val = level;
 	if (mpv_set_property(mpv, "osd-level", MPV_FORMAT_INT64, &val) < 0) {
 		LOG("failed to set mpv osd level");
@@ -353,6 +354,11 @@ void MPlayer::OnMpvEvent(const mpv_event &e)
 				filePosition = data;
 				filePositionValid = true;
 			}
+		} else if (strcmp(prop->name, "volume") == 0) {
+			double data = 0;
+			if (mpv_get_property(mpv, prop->name, MPV_FORMAT_DOUBLE, &data) == 0) {
+				LOG("volume = %d", static_cast<int>(data));
+			}
 		}
         break;
 	}
@@ -387,7 +393,7 @@ int MPlayer::MpvCreate(void)
 		return -1;
 	}
 
-	mpv_request_log_messages(mpv, "warn");	
+	mpv_request_log_messages(mpv, "info");	
 
 	int64_t wid = reinterpret_cast<int64_t>(parent);
 	if (mpv_set_property(mpv, "wid", MPV_FORMAT_INT64, &wid) < 0) {
@@ -402,11 +408,29 @@ int MPlayer::MpvCreate(void)
 		return -3;
 	}
 
+	{
+		int64_t val = 1;
+		if (mpv_set_property(mpv, "osd-level", MPV_FORMAT_INT64, &val) < 0) {
+			LOG("failed to set mpv osd level");
+			return -2;
+		}
+	}
+
+	{
+		int val = 1;
+		if (mpv_set_property(mpv, "osd-bar", MPV_FORMAT_FLAG, &val) < 0) {
+			LOG("failed to set mpv osd-bar");
+		} else {
+        	LOG("mpv osd-bar enabled");
+		}
+	}
+
 	mpv_observe_property(mpv, 0, "media-title", MPV_FORMAT_NONE);
 	mpv_observe_property(mpv, 0, "video-bitrate", MPV_FORMAT_DOUBLE);
 	mpv_observe_property(mpv, 0, "audio-bitrate", MPV_FORMAT_DOUBLE);
 	mpv_observe_property(mpv, 0, "duration", MPV_FORMAT_DOUBLE);
 	mpv_observe_property(mpv, 0, "time-pos", MPV_FORMAT_DOUBLE);
+	mpv_observe_property(mpv, 0, "volume", MPV_FORMAT_DOUBLE);
 
 	return 0;
 }
