@@ -238,10 +238,6 @@ void MPlayer::OnMpvEvent(const mpv_event &e)
 	}
 	switch (e.event_id)
 	{
-    case MPV_EVENT_VIDEO_RECONFIG:
-        // something like --autofit-larger=95%
-		//Autofit(95, true, false);
-		break;
 	case MPV_EVENT_LOG_MESSAGE: {
 		const mpv_event_log_message *msg = (const mpv_event_log_message *)e.data;
 		LOG("%s", msg->text);
