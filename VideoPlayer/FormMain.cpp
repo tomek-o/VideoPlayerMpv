@@ -362,15 +362,18 @@ void TfrmMain::CallbackStartPlayingFn(void)
 
 void TfrmMain::CallbackStopPlayingFn(void)
 {
-    UpdateFilePos();
-	int status = frmMediaBrowser->PlayNextFile();
-	if (status != 0)
+	UpdateFilePos();
+	if (state == PLAY)
 	{
-		if (appSettings.frmMain.bExitFullScreenOnStop && (WindowState == wsMaximized))
+		int status = frmMediaBrowser->PlayNextFile();
+		if (status != 0)
 		{
-			ToggleFullscreen();
+			if (appSettings.frmMain.bExitFullScreenOnStop && (WindowState == wsMaximized))
+			{
+				ToggleFullscreen();
+			}
+			SetState(STOP);
 		}
-		SetState(STOP);
 	}
 }
 
