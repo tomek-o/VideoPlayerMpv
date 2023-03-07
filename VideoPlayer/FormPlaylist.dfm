@@ -3,8 +3,8 @@ object frmPlaylist: TfrmPlaylist
   Top = 0
   Align = alClient
   BorderStyle = bsNone
-  ClientHeight = 348
-  ClientWidth = 726
+  ClientHeight = 368
+  ClientWidth = 852
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -17,8 +17,8 @@ object frmPlaylist: TfrmPlaylist
   object lvPlaylist: TListView
     Left = 0
     Top = 0
-    Width = 726
-    Height = 320
+    Width = 852
+    Height = 340
     Align = alClient
     Columns = <
       item
@@ -42,11 +42,11 @@ object frmPlaylist: TfrmPlaylist
       end
       item
         Caption = 'Video bps'
-        Width = 70
+        Width = 120
       end
       item
         Caption = 'Audio bps'
-        Width = 70
+        Width = 120
       end
       item
         Caption = 'Played'
@@ -64,20 +64,15 @@ object frmPlaylist: TfrmPlaylist
     OnData = lvPlaylistData
     OnDblClick = lvPlaylistDblClick
     OnKeyDown = lvPlaylistKeyDown
-    ExplicitLeft = 16
-    ExplicitWidth = 703
-    ExplicitHeight = 317
   end
   object pnlBottom: TPanel
     Left = 0
-    Top = 320
-    Width = 726
+    Top = 340
+    Width = 852
     Height = 28
     Align = alBottom
     BevelOuter = bvNone
     TabOrder = 1
-    ExplicitTop = 317
-    ExplicitWidth = 703
     object lblFilter: TLabel
       Left = 8
       Top = 6
@@ -126,6 +121,10 @@ object frmPlaylist: TfrmPlaylist
       Caption = 'Delete file(s)'
       ShortCut = 16452
       OnClick = miDeleteFilesClick
+    end
+    object miResetBitrateInfo: TMenuItem
+      Caption = 'Reset bitrate info'
+      OnClick = miResetBitrateInfoClick
     end
     object N1: TMenuItem
       Caption = '-'

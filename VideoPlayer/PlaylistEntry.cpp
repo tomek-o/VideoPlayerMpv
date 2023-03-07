@@ -25,8 +25,22 @@ void PlaylistEntry::fromJson(const Json::Value &jv)
 	jv.getBool("mark", mark);
 	jv.getDouble("length", length);
 	jv.getDouble("playbackProgress", playbackProgress);
-	jv.getInt("bitrateVideo", bitrateVideo);
-	jv.getInt("bitrateAudio", bitrateAudio);
+	jv.getInt("bitrateVideoMin", bitrateVideoMin);
+	jv.getInt("bitrateVideoMax", bitrateVideoMax);
+	jv.getInt("bitrateAudioMin", bitrateAudioMin);
+	jv.getInt("bitrateAudioMax", bitrateAudioMax);
+	{
+		// backward compatibility with mplayer-based version
+		const Json::Value &jbv = jv["bitrateVideo"];
+		if (jbv.type() == Json::intValue || jbv.type() == Json::uintValue) {
+			bitrateVideoMin = bitrateVideoMax = jbv.asInt();
+		}
+
+		const Json::Value &jba = jv["bitrateAudio"];
+		if (jba.type() == Json::intValue || jbv.type() == Json::uintValue) {
+			bitrateAudioMin = bitrateAudioMax = jba.asInt();
+		}
+	}
 	jv.getAString("mplayerExtraParams", mplayerExtraParams);
 	jv.getInt("softVol", softVolLevel);
 }
@@ -39,13 +53,21 @@ void PlaylistEntry::toJson(Json::Value &jv) const
 	jv["mark"] = mark;
 	jv["length"] = length;
 	jv["playbackProgress"] = playbackProgress;
-	if (bitrateVideo != BITRATE_DEFAULT)
+	if (bitrateVideoMin != BITRATE_DEFAULT)
 	{
-		jv["bitrateVideo"] = bitrateVideo;
+		jv["bitrateVideoMin"] = bitrateVideoMin;
 	}
-	if (bitrateAudio != BITRATE_DEFAULT)
+	if (bitrateVideoMax != BITRATE_DEFAULT)
 	{
-		jv["bitrateAudio"] = bitrateAudio;
+		jv["bitrateVideoMax"] = bitrateVideoMax;
+	}
+	if (bitrateAudioMin != BITRATE_DEFAULT)
+	{
+		jv["bitrateAudioMin"] = bitrateAudioMin;
+	}
+	if (bitrateAudioMax != BITRATE_DEFAULT)
+	{
+		jv["bitrateAudioMax"] = bitrateAudioMax;
 	}
 	if (mplayerExtraParams != "")
 	{

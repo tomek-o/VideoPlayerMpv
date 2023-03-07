@@ -139,17 +139,35 @@ void __fastcall TfrmPlaylist::lvPlaylistData(TObject *Sender, TListItem *Item)
 		Item->SubItems->Add("?");
 	}
 	Item->SubItems->Add(entry.entry.timeStamp);
-	if (entry.entry.bitrateVideo != PlaylistEntry::BITRATE_DEFAULT)
+	if (entry.entry.bitrateVideoMin != PlaylistEntry::BITRATE_DEFAULT)
 	{
-		Item->SubItems->Add(entry.entry.bitrateVideo);
+		if (entry.entry.bitrateVideoMin == entry.entry.bitrateVideoMax)
+		{
+			Item->SubItems->Add(entry.entry.bitrateVideoMin);
+		}
+		else
+		{
+			AnsiString str;
+			str.sprintf("%d ... %d", entry.entry.bitrateVideoMin, entry.entry.bitrateVideoMax);
+			Item->SubItems->Add(str);
+		}
 	}
 	else
 	{
 		Item->SubItems->Add("");
 	}
-	if (entry.entry.bitrateAudio != PlaylistEntry::BITRATE_DEFAULT)
+	if (entry.entry.bitrateAudioMin != PlaylistEntry::BITRATE_DEFAULT)
 	{
-		Item->SubItems->Add(entry.entry.bitrateAudio);
+		if (entry.entry.bitrateAudioMin == entry.entry.bitrateAudioMax)
+		{
+			Item->SubItems->Add(entry.entry.bitrateAudioMin);
+		}
+		else
+		{
+			AnsiString str;
+			str.sprintf("%d ... %d", entry.entry.bitrateAudioMin, entry.entry.bitrateAudioMax);
+			Item->SubItems->Add(str);
+		}
 	}
 	else
 	{
@@ -714,6 +732,29 @@ void __fastcall TfrmPlaylist::miAddRemainingFilesFromFolderClick(
 	}
 
 	playlist.add(filesToAdd);
+	update();
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TfrmPlaylist::miResetBitrateInfoClick(TObject *Sender)
+{
+	TListItem *item = lvPlaylist->Selected;
+	if (item == NULL)
+		return;
+
+	item->MakeVisible(false);
+
+	int id = item->Index;
+	const std::vector<FilteredPlaylistEntry>& entries = playlist.getFilteredEntries();
+	const FilteredPlaylistEntry &entry = entries[id];
+
+	int status = playlist.resetBitrateInfo(entry.id);
+	if (status != 0)
+	{
+		MessageBox(this->Handle, "Failed to reset bitrate info for file.", Application->Title.c_str(), MB_ICONEXCLAMATION);
+		return;
+	}
+
 	update();
 }
 //---------------------------------------------------------------------------

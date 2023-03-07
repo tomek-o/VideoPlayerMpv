@@ -430,22 +430,22 @@ bool compareLengthDesc(const PlaylistEntry& e1, const PlaylistEntry& e2)
 
 bool compareBitrateVideoAsc(const PlaylistEntry& e1, const PlaylistEntry& e2)
 {
-	return e1.bitrateVideo > e2.bitrateVideo;
+	return e1.bitrateVideoMax > e2.bitrateVideoMax;
 }
 
 bool compareBitrateVideoDesc(const PlaylistEntry& e1, const PlaylistEntry& e2)
 {
-	return e1.bitrateVideo < e2.bitrateVideo;
+	return e1.bitrateVideoMax < e2.bitrateVideoMax;
 }
 
 bool compareBitrateAudioAsc(const PlaylistEntry& e1, const PlaylistEntry& e2)
 {
-	return e1.bitrateAudio > e2.bitrateAudio;
+	return e1.bitrateAudioMax > e2.bitrateAudioMax;
 }
 
 bool compareBitrateAudioDesc(const PlaylistEntry& e1, const PlaylistEntry& e2)
 {
-	return e1.bitrateAudio < e2.bitrateAudio;
+	return e1.bitrateAudioMax < e2.bitrateAudioMax;
 }
 
 bool comparePlaybackProgressAsc(const PlaylistEntry& e1, const PlaylistEntry& e2)
@@ -604,9 +604,21 @@ void Playlist::setLength(unsigned int id, double length)
 void Playlist::setBitrateVideo(unsigned int id, int val)
 {
 	PlaylistEntry& entry = entries[id];
-	if (entry.bitrateVideo != val)
+	bool updated = false;
+	if (entry.bitrateVideoMin == PlaylistEntry::BITRATE_DEFAULT ||
+		entry.bitrateVideoMin > val)
 	{
-		entry.bitrateVideo = val;
+		entry.bitrateVideoMin = val;
+		updated = true;
+	}
+	if (entry.bitrateVideoMax == PlaylistEntry::BITRATE_DEFAULT ||
+		entry.bitrateVideoMax < val)
+	{
+		entry.bitrateVideoMax = val;
+		updated = true;
+	}
+	if (updated)
+	{
 		filter(filterText);
 		modified = true;
 	}
@@ -615,13 +627,38 @@ void Playlist::setBitrateVideo(unsigned int id, int val)
 void Playlist::setBitrateAudio(unsigned int id, int val)
 {
 	PlaylistEntry& entry = entries[id];
-	if (entry.bitrateAudio != val)
+	bool updated = false;
+	if (entry.bitrateAudioMin == PlaylistEntry::BITRATE_DEFAULT ||
+		entry.bitrateAudioMin > val)
 	{
-		entry.bitrateAudio = val;
+		entry.bitrateAudioMin = val;
+		updated = true;
+	}
+	if (entry.bitrateAudioMax == PlaylistEntry::BITRATE_DEFAULT ||
+		entry.bitrateAudioMax < val)
+	{
+		entry.bitrateAudioMax = val;
+		updated = true;
+	}
+	if (updated)
+	{
 		filter(filterText);
 		modified = true;
 	}
 }
+
+int Playlist::resetBitrateInfo(unsigned int id)
+{
+	PlaylistEntry& entry = entries[id];
+	entry.bitrateVideoMin = PlaylistEntry::BITRATE_DEFAULT;
+	entry.bitrateVideoMax = PlaylistEntry::BITRATE_DEFAULT;
+	entry.bitrateAudioMin = PlaylistEntry::BITRATE_DEFAULT;
+	entry.bitrateAudioMax = PlaylistEntry::BITRATE_DEFAULT;
+	filter(filterText);	
+	modified = true;
+	return 0;
+}
+
 
 
 

@@ -90,5 +90,9 @@ Version 2.4
 - FIXED Access Violation when unhiding playlist
 - saving modified playlists with 120 s timer event (not only on exit) to prevent possible playlist loss in case of e.g. crash/reboot
 - files dropped to playlist are now not played automatically (to avoid unintentional loss of previously played file bookmark)
+
+Mpv:
+- storing/showing minimum and maximum video and audio bitrate values for each file
+- values displayed in main window as video/audio bitrates should be now treated as momentary
 */
 

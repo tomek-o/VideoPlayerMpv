@@ -75,7 +75,8 @@ int MPlayer::play(AnsiString filename, int softVolLevel, AnsiString extraParams)
 		return -1;
 	LOG("play %s", filename.c_str());
 
-	mediaInfo.videoBitrate = mediaInfo.audioBitrateKnown = false;
+	mediaInfo.videoBitrateKnown = false;
+	mediaInfo.audioBitrateKnown = false;
 	filePositionValid = false;
 	fileLengthValid = false;
 	if (this->callbackMediaInfoUpdate)
@@ -256,11 +257,12 @@ void MPlayer::onMpvEvent(const mpv_event &e)
 			if (mpv_get_property(mpv, prop->name, MPV_FORMAT_DOUBLE, &data) == 0) {
 				if (mediaInfo.videoBitrateKnown == false) {
 					mediaInfo.videoBitrateKnown = true;
-					mediaInfo.videoBitrate = static_cast<int>(data);
-					if (this->callbackMediaInfoUpdate)
-					{
-						callbackMediaInfoUpdate();
-					}
+				}
+				LOG("Video: %d bps", static_cast<int>(data));
+				mediaInfo.videoBitrate = static_cast<int>(data);
+				if (this->callbackMediaInfoUpdate)
+				{
+					callbackMediaInfoUpdate();
 				}
 			}
 		} else if (strcmp(prop->name, "audio-bitrate") == 0) {
@@ -268,11 +270,12 @@ void MPlayer::onMpvEvent(const mpv_event &e)
 			if (mpv_get_property(mpv, prop->name, MPV_FORMAT_DOUBLE, &data) == 0) {
 				if (mediaInfo.audioBitrateKnown == false) {
 					mediaInfo.audioBitrateKnown = true;
-					mediaInfo.audioBitrate = static_cast<int>(data);
-					if (this->callbackMediaInfoUpdate)
-					{
-						callbackMediaInfoUpdate();
-					}
+				}
+				LOG("Audio: %d bps", static_cast<int>(data));
+				mediaInfo.audioBitrate = static_cast<int>(data);
+				if (this->callbackMediaInfoUpdate)
+				{
+					callbackMediaInfoUpdate();
 				}
 			}
 		} else if (strcmp(prop->name, "duration") == 0) {

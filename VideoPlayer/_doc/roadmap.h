@@ -17,7 +17,6 @@ VideoPlayer: show file size on bottom panel in megabytes if space allows or as O
 VideoPlayer: odtwarzacz TSK/audio: tray icon, context menu, file name in hint, rewind/FF using tray
 
 mpv:
-	- logowanie samego mpv
 	- UTF-8
 
 */

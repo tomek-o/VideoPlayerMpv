@@ -66,6 +66,7 @@ public:
 	void setLength(unsigned int id, double length);
 	void setBitrateVideo(unsigned int id, int val);
 	void setBitrateAudio(unsigned int id, int val);
+	int resetBitrateInfo(unsigned int id);
 
 
 	enum SortType {
