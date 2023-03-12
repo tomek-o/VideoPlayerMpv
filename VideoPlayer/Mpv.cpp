@@ -258,7 +258,7 @@ void MPlayer::onMpvEvent(const mpv_event &e)
 				if (mediaInfo.videoBitrateKnown == false) {
 					mediaInfo.videoBitrateKnown = true;
 				}
-				LOG("Video: %d bps", static_cast<int>(data));
+				//LOG("Video: %d bps", static_cast<int>(data));
 				mediaInfo.videoBitrate = static_cast<int>(data);
 				if (this->callbackMediaInfoUpdate)
 				{
@@ -271,7 +271,7 @@ void MPlayer::onMpvEvent(const mpv_event &e)
 				if (mediaInfo.audioBitrateKnown == false) {
 					mediaInfo.audioBitrateKnown = true;
 				}
-				LOG("Audio: %d bps", static_cast<int>(data));
+				//LOG("Audio: %d bps", static_cast<int>(data));
 				mediaInfo.audioBitrate = static_cast<int>(data);
 				if (this->callbackMediaInfoUpdate)
 				{
