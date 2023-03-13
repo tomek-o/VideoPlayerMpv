@@ -62,10 +62,10 @@ public:
 		bool showFileNameOnPlayStart;
 		bool useSeparateVolumeForEachFile;
 		_Mplayer(void):
-			softVolLevel(50),
+			softVolLevel(100),
 			softVolMax(SOFTVOL_MAX_DEF),
 			osdLevel(OSD_LEVEL_DEFAULT),
-			showFileNameOnPlayStart(false),
+			showFileNameOnPlayStart(true),
 			useSeparateVolumeForEachFile(false)
 		{}
 	} Mplayer;
