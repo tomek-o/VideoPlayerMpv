@@ -84,6 +84,11 @@ int MPlayer::play(AnsiString filename, int softVolLevel, AnsiString extraParams)
     	callbackMediaInfoUpdate();
 	}
 
+	{
+		int32_t flag = 0;
+		mpv_set_property(mpv, "pause", MPV_FORMAT_FLAG, &flag);
+	}
+
 	const char *cmd[] = { "loadfile", filename.c_str(), NULL };
 	int status = mpv_command(mpv, cmd);
 
