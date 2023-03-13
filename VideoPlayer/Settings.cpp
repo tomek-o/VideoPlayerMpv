@@ -101,7 +101,19 @@ void Settings::SetDefault(void)
 		hk.action = action;
 		hotKeyConf.push_back(hk);
 
+		hk.keyCode = "VK_NEXT";
+		hk.modifiers = 0;
+		action.type = Action::TYPE_SKIP;
+		hk.action = action;
+		hotKeyConf.push_back(hk);
+
 		hk.keyCode = "P key";
+		hk.modifiers = 0;
+		action.type = Action::TYPE_PREV;
+		hk.action = action;
+		hotKeyConf.push_back(hk);
+
+		hk.keyCode = "VK_PRIOR";
 		hk.modifiers = 0;
 		action.type = Action::TYPE_PREV;
 		hk.action = action;
