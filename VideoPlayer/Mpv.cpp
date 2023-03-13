@@ -33,6 +33,7 @@ MPlayer::MPlayer():
 	callbackStopPlaying(NULL),
 	callbackMediaInfoUpdate(NULL),
 	fileStarted(false),
+	useStopCallback(true),
 	absoluteSeekRequested(-1)
 {
 	timer = new TTimer(NULL);
@@ -68,6 +69,7 @@ int MPlayer::play(AnsiString filename, int softVolLevel, AnsiString extraParams)
 {
 	AnsiString cmdLine;
 	this->filename = filename;
+	useStopCallback = true;
 
 	if (mpv == NULL)
 		mpvCreate();
@@ -214,10 +216,27 @@ int MPlayer::stop(bool useCallback)
 {
 	if (mpv == NULL)
 		return -1;
+	if (fileStarted == false)
+	{
+		LOG("stop: file not started");
+		return -1;
+	}
 	LOG("Stopping");
-	fileStarted = false;	
-    const char *cmd[] = { "stop", NULL };
-	return mpv_command(mpv, cmd);
+	useStopCallback = useCallback;
+	const char *cmd[] = { "stop", NULL };
+	int status = mpv_command(mpv, cmd);
+	int cnt = 0;
+	while (fileStarted)
+	{
+		Application->ProcessMessages();
+		Sleep(20);
+		if (cnt > 500)
+		{
+			LOG("Timed out stopping...");
+			return -3;
+		}
+	}
+	return status;
 }
 
 void __fastcall MPlayer::timerTimer(TObject *Sender)
@@ -333,7 +352,7 @@ void MPlayer::onMpvEvent(const mpv_event &e)
 		break;
 	case MPV_EVENT_END_FILE:
 		fileStarted = false;
-		if (callbackStopPlaying)
+		if (callbackStopPlaying && useStopCallback)
 			callbackStopPlaying();	
 		break;
     case MPV_EVENT_SHUTDOWN:

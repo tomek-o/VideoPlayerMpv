@@ -111,6 +111,7 @@ public:
 private:
 	Cfg cfg;
 	bool fileStarted;
+	bool useStopCallback;
 	double absoluteSeekRequested;
 };
 
