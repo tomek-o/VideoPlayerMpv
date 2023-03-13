@@ -94,14 +94,22 @@ int MPlayer::pause(bool state)
 {
 	if (mpv == NULL)
 		return -1;
-	int flag = state;
-	return mpv_set_property(mpv, "pause", MPV_FORMAT_FLAG, &flag);
+	int status;
+	int32_t flag = state;
+	LOG("pause: %d", flag);
+	status = mpv_set_property(mpv, "pause", MPV_FORMAT_FLAG, &flag);
+	if (status != 0)
+	{
+		LOG("pause: error: %d %s", status, mpv_error_string(status));
+	}
+	return status;
 }
 
 int MPlayer::frameStep(void)
 {
 	if (mpv == NULL)
 		return -1;
+	LOG("frame-step");
     const char *cmd[] = { "frame-step", NULL };
 	return mpv_command(mpv, cmd);
 }
@@ -110,6 +118,7 @@ int MPlayer::seekRelative(int seconds)
 {
 	if (mpv == NULL)
 		return -1;
+	LOG("seekRelative %d");
 	AnsiString secondsStr = seconds;
 	const char *cmd[] = { "seek", secondsStr.c_str(), "relative", NULL };
 	return mpv_command(mpv, cmd);
@@ -303,6 +312,9 @@ void MPlayer::onMpvEvent(const mpv_event &e)
 			if (mpv_get_property(mpv, prop->name, MPV_FORMAT_DOUBLE, &data) == 0) {
 				LOG("volume = %d", static_cast<int>(data));
 			}
+		} else if (strcmp(prop->name, "pause") == 0) {
+			bool state = (bool)*(unsigned*)prop->data;
+			LOG("pause state changed to %s", state?"true":"false");
 		}
         break;
 	}
@@ -375,6 +387,7 @@ int MPlayer::mpvCreate(void)
 	mpv_observe_property(mpv, 0, "duration", MPV_FORMAT_DOUBLE);
 	mpv_observe_property(mpv, 0, "time-pos", MPV_FORMAT_DOUBLE);
 	mpv_observe_property(mpv, 0, "volume", MPV_FORMAT_DOUBLE);
+    mpv_observe_property(mpv, 0, "pause", MPV_FORMAT_FLAG);	
 
     applyConfiguration();
 
