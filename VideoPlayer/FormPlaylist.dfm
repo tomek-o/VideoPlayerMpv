@@ -164,9 +164,11 @@ object frmPlaylist: TfrmPlaylist
     end
     object N4: TMenuItem
       Caption = '-'
+      Visible = False
     end
     object miSetMplayerExtraParams: TMenuItem
       Caption = 'Set mplayer extra parameters'
+      Visible = False
       OnClick = miSetMplayerExtraParamsClick
     end
   end
