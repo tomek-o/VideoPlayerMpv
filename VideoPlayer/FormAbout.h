@@ -32,6 +32,7 @@ __published:
 	TLabel *lblInfo3;
 	TLabel *lblBuilt;
 	TLabel *lblBuildTimestamp;
+	TLabel *lblMpvApiVersion;
 	void __fastcall lblInfo2Click(TObject *Sender);
 	void __fastcall FormKeyPress(TObject *Sender, char &Key);
 private:

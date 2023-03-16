@@ -108,6 +108,8 @@ public:
 		return fileLength;
 	}
 
+	static AnsiString getApiVersion(void);
+
 private:
 	Cfg cfg;
 	bool fileStarted;

@@ -3,6 +3,7 @@
 #pragma hdrstop
 
 #include "FormAbout.h"
+#include "Mpv.h"
 //--------------------------------------------------------------------- 
 #pragma resource "*.dfm"
 TfrmAbout *frmAbout;
@@ -40,6 +41,7 @@ __fastcall TfrmAbout::TfrmAbout(TComponent* AOwner)
 	lblVersion->Caption = GetFileVer(Application->ExeName);
 	lblBuildTimestamp->Caption = (AnsiString)__DATE__ + ", " __TIME__;
 	ProductName->Caption = Application->Title;
+	lblMpvApiVersion->Caption = AnsiString("mpv API version ") + MPlayer::getApiVersion();
 }
 //---------------------------------------------------------------------
 void __fastcall TfrmAbout::lblInfo2Click(TObject *Sender)

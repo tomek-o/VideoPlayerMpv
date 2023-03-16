@@ -443,3 +443,13 @@ void MPlayer::applyConfiguration(void)
 	changeVolumeAbs(cfg.softVolLevel);
 }
 
+AnsiString MPlayer::getApiVersion(void)
+{
+	unsigned long v = mpv_client_api_version();
+	unsigned int major = v >> 16;
+	unsigned int minor = v & 0xFFFF;
+    AnsiString str;
+	str.sprintf("%u.%u", major, minor);
+	return str;
+}
+

@@ -352,7 +352,7 @@ object frmAbout: TfrmAbout
     end
     object Copyright: TLabel
       Left = 8
-      Top = 80
+      Top = 87
       Width = 199
       Height = 13
       Caption = 'Copyright '#169' Tomasz Ostrowski 2019-2023'
@@ -360,7 +360,7 @@ object frmAbout: TfrmAbout
     end
     object Comments: TLabel
       Left = 8
-      Top = 104
+      Top = 111
       Width = 99
       Height = 13
       Caption = 'Licensed as GPL v2.'
@@ -419,6 +419,15 @@ object frmAbout: TfrmAbout
       Width = 84
       Height = 13
       Caption = 'lblBuildTimestamp'
+      IsControl = True
+    end
+    object lblMpvApiVersion: TLabel
+      Left = 88
+      Top = 65
+      Width = 98
+      Height = 13
+      Caption = 'mpv API version ???'
+      WordWrap = True
       IsControl = True
     end
   end
