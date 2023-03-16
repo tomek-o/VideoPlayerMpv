@@ -501,8 +501,11 @@ void __fastcall TfrmMain::FormMouseWheel(TObject *Sender, TShiftState Shift,
 	mplayer.changeVolumeAbs(val);
 	if (appSettings.Mplayer.useSeparateVolumeForEachFile)
 	{
-    	frmMediaBrowser->SetFileSoftVol(val);
+		frmMediaBrowser->SetFileSoftVol(val);
 	}
+	AnsiString text;
+	text.sprintf("Volume: %d", val);
+	mplayer.osdShowText(text, 1500);
 #endif
 }
 //---------------------------------------------------------------------------
