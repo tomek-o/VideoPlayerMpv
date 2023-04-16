@@ -36,6 +36,10 @@ const char* Action::getTypeDescription(enum Action::Type type)
 		return "delete file";
 	case TYPE_SHOW_LOG:
 		return "show log";
+	case TYPE_VOLUME_UP:
+		return "volume up";
+	case TYPE_VOLUME_DOWN:
+		return "volume down";
 
 	default:
 		return "???";

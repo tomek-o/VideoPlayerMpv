@@ -1,6 +1,6 @@
 //---------------------------------------------------------------------------
 
-#include <vcl.h>                                                           
+#include <vcl.h>
 #pragma hdrstop
 
 #include "FormMain.h"
@@ -220,7 +220,7 @@ void __fastcall TfrmMain::btnPlayClick(TObject *Sender)
 //---------------------------------------------------------------------------
 
 void __fastcall TfrmMain::pnlDragWindow(TObject *Sender,
-      TMouseButton Button, TShiftState Shift, int X, int Y)
+	  TMouseButton Button, TShiftState Shift, int X, int Y)
 {
 	if (Button == mbLeft)
 	{
@@ -405,7 +405,7 @@ void TfrmMain::CallbackMediaInfoUpdateFn(void)
 	double length = mplayer.getFileLength();
 	if (length >= 0)
 	{
-    	frmMediaBrowser->SetFileLength(length);
+		frmMediaBrowser->SetFileLength(length);
 	}
 }
 
@@ -486,27 +486,10 @@ void __fastcall TfrmMain::tmrCursorHideTimer(TObject *Sender)
 
 
 void __fastcall TfrmMain::FormMouseWheel(TObject *Sender, TShiftState Shift,
-      int WheelDelta, TPoint &MousePos, bool &Handled)
+	  int WheelDelta, TPoint &MousePos, bool &Handled)
 {
 	int delta = (WheelDelta>0)?(1):(-1);
-#if 0
-	mplayer.changeVolume(delta);
-#else
-	int val = mplayer.getCfg().softVolLevel + delta;
-	if (val < 0)
-		val = 0;
-	else if (val > mplayer.getCfg().softVolMax)
-		val = mplayer.getCfg().softVolMax;
-	appSettings.Mplayer.softVolLevel = val;
-	mplayer.changeVolumeAbs(val);
-	if (appSettings.Mplayer.useSeparateVolumeForEachFile)
-	{
-		frmMediaBrowser->SetFileSoftVol(val);
-	}
-	AnsiString text;
-	text.sprintf("Volume: %d", val);
-	mplayer.osdShowText(text, 1500);
-#endif
+	ChangeVolume(delta);
 }
 //---------------------------------------------------------------------------
 
@@ -541,6 +524,28 @@ void TfrmMain::ToggleOsd(void)
 	if (appSettings.Mplayer.osdLevel > Settings::_Mplayer::OSD_LEVEL_MAX)
 		appSettings.Mplayer.osdLevel = Settings::_Mplayer::OSD_LEVEL_MIN;
 	mplayer.setOsdLevel(appSettings.Mplayer.osdLevel);
+}
+
+void TfrmMain::ChangeVolume(int delta)
+{
+#if 0
+	mplayer.changeVolume(delta);
+#else
+	int val = mplayer.getCfg().softVolLevel + delta;
+	if (val < 0)
+		val = 0;
+	else if (val > mplayer.getCfg().softVolMax)
+		val = mplayer.getCfg().softVolMax;
+	appSettings.Mplayer.softVolLevel = val;
+	mplayer.changeVolumeAbs(val);
+	if (appSettings.Mplayer.useSeparateVolumeForEachFile)
+	{
+		frmMediaBrowser->SetFileSoftVol(val);
+	}
+	AnsiString text;
+	text.sprintf("Volume: %d", val);
+	mplayer.osdShowText(text, 1500);
+#endif
 }
 
 void __fastcall TfrmMain::btnFullscreenClick(TObject *Sender)
@@ -883,6 +888,12 @@ void TfrmMain::ExecAction(const struct Action& action)
 		break;
 	case Action::TYPE_SHOW_LOG:
 		actShowLogExecute(NULL);
+		break;
+	case Action::TYPE_VOLUME_UP:
+		ChangeVolume(1);
+		break;
+	case Action::TYPE_VOLUME_DOWN:
+		ChangeVolume(-1);
 		break;
 
 	default:
