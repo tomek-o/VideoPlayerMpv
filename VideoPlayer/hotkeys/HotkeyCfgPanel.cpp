@@ -124,7 +124,10 @@ void __fastcall THotkeyCfgPanel::UpdateCfg(TObject *Sender)
 	}
 	cfg.global = chbGlobal->Checked;
 	cfg.action.type = static_cast<Action::Type>(cbAction->ItemIndex);
-	UpdateActionTypeView();
+	if (Sender == cbAction)	// do not update action type if not needed - TEdit losing focus for script name 
+	{
+		UpdateActionTypeView();
+	}
 	//cfg.action.id = cbId->ItemIndex;
 }
 
