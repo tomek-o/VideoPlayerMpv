@@ -434,7 +434,7 @@ void TfrmMain::Play(void)
 				assert(entry);
 				if (entry->fileName != "")
 				{
-					text.sprintf("File: %s", ExtractFileName(entry->fileName).c_str());
+					text.sprintf("File: %s", System::AnsiToUtf8(ExtractFileName(entry->fileName)).c_str());
 					mplayer.osdShowText(text, 2000);					
 				}
 				else
@@ -826,7 +826,7 @@ void TfrmMain::ExecAction(const struct Action& action)
 		if (state == PLAY || state == PAUSE)
 		{
 			AnsiString text;
-			text.sprintf("File: %s", ExtractFileName(mplayer.getFilename()).c_str());
+			text.sprintf("File: %s", System::AnsiToUtf8(ExtractFileName(mplayer.getFilename())).c_str());
 			mplayer.osdShowText(text, 2000);
 		}
 		break;

@@ -91,7 +91,8 @@ int MPlayer::play(AnsiString filename, int softVolLevel, AnsiString extraParams)
 		mpv_set_property(mpv, "pause", MPV_FORMAT_FLAG, &flag);
 	}
 
-	const char *cmd[] = { "loadfile", filename.c_str(), NULL };
+	AnsiString utf8name = System::AnsiToUtf8(filename);
+	const char *cmd[] = { "loadfile", utf8name.c_str(), NULL };
 	int status = mpv_command(mpv, cmd);
 
 	return status;
