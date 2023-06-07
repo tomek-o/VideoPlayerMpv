@@ -4,16 +4,20 @@
 #pragma hdrstop
 //---------------------------------------------------------------------------
 USEFORM("hotkeys\FormHotkeys.cpp", frmHotkeys);
+USEFORM("scripting\FormLuaScript.cpp", frmLuaScript);
 USEFORM("FormMain.cpp", frmMain);
 USEFORM("FormSettings.cpp", frmSettings);
 USEFORM("FormAbout.cpp", frmAbout);
 USEFORM("LogUnit.cpp", frmLog);
 USEFORM("FormMediaBrowser.cpp", frmMediaBrowser);
 USEFORM("FormPlaylist.cpp", frmPlaylist);
+USEFORM("FormTextEditor.cpp", frmTextEditor);
 //---------------------------------------------------------------------------
 #pragma link "jsoncpp.lib"
 #pragma link "common.lib"
 #pragma link "libmpv-2.lib"
+#pragma link "lua_static.lib"
+#pragma link "scintilla.lib"
 
 WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 {

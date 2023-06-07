@@ -1,6 +1,8 @@
 #ifndef ActionH
 #define ActionH
 
+#include <System.hpp>
+
 struct Action
 {
 	enum Type
@@ -23,10 +25,13 @@ struct Action
 		TYPE_SHOW_LOG,
 		TYPE_VOLUME_UP,
 		TYPE_VOLUME_DOWN,
+		TYPE_SCRIPT,				///< execute script
+		TYPE_OPEN_SCRIPT_WINDOW,
 
 		TYPE_LIMITER
 	} type;
 	int id;
+	AnsiString file;			///< script file
 
 	Action(void):
 		type(TYPE_NONE),
@@ -36,7 +41,8 @@ struct Action
 
 	bool operator==(const Action& right) const {
 		if (type != right.type ||
-			id != right.id
+			id != right.id ||
+			file != right.file
 			)
 		{
 			return false;

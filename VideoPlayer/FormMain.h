@@ -80,6 +80,7 @@ private:	// User declarations
 	void SetState(enum STATE state);
 	void Play(void);
 	void Pause(void);
+	void Stop(void);
 	void Skip(void);
 	void Prev(void);
 	void ToggleFullscreen(void);
@@ -90,12 +91,16 @@ private:	// User declarations
 	void __fastcall WMDropFiles(TWMDropFiles &message);
 	int mouseMoveLastX, mouseMoveLastY;	// MouseMove is called 2x per second even if mouse is not moving - ?
 	void UpdateFilePos(void);
+	void OnAddOutputText(const char* text);
+	void OnClearOutput(void);
+	void RunScript(int srcType, int srcId, AnsiString filename, bool showLog);
 
 	const HotKeyConf *lastHotkey;
 	void RegisterGlobalHotKeys(void);
 	void __fastcall WMHotKey(TWMHotKey &Message);
 	void ExecAction(const struct Action& action);
 	bool MousePosOverControlPanel(const TPoint &Position);
+	int OnGetCurrentFileName(AnsiString &filename);	
 
 protected:
 	void __fastcall CreateParams(TCreateParams   &Params);

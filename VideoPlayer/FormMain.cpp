@@ -13,6 +13,8 @@
 #include "Mpv.h"
 #include "PlaylistEntry.h"
 #include "common/OS.h"
+#include "ScriptExec.h"
+#include "FormLuaScript.h"
 
 
 //---------------------------------------------------------------------------
@@ -114,6 +116,15 @@ void __fastcall TfrmMain::FormShow(TObject *Sender)
     if (!once)
     {
 		once = true;
+
+		{
+			AnsiString dir = ExtractFileDir(Application->ExeName) + "\\scripts";
+			if (ForceDirectories(dir) == false)
+			{
+				MessageBox(this->Handle, "Failed to create \"scripts\" subfolder!", this->Caption.c_str(), MB_ICONEXCLAMATION);
+			}
+		}
+
 		frmLog->SetLogLinesLimit(appSettings.Logging.iMaxUiLogLines);		
 		CLog::Instance()->SetLevel(E_LOG_TRACE);
 		CLog::Instance()->callbackLog = frmLog->OnLog;
@@ -137,6 +148,14 @@ void __fastcall TfrmMain::FormShow(TObject *Sender)
 		}
 
 		frmMediaBrowser->LoadPlaylists();
+
+		ScriptExec::CommonCallbacks cc(
+			&OnGetCurrentFileName,
+			&Stop,
+			&Skip,
+			&Play
+		);
+		ScriptExec::SetCommonCallbacks(cc);		
 
 		// load file specified with command line
 		if (ParamCount() == 1)
@@ -337,6 +356,52 @@ void __fastcall TfrmMain::FormKeyDown(TObject *Sender, WORD &Key,
 }
 //---------------------------------------------------------------------------
 
+void TfrmMain::RunScript(int srcType, int srcId, AnsiString filename, bool showLog)
+{
+	if (showLog)
+	{
+    	LOG("Running Lua script: %s\n", ExtractFileName(filename).c_str());
+	}
+	std::auto_ptr<TStrings> strings(new TStringList());
+	if (FileExists(filename))
+	{
+		AnsiString scriptText;
+		try
+		{
+			strings->LoadFromFile(filename);
+			scriptText = strings->Text;
+		}
+		catch(...)
+		{
+			AnsiString msg;
+			msg.sprintf("Failed to load script file (%s).", filename.c_str());
+			MessageBox(this->Handle, msg.c_str(), this->Caption.c_str(), MB_ICONEXCLAMATION);
+			return;
+		}
+
+		ScriptExec scriptExec(
+			static_cast<enum ScriptExec::SrcType>(srcType), srcId,
+			&OnAddOutputText, &OnClearOutput
+			);
+		scriptExec.Run(scriptText.c_str());
+	}
+	else
+	{
+		AnsiString msg;
+		msg.sprintf("Script file not found (%s).", filename.c_str());
+		MessageBox(this->Handle, msg.c_str(), this->Caption.c_str(), MB_ICONEXCLAMATION);
+    }	
+}
+
+void TfrmMain::OnAddOutputText(const char* text)
+{
+	LOG("%s", text);
+}
+
+void TfrmMain::OnClearOutput(void)
+{
+	return;
+}
 
 void TfrmMain::ShowMediaBrowser(bool state)
 {
@@ -765,12 +830,7 @@ void TfrmMain::ExecAction(const struct Action& action)
 	case Action::TYPE_NONE:
 		break;
 	case Action::TYPE_PLAY_STOP:
-		if (state == PLAY || state == PAUSE)
-		{
-			UpdateFilePos();
-			mplayer.stop(false);
-			SetState(STOP);
-		}
+		Stop();
 		break;
 	case Action::TYPE_PLAY_PAUSE:
 		if (state == PLAY || state == PAUSE)
@@ -897,9 +957,43 @@ void TfrmMain::ExecAction(const struct Action& action)
 	case Action::TYPE_VOLUME_DOWN:
 		ChangeVolume(-1);
 		break;
+	case Action::TYPE_SCRIPT:
+		if (action.file != "")
+		{
+			AnsiString asScriptFile;
+			asScriptFile.sprintf("%s\\scripts\\%s", ExtractFileDir(Application->ExeName).c_str(), action.file.c_str());
+			RunScript(ScriptExec::SRC_TYPE_ON_HOTKEY, -1, asScriptFile.c_str(), true);
+		}
+		break;
+
+	case Action::TYPE_OPEN_SCRIPT_WINDOW: {
+		TfrmLuaScript *frmLuaScript = new TfrmLuaScript(NULL);
+		//frmLuaScript->SetScript(asScript);
+		frmLuaScript->Show();
+	}
+		break;
 
 	default:
 		break;
+	}
+}
+
+int TfrmMain::OnGetCurrentFileName(AnsiString &filename)
+{
+	const PlaylistEntry* pe = frmMediaBrowser->GetFileToPlay();
+	if (pe == NULL)
+		return -1;
+	filename = pe->fileName;
+	return 0;
+}
+
+void TfrmMain::Stop(void)
+{
+	if (state == PLAY || state == PAUSE)
+	{
+		UpdateFilePos();
+		mplayer.stop(false);
+		SetState(STOP);
 	}
 }
 

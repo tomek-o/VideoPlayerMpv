@@ -40,7 +40,10 @@ const char* Action::getTypeDescription(enum Action::Type type)
 		return "volume up";
 	case TYPE_VOLUME_DOWN:
 		return "volume down";
-
+	case TYPE_SCRIPT:
+		return "script";
+	case TYPE_OPEN_SCRIPT_WINDOW:
+		return "open script window";
 	default:
 		return "???";
 	}

@@ -8,7 +8,14 @@
 #include "HotKeyConf.h"
 #include "common/KeybKeys.h"
 //#include "Settings.h"
+#include "FormLuaScript.h"
 #pragma package(smart_init)
+
+namespace {
+	enum { ACTION_COMBOBOX_WIDTH_SCRIPT = 110 };
+	enum { ACTION_COMBOBOX_WIDTH_REGULAR = 230 };
+}	// namespace
+
 //---------------------------------------------------------------------------
 // ValidCtrCheck is used to assure that the components created do not have
 // any pure virtual functions.
@@ -24,7 +31,7 @@ __fastcall THotkeyCfgPanel::THotkeyCfgPanel(TComponent* Owner, HotKeyConf &cfg)
 	: TPanel(Owner),
 	cfg(cfg)
 {
-	Width = 500;
+	Width = 596;
 	Height = 32;
 
 	int left = 16;
@@ -68,13 +75,14 @@ __fastcall THotkeyCfgPanel::THotkeyCfgPanel(TComponent* Owner, HotKeyConf &cfg)
 	cbKey->Width = 160;
 	cbKey->Style = Stdctrls::csDropDownList;
 	cbKey->Visible = true;
+	cbKey->DropDownCount = 12;
 
-	left += cbKey->Width + 30;
+	left += cbKey->Width + 10;
 	cbAction = new TComboBox(this);
 	cbAction->Parent = this;
 	cbAction->Left = left;
 	cbAction->Top = 5;
-	cbAction->Width = 130;
+	cbAction->Width = ACTION_COMBOBOX_WIDTH_SCRIPT;
 	cbAction->Style = Stdctrls::csDropDownList;
 	cbAction->Visible = true;
 #if 0
@@ -88,8 +96,37 @@ __fastcall THotkeyCfgPanel::THotkeyCfgPanel(TComponent* Owner, HotKeyConf &cfg)
 	cbId->Visible = true;
 	left += cbId->Width + 28;
 #else
-	left += cbAction->Width + 20;
+	left += cbAction->Width + 10;
 #endif
+	edFile = new TEdit(this);
+	edFile->Parent = this;
+	edFile->Left = left;
+	edFile->Top = 5;
+	edFile->Width = 80;
+	edFile->Visible = false;
+
+	left += edFile->Width + 6;
+	btnBrowse = new TButton(this);
+	btnBrowse->Parent = this;
+	btnBrowse->Left = left;
+	btnBrowse->Top = 5;
+	btnBrowse->Width = 20;
+	btnBrowse->Height = 20;
+	btnBrowse->Caption = "...";
+	btnBrowse->Visible = false;
+
+	left += btnBrowse->Width + 6;
+	btnEdit = new TButton(this);
+	btnEdit->Parent = this;
+	btnEdit->Left = left;
+	btnEdit->Top = 5;
+	btnEdit->Width = 28;
+	btnEdit->Height = 20;
+	btnEdit->Caption = "Edit";
+	btnEdit->Visible = false;
+
+	left += btnEdit->Width + 20;
+
 	btnRemove = new TButton(this);
 	btnRemove->Parent = this;
 	btnRemove->Left = left;
@@ -102,6 +139,11 @@ __fastcall THotkeyCfgPanel::THotkeyCfgPanel(TComponent* Owner, HotKeyConf &cfg)
 
 void __fastcall THotkeyCfgPanel::UpdateCfg(TObject *Sender)
 {
+	if (Sender == cbAction)	// do not update action type if not needed - TEdit losing focus for script name 
+	{
+		ChangeActionType();
+	}
+
 	cfg.modifiers = 0;
 	if (chbCtrl->Checked)
 		cfg.modifiers |= HotKeyConf::CTRL;
@@ -124,26 +166,10 @@ void __fastcall THotkeyCfgPanel::UpdateCfg(TObject *Sender)
 	}
 	cfg.global = chbGlobal->Checked;
 	cfg.action.type = static_cast<Action::Type>(cbAction->ItemIndex);
-	if (Sender == cbAction)	// do not update action type if not needed - TEdit losing focus for script name 
-	{
-		UpdateActionTypeView();
-	}
 	//cfg.action.id = cbId->ItemIndex;
+	cfg.action.file = edFile->Text;
 }
 
-void THotkeyCfgPanel::UpdateActionTypeView(void)
-{
-#if 0
-	if (cbAction->ItemIndex == Action::TYPE_BUTTON)
-	{
-		cbId->Visible = true;
-	}
-	else
-#endif
-	{
-		//cbId->Visible = false;
-	}
-}
 
 void THotkeyCfgPanel::Start(void)
 {
@@ -175,8 +201,9 @@ void THotkeyCfgPanel::Start(void)
 	chbAlt->Checked = cfg.modifiers & HotKeyConf::ALT;
 	cbKey->ItemIndex = vkey_find(cfg.keyCode.c_str());	// can't do this in constructor
 	cbAction->ItemIndex = cfg.action.type;
-	UpdateActionTypeView();
+	ChangeActionType();
 	//cbId->ItemIndex = cfg.action.id;
+	edFile->Text = cfg.action.file;
 	chbGlobal->Checked = cfg.global;
 
 	chbCtrl->OnClick = UpdateCfg;
@@ -185,7 +212,79 @@ void THotkeyCfgPanel::Start(void)
 	cbKey->OnChange = UpdateCfg;
 	cbAction->OnChange = UpdateCfg;
 	//cbId->OnChange = UpdateCfg;
+	edFile->OnChange = UpdateCfg;
 	chbGlobal->OnClick = UpdateCfg;
+	btnBrowse->OnClick = btnBrowseClick;
+	btnEdit->OnClick = btnEditClick;
+}
+
+void THotkeyCfgPanel::ChangeActionType(void)
+{
+	//cbId->Visible = false;
+	edFile->Visible = false;
+	btnBrowse->Visible = false;
+	btnEdit->Visible = false;
+
+	Action::Type type = static_cast<Action::Type>(cbAction->ItemIndex);
+	switch (type)
+	{
+	case Action::TYPE_NONE:
+		break;
+	case Action::TYPE_SCRIPT:
+		edFile->Visible = true;
+		btnBrowse->Visible = true;
+		btnEdit->Visible = true;
+		cbAction->Width = ACTION_COMBOBOX_WIDTH_SCRIPT;
+		break;
+	default:
+		break;
+	}
+
+	if (type != Action::TYPE_SCRIPT)
+	{
+		cbAction->Width = ACTION_COMBOBOX_WIDTH_REGULAR;
+	}
+}
+void __fastcall THotkeyCfgPanel::btnBrowseClick(TObject *Sender)
+{
+	TOpenDialog *openDialog = new TOpenDialog(NULL);
+
+	AnsiString dir = ExtractFileDir(Application->ExeName) + "\\scripts";
+	ForceDirectories(dir);
+	openDialog->InitialDir = dir;
+	openDialog->Filter = "Lua files (*.lua)|*.lua|All files|*.*";
+	AnsiString fileName = dir + "\\" + edFile->Text;
+	if (FileExists(fileName))
+		openDialog->FileName = fileName;
+	else
+		openDialog->FileName = "";
+	if (openDialog->Execute())
+	{
+		if (UpperCase(dir) != UpperCase(ExtractFileDir(openDialog->FileName)))
+		{
+			MessageBox(this->Handle, "Entry was not updated.\nFor portability script files must be placed in \"script\" subdirectory.", this->Caption.c_str(), MB_ICONEXCLAMATION);
+		}
+		else
+		{
+			edFile->Text = ExtractFileName(openDialog->FileName);
+		}
+	}
+
+	delete openDialog;
+}
+
+void __fastcall THotkeyCfgPanel::btnEditClick(TObject *Sender)
+{
+	AnsiString dir = ExtractFileDir(Application->ExeName) + "\\scripts";
+	ForceDirectories(dir);
+	if (edFile->Text == "")
+	{
+		edFile->Text = AnsiString("hotkey_") + FormatDateTime("yyyymmdd_hhnnss_zzz", Now()) + ".lua";
+	}
+	AnsiString fileName = dir + "\\" + edFile->Text;
+	TfrmLuaScript *frmLuaScript = new TfrmLuaScript(NULL);
+	frmLuaScript->OpenFile(fileName);
+	frmLuaScript->ShowModal();
 }
 
 //---------------------------------------------------------------------------

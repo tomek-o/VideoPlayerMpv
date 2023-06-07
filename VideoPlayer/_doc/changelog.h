@@ -94,5 +94,6 @@ Version 2.4
 Mpv:
 - storing/showing minimum and maximum video and audio bitrate values for each file
 - values displayed in main window as video/audio bitrates should be now treated as momentary
+- volume is shown as OSD text for 1500 ms when changed using mouse wheel
 */
 

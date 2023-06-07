@@ -57,6 +57,8 @@ void __fastcall TfrmHotkeys::btnAddHotkeyClick(TObject *Sender)
 
 	hkCfgPanels.push_back(cfgPanel);
 	cfgPanel->Start();
+
+	ScrollBox1->VertScrollBar->Position = ScrollBox1->VertScrollBar->Range;
 }
 //---------------------------------------------------------------------------
 

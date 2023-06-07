@@ -7,6 +7,7 @@
 //---------------------------------------------------------------------------
 #include <System.hpp>
 #include "HotKeyConf.h"
+#include "Mru.h"
 #include <list>
 #include <set>
 
@@ -78,6 +79,7 @@ public:
 	std::list<HotKeyConf> hotKeyConf;
 	std::set<AnsiString> hiddenPlaylists;
 	bool hiddenPlaylistsModified;
+	Mru mruLua;
 
 };
 

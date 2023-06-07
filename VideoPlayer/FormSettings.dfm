@@ -4,8 +4,8 @@ object frmSettings: TfrmSettings
   BorderIcons = [biSystemMenu]
   BorderStyle = bsSingle
   Caption = 'Settings'
-  ClientHeight = 353
-  ClientWidth = 524
+  ClientHeight = 363
+  ClientWidth = 621
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -21,17 +21,19 @@ object frmSettings: TfrmSettings
   TextHeight = 13
   object pnlBottom: TPanel
     Left = 0
-    Top = 316
-    Width = 524
+    Top = 326
+    Width = 621
     Height = 37
     Align = alBottom
     BevelOuter = bvNone
     TabOrder = 1
+    ExplicitTop = 316
+    ExplicitWidth = 524
     DesignSize = (
-      524
+      621
       37)
     object btnCancel: TButton
-      Left = 441
+      Left = 538
       Top = 6
       Width = 75
       Height = 25
@@ -39,9 +41,10 @@ object frmSettings: TfrmSettings
       Caption = 'Cancel'
       TabOrder = 1
       OnClick = btnCancelClick
+      ExplicitLeft = 441
     end
     object btnApply: TButton
-      Left = 360
+      Left = 457
       Top = 6
       Width = 75
       Height = 25
@@ -49,18 +52,22 @@ object frmSettings: TfrmSettings
       Caption = 'Apply'
       TabOrder = 0
       OnClick = btnApplyClick
+      ExplicitLeft = 360
     end
   end
   object pcSettings: TPageControl
     Left = 0
     Top = 0
-    Width = 524
-    Height = 316
+    Width = 621
+    Height = 326
     ActivePage = tsMplayer
     Align = alClient
     TabOrder = 0
+    ExplicitWidth = 524
+    ExplicitHeight = 316
     object tsGeneral: TTabSheet
       Caption = 'General'
+      ExplicitWidth = 622
       object lblControlPanelPosition: TLabel
         Left = 3
         Top = 49
@@ -123,6 +130,7 @@ object frmSettings: TfrmSettings
       Caption = 'Logging'
       ImageIndex = 1
       TabVisible = False
+      ExplicitWidth = 622
       object lblUiCapacity: TLabel
         Left = 5
         Top = 26
@@ -161,6 +169,8 @@ object frmSettings: TfrmSettings
     object tsMplayer: TTabSheet
       Caption = 'mpv'
       ImageIndex = 2
+      ExplicitWidth = 516
+      ExplicitHeight = 288
       object lblSoftVolMax: TLabel
         Left = 3
         Top = 3
@@ -203,6 +213,10 @@ object frmSettings: TfrmSettings
     object tsHotkeys: TTabSheet
       Caption = 'Hotkeys'
       ImageIndex = 3
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
     end
   end
   object OpenDialog: TOpenDialog

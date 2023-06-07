@@ -18,6 +18,7 @@ VideoPlayer: odtwarzacz TSK/audio: tray icon, context menu, file name in hint, r
 
 mpv:
 	- UTF-8
+	- allow to use extra "mplayer" parameters
 
 */
 

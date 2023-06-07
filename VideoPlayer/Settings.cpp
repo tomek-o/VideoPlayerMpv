@@ -274,6 +274,7 @@ int Settings::Read(AnsiString asFileName)
 					const Json::Value &action = hotkeyJson["action"];
 					cfg.action.type = static_cast<Action::Type>(action.get("type", cfg.action.type).asInt());
 					cfg.action.id = action.get("id", cfg.action.id).asInt();
+					action.getAString("file", cfg.action.file);
 				}
 			}
 		}
@@ -291,6 +292,8 @@ int Settings::Read(AnsiString asFileName)
 			}
 		}
 	}
+
+	mruLua.LoadFrom(root["MRULua"]);
 
 	return 0;
 }
@@ -341,6 +344,7 @@ int Settings::Write(AnsiString asFileName)
 			cfgJson["global"] = cfg.global;
 			cfgJson["action"]["type"] = cfg.action.type;
 			cfgJson["action"]["id"] = cfg.action.id;
+			cfgJson["action"]["file"] = cfg.action.file;
 		}
 	}
 
@@ -352,6 +356,8 @@ int Settings::Write(AnsiString asFileName)
         	jv.append(*iter);
 		}
 	}
+
+	mruLua.SaveTo(root["MRULua"]);
 
 	std::string outputConfig = writer.write( root );
 
