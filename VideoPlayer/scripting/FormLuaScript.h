@@ -46,6 +46,7 @@ __published:	// IDE-managed Components
 	TMenuItem *miCloseWindow;
 	TButton *btnLuacheck;
 	TListView *lvValidation;
+	TMenuItem *miCustomLuaFunctions;
 	TMemo *redOutput;
 	void __fastcall btnExecuteClick(TObject *Sender);
 	void __fastcall btnClearOutputWindowClick(TObject *Sender);
@@ -62,6 +63,7 @@ __published:	// IDE-managed Components
 	void __fastcall lvValidationData(TObject *Sender, TListItem *Item);
 	void __fastcall FormShow(TObject *Sender);
 	void __fastcall lvValidationDblClick(TObject *Sender);
+	void __fastcall miCustomLuaFunctionsClick(TObject *Sender);
 	void __fastcall FormKeyDown(TObject *Sender, WORD &Key, TShiftState Shift);
 private:	// User declarations
 	TfrmTextEditor *frmEditor;

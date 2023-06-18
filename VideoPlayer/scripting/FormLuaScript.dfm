@@ -147,6 +147,10 @@ object frmLuaScript: TfrmLuaScript
       object miHelpExamples: TMenuItem
         Caption = 'Examples'
       end
+      object miCustomLuaFunctions: TMenuItem
+        Caption = 'Custom Lua functions'
+        OnClick = miCustomLuaFunctionsClick
+      end
     end
   end
   object OpenDialog: TOpenDialog

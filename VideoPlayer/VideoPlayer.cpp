@@ -12,6 +12,7 @@ USEFORM("LogUnit.cpp", frmLog);
 USEFORM("FormMediaBrowser.cpp", frmMediaBrowser);
 USEFORM("FormPlaylist.cpp", frmPlaylist);
 USEFORM("FormTextEditor.cpp", frmTextEditor);
+USEFORM("scripting\FormLuaScriptHelp.cpp", frmLuaScriptHelp);
 //---------------------------------------------------------------------------
 #pragma link "jsoncpp.lib"
 #pragma link "common.lib"

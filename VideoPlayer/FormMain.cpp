@@ -116,7 +116,6 @@ void __fastcall TfrmMain::FormShow(TObject *Sender)
     if (!once)
     {
 		once = true;
-
 		{
 			AnsiString dir = ExtractFileDir(Application->ExeName) + "\\scripts";
 			if (ForceDirectories(dir) == false)
@@ -380,7 +379,7 @@ void TfrmMain::RunScript(int srcType, int srcId, AnsiString filename, bool showL
 		}
 
 		ScriptExec scriptExec(
-			static_cast<enum ScriptExec::SrcType>(srcType), srcId,
+			static_cast<enum ScriptSource>(srcType), srcId,
 			&OnAddOutputText, &OnClearOutput
 			);
 		scriptExec.Run(scriptText.c_str());
@@ -962,7 +961,7 @@ void TfrmMain::ExecAction(const struct Action& action)
 		{
 			AnsiString asScriptFile;
 			asScriptFile.sprintf("%s\\scripts\\%s", ExtractFileDir(Application->ExeName).c_str(), action.file.c_str());
-			RunScript(ScriptExec::SRC_TYPE_ON_HOTKEY, -1, asScriptFile.c_str(), true);
+			RunScript(SCRIPT_SRC_TYPE_ON_HOTKEY, -1, asScriptFile.c_str(), true);
 		}
 		break;
 

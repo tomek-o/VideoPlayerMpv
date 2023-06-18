@@ -9,40 +9,130 @@
 #include "lua.hpp"
 #include "common/Mutex.h"
 #include "common/ScopedLock.h"
+#include "common/Os.h"
 #include <Clipbrd.hpp>
+#include <psapi.h>
 #include <string>
-#include <map>
 #include <assert.h>
 #include <time.h>
+#include <map>
+#include <deque>
+
+#pragma link "psapi.lib"
 
 namespace {
-	std::map<lua_State*, ScriptExec*> contexts;
 
-	ScriptExec* GetContext(lua_State* L)
+std::map<lua_State*, ScriptExec*> contexts;
+
+ScriptExec* GetContext(lua_State* L)
+{
+	std::map<lua_State*, ScriptExec*>::iterator it;
+	it = contexts.find(L);
+	if (it == contexts.end())
 	{
-		std::map<lua_State*, ScriptExec*>::iterator it;
-		it = contexts.find(L);
-		if (it == contexts.end())
+		assert(!"Unregistered lua_State!");
+		return NULL;
+	}
+	return it->second;
+}
+
+/** \brief Mutex protecting access to variables */
+Mutex mutexVariables;
+/** \brief Named variables - shared by scripts and plugins */
+std::map<AnsiString, AnsiString> variables;
+
+/** \brief Mutex protecting access to queues */
+Mutex mutexQueues;
+/** \brief Named queues - shared by scripts and plugins */
+std::map<AnsiString, std::deque<AnsiString> > queues;
+
+long timediff(clock_t t1, clock_t t2) {
+	long elapsed;
+	elapsed = static_cast<long>(((double)t2 - t1) / CLOCKS_PER_SEC * 1000);
+	return elapsed;
+}
+
+struct {
+	HWND hWndFound;
+	const char* windowName;
+	const char* exeName;
+} findWindowData =
+	{ NULL, NULL, NULL };
+
+static BOOL CALLBACK EnumWindowsProc(HWND hWnd, LPARAM lParam)
+{
+	if (!hWnd)
+		return TRUE;		// Not a window
+	if (findWindowData.windowName)
+	{
+		char String[512];
+		if (!SendMessage(hWnd, WM_GETTEXT, sizeof(String), (LPARAM)String))
 		{
-			assert(!"Unregistered lua_State!");
-			return NULL;
+			return TRUE;		// No window title (length = 0)
 		}
-		return it->second;
+		if (strcmp(String, findWindowData.windowName))
+		{
+			return TRUE;
+		}
 	}
+	if (findWindowData.exeName)
+	{
+		//HINSTANCE hInstance = (HINSTANCE)GetWindowLong(hWnd, GWL_HINSTANCE);
+		DWORD dwProcessId;
+		DWORD dwThreadId = GetWindowThreadProcessId(hWnd, &dwProcessId);
+		(void)dwThreadId;
 
-	Mutex mutexVariables;
-	std::map<AnsiString, AnsiString> variables;
-
-	long timediff(clock_t t1, clock_t t2) {
-		long elapsed;
-		elapsed = static_cast<long>(((double)t2 - t1) / CLOCKS_PER_SEC * 1000);
-		return elapsed;
+		#define PROCESS_QUERY_LIMITED_INFORMATION 0x1000
+		HANDLE hProcess;
+		if (IsWinVistaOrLater())
+		{
+			hProcess = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, 0, dwProcessId);
+		}
+		else
+		{
+			hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, 0, dwProcessId);
+		}
+		BOOL result = TRUE;
+		if (hProcess)
+		{
+			char exeName[512] = {0};
+			if (GetProcessImageFileName(hProcess, exeName, sizeof(exeName)))
+			{
+				if (stricmp(exeName, findWindowData.exeName) == 0)
+				{
+					findWindowData.hWndFound = hWnd;
+					result = FALSE;
+				}
+			}
+			CloseHandle(hProcess);
+		}
+		return result;
 	}
+	return TRUE;
+}
 
-	ScriptExec::CommonCallbacks cc;	
-std::set<AnsiString> globalsSet;
+ScriptExec::CommonCallbacks cc;
+
+std::vector<ScriptExec::Symbol> symbols;
 bool globalsSetComplete = false;
-#define lua_register2(L,n,f) if (!globalsSetComplete) globalsSet.insert(n); lua_register(L,n,f)
+
+inline void AddSymbol(const char* name, const char* brief, const char* description)
+{
+	struct ScriptExec::Symbol s;
+	s.name = name;
+	s.brief = brief;
+	s.description = description;
+	symbols.push_back(s);
+}
+
+inline void lua_register2(Lua_State &L, lua_CFunction fn, const char* name, const char* brief, const char* description)
+{
+	if (!globalsSetComplete)
+	{
+		AddSymbol(name, brief, description);
+	}
+	lua_register(L, name, fn);
+}
 
 }	// namespace
 
@@ -52,29 +142,107 @@ void ScriptExec::SetCommonCallbacks(const CommonCallbacks &callbacks)
 	cc = callbacks;
 }
 
-class ScriptImp
-{
-public:
-
-static int SetVariable(const char* name, const char* value)
+int ScriptExec::SetVariable(const char* name, const char* value)
 {
 	ScopedLock<Mutex> lock(mutexVariables);
 	variables[name] = value;
 	return 0;
 }
 
-static int ClearVariable(const char* name)
+int ScriptExec::ClearVariable(const char* name)
 {
 	ScopedLock<Mutex> lock(mutexVariables);
 	std::map<AnsiString, AnsiString>::iterator it;
 	it = variables.find(name);
 	if (it != variables.end())
 	{
-        variables.erase(it);
+		variables.erase(it);
 	}
 	return 0;
 }
 
+void ScriptExec::QueuePush(const char* name, const char* value)
+{
+	ScopedLock<Mutex> lock(mutexQueues);
+	std::deque<AnsiString> &que = queues[name];
+	que.push_back(value);
+}
+
+int ScriptExec::QueuePop(const char* name, AnsiString &value)
+{
+	std::map<AnsiString, std::deque<AnsiString> >::iterator it;
+	it = queues.find(name);
+	if (it != queues.end())
+	{
+		std::deque<AnsiString> &que = it->second;
+		if (que.empty())
+		{
+            return -2;
+        }
+		value = que[0];
+		que.pop_front();
+		return 0;
+	}
+	return -1;
+}
+
+int ScriptExec::QueueClear(const char* name)
+{
+	std::map<AnsiString, std::deque<AnsiString> >::iterator it;
+	it = queues.find(name);
+	if (it != queues.end())
+	{
+		queues.erase(it);
+		return 0;
+	}
+	return -1;
+}
+
+int ScriptExec::QueueGetSize(const char* name)
+{
+	std::map<AnsiString, std::deque<AnsiString> >::iterator it;
+	it = queues.find(name);
+	if (it != queues.end())
+	{
+		return it->second.size();
+	}
+	return 0;
+}
+
+void ScriptExec::BreakAllScripts(void)
+{
+	std::map<lua_State*, ScriptExec*>::iterator it = contexts.begin();
+	while (it != contexts.end()) {
+		ScriptExec* se = it->second;
+		se->Break();
+		++it;
+	}
+}
+
+void ScriptExec::WaitWhileAnyRunning(unsigned int ms)
+{
+	const int sleepPerPoll = 10;
+	for (unsigned int i=0; i<ms/sleepPerPoll; i++) {
+		std::map<lua_State*, ScriptExec*>::iterator it = contexts.begin();
+		bool anyRunning = false;
+		while (it != contexts.end()) {
+			ScriptExec* se = it->second;
+			if (se->isRunning()) {
+				anyRunning = true;
+				break;
+			}
+			++it;
+		}
+		if (anyRunning == false) {
+			break;
+		}
+		Sleep(sleepPerPoll);
+	}
+}
+
+class ScriptImp
+{
+public:
 
 
 static int LuaPrint(lua_State *L)
@@ -156,6 +324,7 @@ static int l_InputQuery(lua_State* L)
 	return 2;
 }
 
+/** \note Sleep(ms) returns non-zero if break is called */
 static int l_Sleep(lua_State* L)
 {
 	int ret = 0;
@@ -226,6 +395,48 @@ static int l_ForceDirectories(lua_State* L)
 	return 1;
 }
 
+static int l_FindWindowByCaptionAndExeName(lua_State* L)
+{
+	static Mutex mutex;
+
+	ScopedLock<Mutex> lock(mutex);
+	findWindowData.hWndFound = NULL;
+
+	findWindowData.windowName = lua_tostring(L, 1);
+	const char* exeName = lua_tostring(L, 2);
+	AnsiString dosExeName = "";
+	if (exeName)
+	{
+		if (strlen(exeName) >= 2)
+		{
+			char targetPath[512];
+			char drive[3];
+			drive[0] = exeName[0];
+			drive[1] = exeName[1];
+			drive[2] = '\0';
+			if (QueryDosDevice(drive, targetPath, sizeof(targetPath)))
+			{
+				dosExeName.cat_printf("%s%s", targetPath, &exeName[2]);
+				findWindowData.exeName = dosExeName.c_str();
+			}
+		}
+	}
+	else
+	{
+		findWindowData.exeName = NULL;
+	}
+	if (findWindowData.windowName == NULL && findWindowData.exeName == NULL)
+	{
+		LOG("Lua: either window name or exe name is required\n");
+		lua_pushnumber(L, 0);
+		return 1;
+	}
+
+	::EnumWindows((WNDENUMPROC)EnumWindowsProc, NULL);
+
+	lua_pushnumber(L, reinterpret_cast<unsigned int>(findWindowData.hWndFound));
+	return 1;
+}
 static int l_SetVariable(lua_State* L)
 {
 	const char* name = lua_tostring( L, 1 );
@@ -240,7 +451,7 @@ static int l_SetVariable(lua_State* L)
 		LOG("Lua error: value == NULL\n");
 		return 0;
 	}
-	SetVariable(name, value);
+	ScriptExec::SetVariable(name, value);
 	return 0;
 }
 
@@ -278,7 +489,7 @@ static int l_ClearVariable(lua_State* L)
 		LOG("Lua error: name == NULL\n");
 		return 0;
 	}	
-	ClearVariable(name);
+	ScriptExec::ClearVariable(name);
 	return 0;
 }
 
@@ -288,6 +499,79 @@ static int l_ClearAllVariables(lua_State* L)
 	return 0;
 }
 
+static int l_QueuePush(lua_State* L)
+{
+	int argCnt = lua_gettop(L);
+	if (argCnt < 2)
+	{
+		LOG("Lua error: missing argument(s) for QueuePush() - 2 arguments required, %d received\n", argCnt);
+		return 0;
+	}
+	const char* queue_name = lua_tostring( L, 1 );
+	if (queue_name == NULL)
+	{
+		LOG("Lua error: queue_name == NULL\n");
+		return 0;
+	}
+	const char* value = lua_tostring( L, 2 );
+	if (value == NULL)
+	{
+		LOG("Lua error: value == NULL\n");
+		return 0;
+	}
+	ScriptExec::QueuePush(queue_name, value);
+	return 0;
+}
+
+static int l_QueuePop(lua_State* L)
+{
+	const char* queue_name = lua_tostring( L, 1 );
+	if (queue_name == NULL)
+	{
+		LOG("Lua error: queue_name == NULL\n");
+		return 0;
+	}
+	AnsiString value;
+	int ret = ScriptExec::QueuePop(queue_name, value);
+	lua_pushstring(L, value.c_str());
+	if (ret != 0)
+	{
+		lua_pushinteger(L, 0);
+	}
+	else
+	{
+		lua_pushinteger(L, 1);	// "valid"
+	}
+	return 2;
+}
+
+static int l_QueueClear(lua_State* L)
+{
+	const char* queue_name = lua_tostring( L, 1 );
+	if (queue_name == NULL)
+	{
+		LOG("Lua error: queue_name == NULL\n");
+		lua_pushinteger(L, -1);
+		return 1;
+	}
+	int ret = ScriptExec::QueueClear(queue_name);
+	lua_pushinteger(L, ret);
+	return 1;
+}
+
+static int l_QueueGetSize(lua_State* L)
+{
+	const char* queue_name = lua_tostring( L, 1 );
+	if (queue_name == NULL)
+	{
+		LOG("Lua error: queue_name == NULL\n");
+		lua_pushinteger(L, 0);
+		return 1;
+	}
+	int ret = ScriptExec::QueueGetSize(queue_name);
+	lua_pushinteger(L, ret);
+	return 1;
+}
 static int l_ShellExecute(lua_State* L)
 {
 	const char* verb = lua_tostring( L, 1 );
@@ -402,7 +686,7 @@ static int l_MoveFile(lua_State *L)
 };	// ScriptImp
 
 ScriptExec::ScriptExec(
-		enum SrcType srcType,
+		enum ScriptSource srcType,
 		int srcId,
 		CallbackAddOutputText onAddOutputText,
 		CallbackClearOutput onClearOutput
@@ -422,9 +706,9 @@ ScriptExec::~ScriptExec()
 {
 }
 
-const std::set<AnsiString>& ScriptExec::GetGlobals(void)
+const std::vector<ScriptExec::Symbol>& ScriptExec::GetSymbols(void)
 {
-	return globalsSet;
+	return symbols;
 }
 
 void ScriptExec::Run(const char* script)
@@ -435,35 +719,48 @@ void ScriptExec::Run(const char* script)
 	luaL_openlibs(L);
 	contexts[L] = this;
 
-	lua_register2(L, "_ALERT", ScriptImp::LuaError );
-	lua_register2(L, "print", ScriptImp::LuaPrint );
+	// do not include internal/standard functions in help
+	lua_register(L, "_ALERT", ScriptImp::LuaError);
+	lua_register(L, "print", ScriptImp::LuaPrint);
 
-	lua_register2(L, "ShowMessage", ScriptImp::l_ShowMessage);
-	lua_register2(L, "MessageBox", ScriptImp::l_MessageBox);
-	lua_register2(L, "InputQuery", ScriptImp::l_InputQuery);
-	lua_register2(L, "Sleep", ScriptImp::l_Sleep);
-	lua_register2(L, "Beep", ScriptImp::l_Beep);
-	lua_register2(L, "GetClipboardText", ScriptImp::l_GetClipboardText);
-	lua_register2(L, "SetClipboardText", ScriptImp::l_SetClipboardText);
-	lua_register2(L, "ForceDirectories", ScriptImp::l_ForceDirectories);
-	lua_register2(L, "SetVariable", ScriptImp::l_SetVariable);
-	lua_register2(L, "GetVariable", ScriptImp::l_GetVariable);
-	lua_register2(L, "ClearVariable", ScriptImp::l_ClearVariable);
-	lua_register2(L, "ClearAllVariables", ScriptImp::l_ClearAllVariables);
-	lua_register2(L, "GetExecSourceType", ScriptImp::l_GetExecSourceType);
-	lua_register2(L, "GetExecSourceId", ScriptImp::l_GetExecSourceId);
-	lua_register2(L, "GetExeName", ScriptImp::l_GetExeName);
-	lua_register2(L, "CheckBreak", ScriptImp::l_CheckBreak);
-	lua_register2(L, "ClearOutput", ScriptImp::l_ClearOutput);
+	lua_register2(L, ScriptImp::l_ShowMessage, "ShowMessage", "Show simple message dialog", "Example: ShowMessage(\"text\")");
+	lua_register2(L, ScriptImp::l_MessageBox, "MessageBox", "Show standard WinAPI MessageBox", "");
+	lua_register2(L, ScriptImp::l_InputQuery, "InputQuery", "Display modal dialog allowing to take text input from the user", "");
+	lua_register2(L, ScriptImp::l_Sleep, "Sleep", "Pause script for specified time (miliseconds)", "Function returns non-zero if it exited due to user break, zero if full delay passed. Example: Sleep(100).");
+	lua_register2(L, ScriptImp::l_Beep, "Beep", "Equivalent of WinAPI Beep(frequency, time)", "Example: Beep(400, 250).");
+	lua_register2(L, ScriptImp::l_CheckBreak, "CheckBreak", "Check if \"Break\" button was pressed by the user", "Allowing to interrupt scripts");
+	lua_register2(L, ScriptImp::l_GetClipboardText, "GetClipboardText", "Get clipboard content as text", "");
+	lua_register2(L, ScriptImp::l_SetClipboardText, "SetClipboardText", "Copy text to clipboard", "");
+	lua_register2(L, ScriptImp::l_ForceDirectories, "ForceDirectories", "Make sure directory path exists, possibly creating folders recursively", "Equivalent of VCL function with same name.");
+	lua_register2(L, ScriptImp::l_FindWindowByCaptionAndExeName, "FindWindowByCaptionAndExeName", "Search for window by caption and executable name", "");
 
-	lua_register2(L, "GetCurrentFileName", ScriptImp::l_GetCurrentFileName);
-	lua_register2(L, "Stop", ScriptImp::l_Stop);
-	lua_register2(L, "Skip", ScriptImp::l_Skip);
-	lua_register2(L, "Play", ScriptImp::l_Play);
-	lua_register2(L, "MoveFile", ScriptImp::l_MoveFile);
+	lua_register2(L, ScriptImp::l_SetVariable, "SetVariable", "Set value for variable with specified name", "Example: SetVariable(\"runcount\", count).");
+	lua_register2(L, ScriptImp::l_GetVariable, "GetVariable", "Get variable value and isSet flag for variable with specified name", "Example: local count, var_isset = GetVariable(\"runcount\")");
+	lua_register2(L, ScriptImp::l_ClearVariable, "ClearVariable", "Delete/unset variable with specified name", "Example: ClearVariable(\"runcount\")");
+	lua_register2(L, ScriptImp::l_ClearAllVariables, "ClearAllVariables", "Delete/unset all variables", "");
 
-	lua_register2(L, "BringToFront", ScriptImp::l_BringToFront);
-	lua_register2(L, "ShellExecute", ScriptImp::l_ShellExecute);
+	// QueuePush(queueName, stringValue)
+	lua_register2(L, ScriptImp::l_QueuePush, "QueuePush", "Push string value to queue with specified name", "");
+	lua_register2(L, ScriptImp::l_QueuePop, "QueuePop", "Get value from specified queue", "Example: local value, isValid = QueuePop(queueName)");
+	lua_register2(L, ScriptImp::l_QueueClear, "QueueClear", "Clear specified queue", "");
+	// local queue_size = QueueGetSize(queueName)
+	lua_register2(L, ScriptImp::l_QueueGetSize, "QueueGetSize", "Get number of elements in specified queue", "");
+
+	lua_register2(L, ScriptImp::l_GetExecSourceType, "GetExecSourceType", "Get type of event that triggered script execution", "See also: GetExecSourceId().");
+	lua_register2(L, ScriptImp::l_GetExecSourceId, "GetExecSourceId", "Get ID of object that triggered script (depending on trigger type)", "See also: GetExecSourceType().");
+
+	lua_register2(L, ScriptImp::l_GetExeName, "GetExeName", "Get name and full path of this executable",  "");
+
+	lua_register2(L, ScriptImp::l_ClearOutput, "ClearOutput", "Clear log in script window", "");
+
+	lua_register2(L, ScriptImp::l_GetCurrentFileName, "GetCurrentFileName", "Get the name of currently played file", "");
+	lua_register2(L, ScriptImp::l_Stop, "Stop", "Stop playing current file", "");
+	lua_register2(L, ScriptImp::l_Skip, "Skip", "Skip playing current file", "");
+	lua_register2(L, ScriptImp::l_Play, "Play", "Play file", "");
+	lua_register2(L, ScriptImp::l_MoveFile, "MoveFile", "Move (or rename) file from location A to B", "Usage: MoveFile(source, destination). Returns 0 on success.");
+
+	lua_register2(L, ScriptImp::l_BringToFront, "BringToFront", "Bring application window to front", "");
+	lua_register2(L, ScriptImp::l_ShellExecute, "ShellExecute", "Equivalent of WinAPI ShellExecute function", "");
 
 
 	// add library
@@ -471,12 +768,13 @@ void ScriptExec::Run(const char* script)
 
 	if (!globalsSetComplete)
 	{
-		globalsSet.insert("winapi.FindWindow");
-		globalsSet.insert("winapi.SendMessage");
-		globalsSet.insert("winapi.Beep");
-		globalsSet.insert("winapi.MessageBox");
-		globalsSet.insert("winapi.GetAsyncKeyState");
-		globalsSet.insert("winapi.PlaySound");
+		// symbols from tsip_winapi
+		AddSymbol("winapi.FindWindow", "WinAPI FindWindow equivalent", "");
+		AddSymbol("winapi.SendMessage", "WinAPI SendMessage equivalent", "Example use: sending WM_CLOSE to other application");
+		AddSymbol("winapi.Beep", "WinAPI Beep equivalent", "Same as Beep, example: Beep(frequencyHz, timeMs)");
+		AddSymbol("winapi.MessageBox", "WinAPI MessageBox equivalent", "");
+		AddSymbol("winapi.GetAsyncKeyState", "WinAPI GetAsyncKeyState equivalent", "Example use: modify button behavior depending on Ctrl/Alt/Shift state.");
+		AddSymbol("winapi.PlaySound", "WinAPI PlaySound equivalent", "");
 	}
 	globalsSetComplete = true;
 

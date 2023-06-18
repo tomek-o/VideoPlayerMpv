@@ -5,13 +5,14 @@
 
 #include "FormLuaScript.h"
 #include "FormTextEditor.h"
+#include "FormLuaScriptHelp.h"
 #include "FormAbout.h"
+#include "ScriptExec.h"
 #include "common/BtnController.h"
 #include "LuaExamples.h"
 #include "Settings.h"
 #include "Log.h"
 #include <memory>
-#include <set>
 #include <stdio.h>
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
@@ -71,9 +72,10 @@ bool GetNextLine(AnsiString &Line, AnsiString &buf, char &lastchar)
 }
 
 }	// namespace
+
 __fastcall TfrmLuaScript::TfrmLuaScript(TComponent* Owner)
 	: TForm(Owner),
-	scriptExec( ScriptExec::SRC_TYPE_FORM_LUA,
+	scriptExec( SCRIPT_SRC_TYPE_SCRIPT_WINDOW,
 				-1,
 				&AddOutputText,
 				&ClearOutput
@@ -97,7 +99,7 @@ __fastcall TfrmLuaScript::TfrmLuaScript(TComponent* Owner)
 	frmEditor->Parent = this;
 	frmEditor->Visible = true;
 
-	/** \todo Strange: style is not applied without this call (duplicating frmEditor constructor)
+	/** \note Strange: style is not applied without this call (duplicating frmEditor constructor)
 	*/
 	frmEditor->Init(SC_STYLE_LUA, 0, true);
 
@@ -528,7 +530,7 @@ void __fastcall TfrmLuaScript::btnLuacheckClick(TObject *Sender)
 
 	AnsiString command = (AnsiString)"\"" + appName + "\" \"" + asFile + "\" --formatter plain ";
 
-	const std::set<AnsiString> &globalsSet = ScriptExec::GetGlobals();
+	const std::vector<ScriptExec::Symbol> &globalsSet = ScriptExec::GetSymbols();
 	if (globalsSet.empty())
 	{
         // run once empty script to fill global function list
@@ -538,10 +540,10 @@ void __fastcall TfrmLuaScript::btnLuacheckClick(TObject *Sender)
 	if (!globalsSet.empty())
 	{
 		command += "--globals";
-		for (std::set<AnsiString>::const_iterator iter = globalsSet.begin(); iter != globalsSet.end(); ++iter)
+		for (std::vector<ScriptExec::Symbol>::const_iterator iter = globalsSet.begin(); iter != globalsSet.end(); ++iter)
 		{
 			command += " ";
-			command += *iter;
+			command += iter->name;
 		}
 	}
     // Create the process.
@@ -709,6 +711,21 @@ void __fastcall TfrmLuaScript::lvValidationDblClick(TObject *Sender)
 }
 //---------------------------------------------------------------------------
 
+void __fastcall TfrmLuaScript::miCustomLuaFunctionsClick(TObject *Sender)
+{
+	if (frmLuaScriptHelp == NULL)
+	{
+		Application->CreateForm(__classid(TfrmLuaScriptHelp), &frmLuaScriptHelp);
+	}
+	const std::vector<ScriptExec::Symbol>& symbols = ScriptExec::GetSymbols();
+	if (symbols.empty())
+	{
+		// run once empty script to fill global function list
+		scriptExec.Run("");
+	}	
+	frmLuaScriptHelp->Show();
+}
+//---------------------------------------------------------------------------
 
 void __fastcall TfrmLuaScript::FormKeyDown(TObject *Sender, WORD &Key,
       TShiftState Shift)

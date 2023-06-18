@@ -271,6 +271,8 @@
         <FILE FILENAME="ScEdit.cpp" CONTAINERID="CCompiler" LOCALCOMMAND="" UNITNAME="ScEdit" FORMNAME="" DESIGNCLASS="" ADDITIONAL="ScEdit.h"/>
         <FILE FILENAME="ScEditStyle.h" CONTAINERID="" LOCALCOMMAND="" UNITNAME="" FORMNAME="" DESIGNCLASS=""/>
         <FILE FILENAME="Mru.cpp" CONTAINERID="CCompiler" LOCALCOMMAND="" UNITNAME="Mru" FORMNAME="" DESIGNCLASS="" ADDITIONAL="Mru.h"/>
+        <FILE FILENAME="scripting\FormLuaScriptHelp.cpp" CONTAINERID="CCompiler" LOCALCOMMAND="" UNITNAME="FormLuaScriptHelp" FORMNAME="frmLuaScriptHelp" DESIGNCLASS="" ADDITIONAL="scripting\FormLuaScriptHelp.h"/>
+        <FILE FILENAME="scripting\ScriptSource.h" CONTAINERID="" LOCALCOMMAND="" UNITNAME="" FORMNAME="" DESIGNCLASS=""/>
       </FILELIST>
       <IDEOPTIONS>
         <VersionInfo>
