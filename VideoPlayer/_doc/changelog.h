@@ -91,9 +91,15 @@ Version 2.4
 - saving modified playlists with 120 s timer event (not only on exit) to prevent possible playlist loss in case of e.g. crash/reboot
 - files dropped to playlist are now not played automatically (to avoid unintentional loss of previously played file bookmark)
 
-Mpv:
+VideoPlayerMpv:
 - storing/showing minimum and maximum video and audio bitrate values for each file
 - values displayed in main window as video/audio bitrates should be now treated as momentary
 - volume is shown as OSD text for 1500 ms when changed using mouse wheel
+
+Version 3.1
+- added volume up/down hotkey action types
+- fixed global hotkeys
+- converting file names to UTF-8 when opening and for OSD
+- added Lua scripting
 */
 
