@@ -125,6 +125,12 @@ void Settings::SetDefault(void)
 		hk.action = action;
 		hotKeyConf.push_back(hk);
 
+		hk.keyCode = "S key";
+		hk.modifiers = 0;
+		action.type = Action::TYPE_TOGGLE_SUB_VISIBILITY;
+		hk.action = action;
+		hotKeyConf.push_back(hk);
+
 		hk.keyCode = "D key";
 		hk.modifiers = 0;
 		action.type = Action::TYPE_DELETE_FILE;
@@ -237,6 +243,7 @@ int Settings::Read(AnsiString asFileName)
 		jv.getInt("OsdLevel", Mplayer.osdLevel);
 		if (Mplayer.osdLevel < _Mplayer::OSD_LEVEL_MIN || Mplayer.osdLevel > _Mplayer::OSD_LEVEL_MAX)
 			Mplayer.osdLevel = _Mplayer::OSD_LEVEL_DEFAULT;
+		jv.getBool("SubVisibility", Mplayer.subVisibility);
 		jv.getBool("ShowFileNameOnPlayStart", Mplayer.showFileNameOnPlayStart);
 		jv.getBool("UseSeparateVolumeForEachFile", Mplayer.useSeparateVolumeForEachFile);
 	}
@@ -323,6 +330,7 @@ int Settings::Write(AnsiString asFileName)
 		jv["SoftVolMax"] =  Mplayer.softVolMax;
 		jv["SoftVolLevel"] = Mplayer.softVolLevel;
 		jv["OsdLevel"] = Mplayer.osdLevel;
+		jv["SubVisibility"] = Mplayer.subVisibility;
 		jv["ShowFileNameOnPlayStart"] = Mplayer.showFileNameOnPlayStart;
 		jv["UseSeparateVolumeForEachFile"] = Mplayer.useSeparateVolumeForEachFile;
 	}

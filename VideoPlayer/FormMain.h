@@ -85,6 +85,7 @@ private:	// User declarations
 	void Prev(void);
 	void ToggleFullscreen(void);
 	void ToggleOsd(void);
+	void ToggleSubVisibility(void);
 	void ChangeVolume(int delta);
 	void OpenFiles(std::vector<AnsiString> filenames);
 	void WriteSettings(void);

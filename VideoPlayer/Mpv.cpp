@@ -213,6 +213,16 @@ int MPlayer::osdShowText(AnsiString text, int duration)
 	return mpv_command(mpv, cmd);
 }
 
+int MPlayer::setSubVisibility(bool state)
+{
+	int val = state ? 1 : 0;
+	if (mpv_set_property(mpv, "sub-visibility", MPV_FORMAT_FLAG, &val) < 0) {
+		LOG("failed to set mpv sub-visibility");
+		return -1;
+	}
+	return 0;
+}
+
 int MPlayer::stop(bool useCallback)
 {
 	if (mpv == NULL)
@@ -405,6 +415,17 @@ int MPlayer::mpvCreate(void)
         	LOG("mpv osd-bar enabled");
 		}
 	}
+#if 0
+	{
+        // subtitle track id
+		int val = 1;
+		if (mpv_set_property(mpv, "sid", MPV_FORMAT_INT64, &val) < 0) {
+			LOG("failed to set mpv sid");
+		} else {
+			LOG("mpv sid set");
+		}
+	}
+#endif
 
 	mpv_observe_property(mpv, 0, "media-title", MPV_FORMAT_NONE);
 	mpv_observe_property(mpv, 0, "video-bitrate", MPV_FORMAT_DOUBLE);

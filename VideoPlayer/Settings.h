@@ -60,12 +60,14 @@ public:
 		enum { OSD_LEVEL_MIN = 0 };
 		enum { OSD_LEVEL_DEFAULT = 1 };
 		enum { OSD_LEVEL_MAX = 3 };
+		bool subVisibility;
 		bool showFileNameOnPlayStart;
 		bool useSeparateVolumeForEachFile;
 		_Mplayer(void):
 			softVolLevel(100),
 			softVolMax(SOFTVOL_MAX_DEF),
 			osdLevel(OSD_LEVEL_DEFAULT),
+			subVisibility(true),
 			showFileNameOnPlayStart(true),
 			useSeparateVolumeForEachFile(false)
 		{}

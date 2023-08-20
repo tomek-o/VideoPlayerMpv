@@ -27,6 +27,7 @@ struct Action
 		TYPE_VOLUME_DOWN,
 		TYPE_SCRIPT,				///< execute script
 		TYPE_OPEN_SCRIPT_WINDOW,
+		TYPE_TOGGLE_SUB_VISIBILITY,
 
 		TYPE_LIMITER
 	} type;

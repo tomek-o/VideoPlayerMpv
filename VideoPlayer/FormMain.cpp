@@ -494,6 +494,7 @@ void TfrmMain::Play(void)
 			}
 			mplayer.play(entry->fileName, volume, entry->mplayerExtraParams);
 			mplayer.setOsdLevel(appSettings.Mplayer.osdLevel);
+			mplayer.setSubVisibility(appSettings.Mplayer.subVisibility);
 			if (appSettings.Mplayer.showFileNameOnPlayStart)
 			{
 				AnsiString text;
@@ -591,6 +592,12 @@ void TfrmMain::ToggleOsd(void)
 	if (appSettings.Mplayer.osdLevel > Settings::_Mplayer::OSD_LEVEL_MAX)
 		appSettings.Mplayer.osdLevel = Settings::_Mplayer::OSD_LEVEL_MIN;
 	mplayer.setOsdLevel(appSettings.Mplayer.osdLevel);
+}
+
+void TfrmMain::ToggleSubVisibility(void)
+{
+	appSettings.Mplayer.subVisibility = !appSettings.Mplayer.subVisibility;
+	mplayer.setSubVisibility(appSettings.Mplayer.subVisibility);
 }
 
 void TfrmMain::ChangeVolume(int delta)
@@ -909,6 +916,12 @@ void TfrmMain::ExecAction(const struct Action& action)
 		if (state == PLAY || state == PAUSE)
 		{
 			ToggleOsd();
+		}
+		break;
+	case Action::TYPE_TOGGLE_SUB_VISIBILITY:
+		if (state == PLAY || state == PAUSE)
+		{
+        	ToggleSubVisibility();
 		}
 		break;
 	case Action::TYPE_SKIP:

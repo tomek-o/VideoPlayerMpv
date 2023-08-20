@@ -76,6 +76,9 @@ public:
 	int changeVolume(int delta);
 	int changeVolumeAbs(int val);
 	int osdShowText(AnsiString text, int duration);
+	/** \brief Enable/disable subtitles (e.g. from mkv)
+	*/
+	int setSubVisibility(bool state);
 	int stop(bool useCallback = true);
 
 	void onStopPlayingFn(void);
