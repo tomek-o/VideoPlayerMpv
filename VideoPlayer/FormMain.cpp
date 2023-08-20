@@ -165,6 +165,8 @@ void __fastcall TfrmMain::FormShow(TObject *Sender)
 			files.push_back(ParamStr(1));
 			OpenFiles(files);
 		}
+
+		frmMediaBrowser->Focus();
 	}
 	LOG("Application started");
 }
