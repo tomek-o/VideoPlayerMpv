@@ -14,7 +14,7 @@
 		</Source>
 		<BCBPROJECT>
       <project version="10.0">
-        <property category="build.config" name="active" value="1"/>
+        <property category="build.config" name="active" value="0"/>
         <property category="build.config" name="count" value="1"/>
         <property category="build.config" name="excludedefaultforzero" value="0"/>
         <property category="build.config.0" name="builddir" value="Debug"/>
@@ -149,6 +149,9 @@
           <property category="win32.*.win32b.ilink32" name="option.aa.enabled" value="0"/>
           <property category="win32.*.win32b.ilink32" name="option.ap.enabled" value="0"/>
           <property category="win32.*.win32b.ilink32" name="option.dynamicrtl.enabled" value="1"/>
+          <property category="win32.*.win32b.tlib" name="option.P.arg" value="32"/>
+          <property category="win32.*.win32b.tlib" name="option.P.arg.merge" value="1"/>
+          <property category="win32.*.win32b.tlib" name="option.P.enabled" value="1"/>
           <property category="win32.*.win32b.tlib" name="option.dynamicrtl.enabled" value="0"/>
         </optionset>
       </project>
@@ -174,6 +177,7 @@
         <FILE FILENAME="WindowsMessageFilter.cpp" CONTAINERID="CCompiler" LOCALCOMMAND="" UNITNAME="WindowsMessageFilter" FORMNAME="" DESIGNCLASS="" ADDITIONAL="WindowsMessageFilter.h"/>
         <FILE FILENAME="MathUtils.cpp" CONTAINERID="CCompiler" LOCALCOMMAND="" UNITNAME="MathUtils" FORMNAME="" DESIGNCLASS="" ADDITIONAL="MathUtils.h"/>
         <FILE FILENAME="StaticCheck.h" CONTAINERID="" LOCALCOMMAND="" UNITNAME="" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="DebugFileBinaryDump.cpp" CONTAINERID="CCompiler" LOCALCOMMAND="" UNITNAME="DebugFileBinaryDump" FORMNAME="" DESIGNCLASS="" ADDITIONAL="DebugFileBinaryDump.h"/>
       </FILELIST>
       <IDEOPTIONS>
         <VersionInfo>
