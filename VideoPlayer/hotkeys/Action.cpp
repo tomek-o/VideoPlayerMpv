@@ -46,6 +46,8 @@ const char* Action::getTypeDescription(enum Action::Type type)
 		return "open script window";
 	case TYPE_TOGGLE_SUB_VISIBILITY:
 		return "toggle subtitles visibility";
+	case TYPE_PAUSE_FRAME_STEP:
+		return "pause / frame step";
 	default:
 		return "???";
 	}

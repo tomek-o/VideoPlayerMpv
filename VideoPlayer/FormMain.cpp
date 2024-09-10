@@ -846,6 +846,9 @@ void TfrmMain::ExecAction(const struct Action& action)
 			Pause();
 		}
 		break;
+	case Action::TYPE_PAUSE_FRAME_STEP:
+		btnPauseStillClick(NULL);
+		break;
 	case Action::TYPE_SEEK_M3:
 		if (state == PLAY || state == PAUSE)
 		{
