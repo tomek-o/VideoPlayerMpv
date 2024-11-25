@@ -567,21 +567,37 @@ void Playlist::markClear(unsigned int id)
 
 void Playlist::markDuplicatesBySize(void)
 {
-	std::map<uint64_t, unsigned int> sizes;
+	// ignore duplicated list entries first
+	std::set<AnsiString> filenames;
+	std::vector<FilteredPlaylistEntry> nondupEntries;
 	for (unsigned int i=0; i<entries.size(); i++)
 	{
-		PlaylistEntry& entry = entries[i];
-		std::map<uint64_t, unsigned int>::iterator iter = sizes.find(entry.size);
+		const PlaylistEntry& entry = entries[i];
+		if (filenames.find(entry.fileName) == filenames.end())
+		{
+			filenames.insert(entry.fileName);
+			FilteredPlaylistEntry fe;
+			fe.id = i;
+			fe.entry = entry;
+			nondupEntries.push_back(fe);
+		}
+	}
+
+	std::map<uint64_t, unsigned int> sizes;
+	for (unsigned int i=0; i<nondupEntries.size(); i++)
+	{
+		FilteredPlaylistEntry& fe = nondupEntries[i];
+		std::map<uint64_t, unsigned int>::iterator iter = sizes.find(fe.entry.size);
 		if (iter != sizes.end())
 		{
-			entry.mark = true;
+			entries[fe.id].mark = true;
 			PlaylistEntry& prevEntry = entries[iter->second];
 			prevEntry.mark = true;
 			modified = true;
 		}
 		else
 		{
-			sizes[entry.size] = i;
+			sizes[fe.entry.size] = i;
 		}
 	}
 	if (modified)
