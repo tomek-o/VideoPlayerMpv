@@ -101,5 +101,12 @@ Version 3.1
 - fixed global hotkeys
 - converting file names to UTF-8 when opening and for OSD
 - added Lua scripting
+
+Version 3.2
+- focusing playlist on startup
+- added new hotkey action types:
+	- toggling subtitles on/off
+	- pause / frame step
+- ignoring files added to playlist twice when searching for duplicated files by size
 */
 
