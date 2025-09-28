@@ -273,6 +273,7 @@
         <FILE FILENAME="Mru.cpp" CONTAINERID="CCompiler" LOCALCOMMAND="" UNITNAME="Mru" FORMNAME="" DESIGNCLASS="" ADDITIONAL="Mru.h"/>
         <FILE FILENAME="scripting\FormLuaScriptHelp.cpp" CONTAINERID="CCompiler" LOCALCOMMAND="" UNITNAME="FormLuaScriptHelp" FORMNAME="frmLuaScriptHelp" DESIGNCLASS="" ADDITIONAL="scripting\FormLuaScriptHelp.h"/>
         <FILE FILENAME="scripting\ScriptSource.h" CONTAINERID="" LOCALCOMMAND="" UNITNAME="" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="FormMpvSetProperty.cpp" CONTAINERID="CCompiler" LOCALCOMMAND="" UNITNAME="FormMpvSetProperty" FORMNAME="frmMpvSetProperty" DESIGNCLASS="" ADDITIONAL="FormMpvSetProperty.h"/>
       </FILELIST>
       <IDEOPTIONS>
         <VersionInfo>

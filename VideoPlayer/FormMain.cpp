@@ -15,6 +15,7 @@
 #include "common/OS.h"
 #include "ScriptExec.h"
 #include "FormLuaScript.h"
+#include "FormMpvSetProperty.h"
 
 
 //---------------------------------------------------------------------------
@@ -213,6 +214,15 @@ void TfrmMain::ApplySettings(const Settings &prev)
 	mcfg.softVolLevel = appSettings.Mplayer.softVolLevel;
 	mcfg.softVolMax = appSettings.Mplayer.softVolMax;
 	mplayer.configure(mcfg);
+
+	if (appSettings.Mplayer.showPropertyEditor)
+	{
+		frmMpvSetProperty->Show();
+	}
+	else
+	{
+		frmMpvSetProperty->Close();
+	}
 
 	if (prev.hotKeyConf != appSettings.hotKeyConf)
 	{

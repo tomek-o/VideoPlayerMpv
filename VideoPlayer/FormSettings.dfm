@@ -27,8 +27,6 @@ object frmSettings: TfrmSettings
     Align = alBottom
     BevelOuter = bvNone
     TabOrder = 1
-    ExplicitTop = 316
-    ExplicitWidth = 524
     DesignSize = (
       621
       37)
@@ -41,7 +39,6 @@ object frmSettings: TfrmSettings
       Caption = 'Cancel'
       TabOrder = 1
       OnClick = btnCancelClick
-      ExplicitLeft = 441
     end
     object btnApply: TButton
       Left = 457
@@ -52,7 +49,6 @@ object frmSettings: TfrmSettings
       Caption = 'Apply'
       TabOrder = 0
       OnClick = btnApplyClick
-      ExplicitLeft = 360
     end
   end
   object pcSettings: TPageControl
@@ -63,11 +59,8 @@ object frmSettings: TfrmSettings
     ActivePage = tsMplayer
     Align = alClient
     TabOrder = 0
-    ExplicitWidth = 524
-    ExplicitHeight = 316
     object tsGeneral: TTabSheet
       Caption = 'General'
-      ExplicitWidth = 622
       object lblControlPanelPosition: TLabel
         Left = 3
         Top = 49
@@ -130,7 +123,6 @@ object frmSettings: TfrmSettings
       Caption = 'Logging'
       ImageIndex = 1
       TabVisible = False
-      ExplicitWidth = 622
       object lblUiCapacity: TLabel
         Left = 5
         Top = 26
@@ -169,8 +161,6 @@ object frmSettings: TfrmSettings
     object tsMplayer: TTabSheet
       Caption = 'mpv'
       ImageIndex = 2
-      ExplicitWidth = 516
-      ExplicitHeight = 288
       object lblSoftVolMax: TLabel
         Left = 3
         Top = 3
@@ -209,14 +199,18 @@ object frmSettings: TfrmSettings
         Caption = 'Use separate volume for each file from playlist'
         TabOrder = 2
       end
+      object chbMpvShowPropertyEditor: TCheckBox
+        Left = 3
+        Top = 95
+        Width = 318
+        Height = 17
+        Caption = 'Show mpv property editor / test tool'
+        TabOrder = 3
+      end
     end
     object tsHotkeys: TTabSheet
       Caption = 'Hotkeys'
       ImageIndex = 3
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
     end
   end
   object OpenDialog: TOpenDialog

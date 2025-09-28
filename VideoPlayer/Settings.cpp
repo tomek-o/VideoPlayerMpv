@@ -246,6 +246,7 @@ int Settings::Read(AnsiString asFileName)
 		jv.getBool("SubVisibility", Mplayer.subVisibility);
 		jv.getBool("ShowFileNameOnPlayStart", Mplayer.showFileNameOnPlayStart);
 		jv.getBool("UseSeparateVolumeForEachFile", Mplayer.useSeparateVolumeForEachFile);
+		jv.getBool("ShowPropertyEditor", Mplayer.showPropertyEditor);
 	}
 
 	{
@@ -257,7 +258,7 @@ int Settings::Read(AnsiString asFileName)
 		const Json::Value &hotkeyConfJson = root["hotkeyConf"];
 		if (hotkeyConfJson.type() == Json::arrayValue)
 		{
-            hotKeyConf.resize(hotkeyConfJson.size());
+			hotKeyConf.resize(hotkeyConfJson.size());
 			std::list<HotKeyConf>::iterator iter = hotKeyConf.begin();
 
 			for (unsigned int i=0; i<hotkeyConfJson.size(); i++)
@@ -333,6 +334,7 @@ int Settings::Write(AnsiString asFileName)
 		jv["SubVisibility"] = Mplayer.subVisibility;
 		jv["ShowFileNameOnPlayStart"] = Mplayer.showFileNameOnPlayStart;
 		jv["UseSeparateVolumeForEachFile"] = Mplayer.useSeparateVolumeForEachFile;
+		jv["ShowPropertyEditor"] = Mplayer.showPropertyEditor;
 	}
 
 	{

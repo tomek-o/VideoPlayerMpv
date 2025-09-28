@@ -108,5 +108,8 @@ Version 3.2
 	- toggling subtitles on/off
 	- pause / frame step
 - ignoring files added to playlist twice when searching for duplicated files by size
+
+Vesion 3.x
+- added tool window for testing mpv properties (setting name + value as string) 
 */
 

@@ -13,6 +13,7 @@ USEFORM("FormMediaBrowser.cpp", frmMediaBrowser);
 USEFORM("FormPlaylist.cpp", frmPlaylist);
 USEFORM("FormTextEditor.cpp", frmTextEditor);
 USEFORM("scripting\FormLuaScriptHelp.cpp", frmLuaScriptHelp);
+USEFORM("FormMpvSetProperty.cpp", frmMpvSetProperty);
 //---------------------------------------------------------------------------
 #pragma link "jsoncpp.lib"
 #pragma link "common.lib"
@@ -30,6 +31,7 @@ WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		Application->CreateForm(__classid(TfrmLog), &frmLog);
 		Application->CreateForm(__classid(TfrmSettings), &frmSettings);
 		Application->CreateForm(__classid(TfrmAbout), &frmAbout);
+		Application->CreateForm(__classid(TfrmMpvSetProperty), &frmMpvSetProperty);
 		Application->Run();
 	}
 	catch (Exception &exception)

@@ -56,6 +56,7 @@ void __fastcall TfrmSettings::FormShow(TObject *Sender)
 	edMplayerSoftVolMax->Text = tmpSettings.Mplayer.softVolMax;
 	chbUseSeparateVolumeForEachFile->Checked = tmpSettings.Mplayer.useSeparateVolumeForEachFile;
 	chbMplayerShowFileNameOnPlayStart->Checked = tmpSettings.Mplayer.showFileNameOnPlayStart;
+	chbMpvShowPropertyEditor->Checked = tmpSettings.Mplayer.showPropertyEditor;
 
 	frmHotkeys->SetCfg(&tmpSettings.hotKeyConf);
 }
@@ -77,6 +78,7 @@ void __fastcall TfrmSettings::btnApplyClick(TObject *Sender)
 	tmpSettings.Mplayer.useSeparateVolumeForEachFile = chbUseSeparateVolumeForEachFile->Checked;
 
 	tmpSettings.Mplayer.showFileNameOnPlayStart = chbMplayerShowFileNameOnPlayStart->Checked;
+	tmpSettings.Mplayer.showPropertyEditor = chbMpvShowPropertyEditor->Checked;
 
 	*appSettings = tmpSettings;
 	this->Close();	

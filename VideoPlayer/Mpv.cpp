@@ -463,6 +463,8 @@ void MPlayer::applyConfiguration(void)
 	}
 
 	changeVolumeAbs(cfg.softVolLevel);
+
+
 }
 
 AnsiString MPlayer::getApiVersion(void)
@@ -475,3 +477,16 @@ AnsiString MPlayer::getApiVersion(void)
 	return str;
 }
 
+int MPlayer::setProperty(AnsiString name, AnsiString value)
+{
+	if (mpv == NULL)
+		return -1;
+	const char* val = value.c_str();
+	if (mpv_set_property(mpv, name.c_str(), MPV_FORMAT_STRING, &val) < 0) {
+		LOG("failed to set mpv %s to %s", name.c_str(), val);
+		return -1;
+	} else {
+		LOG("mpv property %s set to %s", name.c_str(), val);
+		return 0;
+	}
+}

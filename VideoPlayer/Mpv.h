@@ -113,6 +113,8 @@ public:
 
 	static AnsiString getApiVersion(void);
 
+	int setProperty(AnsiString name, AnsiString value);
+
 private:
 	Cfg cfg;
 	bool fileStarted;

@@ -63,13 +63,15 @@ public:
 		bool subVisibility;
 		bool showFileNameOnPlayStart;
 		bool useSeparateVolumeForEachFile;
+		bool showPropertyEditor;
 		_Mplayer(void):
 			softVolLevel(100),
 			softVolMax(SOFTVOL_MAX_DEF),
 			osdLevel(OSD_LEVEL_DEFAULT),
 			subVisibility(true),
 			showFileNameOnPlayStart(true),
-			useSeparateVolumeForEachFile(false)
+			useSeparateVolumeForEachFile(false),
+			showPropertyEditor(false)
 		{}
 	} Mplayer;
 	struct MediaBrowser
