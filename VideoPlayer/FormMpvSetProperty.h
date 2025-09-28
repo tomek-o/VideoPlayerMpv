@@ -17,7 +17,11 @@ __published:	// IDE-managed Components
 	TEdit *edValue;
 	TButton *btnSet;
 	TLabel *lblStatus;
+	TLabel *lblExamples;
+	TComboBox *cbExamples;
+	TButton *btnLoadExample;
 	void __fastcall btnSetClick(TObject *Sender);
+	void __fastcall btnLoadExampleClick(TObject *Sender);
 private:	// User declarations
 public:		// User declarations
 	__fastcall TfrmMpvSetProperty(TComponent* Owner);

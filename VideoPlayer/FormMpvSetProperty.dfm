@@ -4,7 +4,7 @@ object frmMpvSetProperty: TfrmMpvSetProperty
   BorderIcons = [biMinimize, biMaximize]
   BorderStyle = bsSingle
   Caption = 'Set MPV property'
-  ClientHeight = 115
+  ClientHeight = 157
   ClientWidth = 479
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -18,28 +18,35 @@ object frmMpvSetProperty: TfrmMpvSetProperty
   TextHeight = 13
   object lblName: TLabel
     Left = 8
-    Top = 8
+    Top = 48
     Width = 27
     Height = 13
     Caption = 'Name'
   end
   object lblValue: TLabel
     Left = 8
-    Top = 32
+    Top = 72
     Width = 26
     Height = 13
     Caption = 'Value'
   end
   object lblStatus: TLabel
     Left = 44
-    Top = 57
+    Top = 97
     Width = 3
     Height = 13
   end
+  object lblExamples: TLabel
+    Left = 8
+    Top = 8
+    Width = 45
+    Height = 13
+    Caption = 'Examples'
+  end
   object edName: TEdit
-    Left = 44
-    Top = 5
-    Width = 421
+    Left = 64
+    Top = 45
+    Width = 401
     Height = 22
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
@@ -50,9 +57,9 @@ object frmMpvSetProperty: TfrmMpvSetProperty
     TabOrder = 0
   end
   object edValue: TEdit
-    Left = 44
-    Top = 29
-    Width = 421
+    Left = 64
+    Top = 69
+    Width = 401
     Height = 22
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
@@ -63,12 +70,30 @@ object frmMpvSetProperty: TfrmMpvSetProperty
     TabOrder = 1
   end
   object btnSet: TButton
-    Left = 390
-    Top = 82
-    Width = 75
+    Left = 344
+    Top = 122
+    Width = 121
     Height = 25
-    Caption = 'Set'
+    Caption = 'Set property'
     TabOrder = 2
     OnClick = btnSetClick
+  end
+  object cbExamples: TComboBox
+    Left = 64
+    Top = 5
+    Width = 265
+    Height = 21
+    Style = csDropDownList
+    ItemHeight = 13
+    TabOrder = 3
+  end
+  object btnLoadExample: TButton
+    Left = 344
+    Top = 3
+    Width = 121
+    Height = 25
+    Caption = 'Load example'
+    TabOrder = 4
+    OnClick = btnLoadExampleClick
   end
 end
