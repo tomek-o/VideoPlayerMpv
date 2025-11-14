@@ -56,7 +56,7 @@ object frmSettings: TfrmSettings
     Top = 0
     Width = 621
     Height = 326
-    ActivePage = tsMplayer
+    ActivePage = tsGeneral
     Align = alClient
     TabOrder = 0
     object tsGeneral: TTabSheet
@@ -79,7 +79,7 @@ object frmSettings: TfrmSettings
       end
       object btnShowLogWindow: TButton
         Left = 3
-        Top = 82
+        Top = 122
         Width = 126
         Height = 25
         Caption = 'Show log window'
@@ -97,7 +97,7 @@ object frmSettings: TfrmSettings
       end
       object btnAbout: TButton
         Left = 3
-        Top = 113
+        Top = 153
         Width = 126
         Height = 25
         Caption = 'About...'
@@ -117,6 +117,14 @@ object frmSettings: TfrmSettings
         Items.Strings = (
           'top'
           'bottom')
+      end
+      object chbIgnoreMouseMovementInFullScreenPlayback: TCheckBox
+        Left = 3
+        Top = 70
+        Width = 358
+        Height = 17
+        Caption = 'Ignore mouse/cursor movement when playing in full screen mode'
+        TabOrder = 5
       end
     end
     object tsLogging: TTabSheet

@@ -35,6 +35,7 @@ public:
 			CONTROL_PANEL_TOP = 0,
 			CONTROL_PANEL_BOTTOM
 		} controlPanelPosition;
+		bool ignoreMouseMovementInFullScreenPlayback;
 	} frmMain;
 	struct _Logging
 	{

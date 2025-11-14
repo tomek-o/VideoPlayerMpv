@@ -30,6 +30,7 @@ void Settings::SetDefault(void)
 	frmMain.bAlwaysOnTop = false;
 	frmMain.bExitFullScreenOnStop = true;
 	frmMain.controlPanelPosition = _frmMain::CONTROL_PANEL_TOP;
+	frmMain.ignoreMouseMovementInFullScreenPlayback = false;
 
 	Logging.bLogToFile = false;
 	Logging.bFlush = false;
@@ -219,6 +220,7 @@ int Settings::Read(AnsiString asFileName)
 	frmMain.bAlwaysOnTop = frmMainJson.get("AlwaysOnTop", false).asBool();
 	frmMain.bExitFullScreenOnStop = frmMainJson.get("ExitFullScreenOnStop", frmMain.bExitFullScreenOnStop).asBool();
 	frmMain.controlPanelPosition = static_cast<_frmMain::ControlPanelPosition>(frmMainJson.get("ControlPanelPosition", frmMain.controlPanelPosition).asInt());
+	frmMainJson.getBool("IgnoreMouseMovementInFullScreenPlayback", frmMain.ignoreMouseMovementInFullScreenPlayback);
 
 	const Json::Value &LoggingJson = root["Logging"];
 	Logging.bLogToFile = LoggingJson.get("LogToFile", false).asBool();
@@ -311,20 +313,26 @@ int Settings::Write(AnsiString asFileName)
 	Json::Value root;
 	Json::StyledWriter writer("\t");
 
-	root["frmMain"]["AppWidth"] = frmMain.iWidth;
-	root["frmMain"]["AppHeight"] = frmMain.iHeight;
-	root["frmMain"]["AppPositionX"] = frmMain.iPosX;
-	root["frmMain"]["AppPositionY"] = frmMain.iPosY;
-	root["frmMain"]["Maximized"] = frmMain.bWindowMaximized;
-	root["frmMain"]["AlwaysOnTop"] = frmMain.bAlwaysOnTop;
-	root["frmMain"]["ExitFullScreenOnStop"] = frmMain.bExitFullScreenOnStop;
-	root["frmMain"]["ControlPanelPosition"] = frmMain.controlPanelPosition;
+	{
+		Json::Value &jv = root["frmMain"];
+		jv["AppWidth"] = frmMain.iWidth;
+		jv["AppHeight"] = frmMain.iHeight;
+		jv["AppPositionX"] = frmMain.iPosX;
+		jv["AppPositionY"] = frmMain.iPosY;
+		jv["Maximized"] = frmMain.bWindowMaximized;
+		jv["AlwaysOnTop"] = frmMain.bAlwaysOnTop;
+		jv["ExitFullScreenOnStop"] = frmMain.bExitFullScreenOnStop;
+		jv["ControlPanelPosition"] = frmMain.controlPanelPosition;
+		jv["IgnoreMouseMovementInFullScreenPlayback"] = frmMain.ignoreMouseMovementInFullScreenPlayback;
+	}
 
-
-	root["Logging"]["LogToFile"] = Logging.bLogToFile;
-	root["Logging"]["Flush"] = Logging.bFlush;
-	root["Logging"]["MaxFileSize"] = Logging.iMaxFileSize;
-	root["Logging"]["MaxUiLogLines"] = Logging.iMaxUiLogLines;
+	{
+		Json::Value &jv = root["Logging"];
+		jv["LogToFile"] = Logging.bLogToFile;
+		jv["Flush"] = Logging.bFlush;
+		jv["MaxFileSize"] = Logging.iMaxFileSize;
+		jv["MaxUiLogLines"] = Logging.iMaxUiLogLines;
+	}
 
 	{
 		Json::Value &jv = root["Mplayer"];

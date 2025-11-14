@@ -277,6 +277,11 @@ void __fastcall TfrmMain::pnlVideoMouseMove(TObject *Sender, TShiftState Shift,
 {
 	if (X == mouseMoveLastX && Y == mouseMoveLastY)
 		return;
+	if (appSettings.frmMain.ignoreMouseMovementInFullScreenPlayback &&
+		(WindowState == wsMaximized) && state == PLAY)
+	{
+		return;
+	}
 	//LOG("X=%d, Y=%d", X, Y);
 	mouseMoveLastX = X;
 	mouseMoveLastY = Y;
@@ -325,8 +330,15 @@ void __fastcall TfrmMain::tmrShowControlTimer(TObject *Sender)
 	}
 	if (pnlControl->Visible == false)
 	{
-		if (MousePosOverControlPanel(Position) == true)
+		if (appSettings.frmMain.ignoreMouseMovementInFullScreenPlayback &&
+			(WindowState == wsMaximized) && state == PLAY)
+		{
+			// ignored
+		}
+		else  if (MousePosOverControlPanel(Position) == true)
+		{
 			pnlControl->Visible = true;
+		}
 	}
 	else
 	{
