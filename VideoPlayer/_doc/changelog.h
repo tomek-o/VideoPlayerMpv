@@ -110,6 +110,8 @@ Version 3.2
 - ignoring files added to playlist twice when searching for duplicated files by size
 
 Vesion 3.x
-- added tool window for testing mpv properties (setting name + value as string) 
+- added tool window for testing mpv properties (setting name + value as string)
+	- added example removing black bars
+- added 'Ignore mouse/cursor movement when playing in full screen mode' setting 
 */
 
