@@ -43,6 +43,8 @@ void PlaylistEntry::fromJson(const Json::Value &jv)
 	}
 	jv.getAString("mplayerExtraParams", mplayerExtraParams);
 	jv.getInt("softVol", softVolLevel);
+	jv.getUInt("skipIntroLength", skipIntroLength);
+	jv.getUInt("skipOutroLength", skipOutroLength);
 }
 
 void PlaylistEntry::toJson(Json::Value &jv) const
@@ -76,6 +78,14 @@ void PlaylistEntry::toJson(Json::Value &jv) const
 	if (softVolLevel != SOFTVOL_LEVEL_DEFAULT)
 	{
 		jv["softVol"] = softVolLevel;
+	}
+	if (skipIntroLength != 0)
+	{
+		jv["skipIntroLength"] = skipIntroLength;
+	}
+	if (skipOutroLength != 0)
+	{
+		jv["skipOutroLength"] = skipOutroLength;
 	}
 }
 

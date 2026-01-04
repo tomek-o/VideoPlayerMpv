@@ -32,6 +32,7 @@ private:
 	double filePosition;
 	bool fileLengthValid;
 	double fileLength;
+	unsigned int skipOutroLength;
 
 	typedef void (__closure *CallbackStopPlaying)(void);
 	typedef void (__closure *CallbackMediaInfoUpdate)(void);
@@ -63,7 +64,7 @@ public:
 	void __fastcall lineReceived(AnsiString line);
 	void __fastcall playerExited();
 
-	int play(AnsiString filename, int softVolLevel, AnsiString extraParams);
+	int play(AnsiString filename, int softVolLevel, unsigned int skipOutroLength, AnsiString extraParams);
 	AnsiString getFilename(void) const
 	{
     	return filename;

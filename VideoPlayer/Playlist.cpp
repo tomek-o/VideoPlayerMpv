@@ -675,6 +675,20 @@ int Playlist::resetBitrateInfo(unsigned int id)
 	return 0;
 }
 
+void Playlist::setSkipIntroOutro(const std::set<unsigned int>& ids, unsigned int intro, unsigned int outro)
+{
+	for (unsigned int i=0; i<entries.size(); i++)
+	{
+		if (ids.find(i) != ids.end())
+		{
+			entries[i].skipIntroLength = intro;
+			entries[i].skipOutroLength = outro;
+		}
+	}
+	modified = true;
+}
+
+
 
 
 

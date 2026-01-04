@@ -26,6 +26,8 @@ struct PlaylistEntry
 	int softVolLevel;
 	enum { SOFTVOL_LEVEL_DEFAULT = 50 };
 	AnsiString mplayerExtraParams;
+	unsigned int skipIntroLength;
+	unsigned int skipOutroLength;
 	PlaylistEntry(void):
 		size(0),
 		mark(false),
@@ -35,7 +37,9 @@ struct PlaylistEntry
 		bitrateVideoMax(BITRATE_DEFAULT),
 		bitrateAudioMin(BITRATE_DEFAULT),
 		bitrateAudioMax(BITRATE_DEFAULT),
-		softVolLevel(SOFTVOL_LEVEL_DEFAULT)
+		softVolLevel(SOFTVOL_LEVEL_DEFAULT),
+		skipIntroLength(0),
+		skipOutroLength(0)
 	{}
 	bool isValid(void) const;
 	void fromJson(const Json::Value &jv);

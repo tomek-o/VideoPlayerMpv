@@ -14,6 +14,7 @@ USEFORM("FormPlaylist.cpp", frmPlaylist);
 USEFORM("FormTextEditor.cpp", frmTextEditor);
 USEFORM("scripting\FormLuaScriptHelp.cpp", frmLuaScriptHelp);
 USEFORM("FormMpvSetProperty.cpp", frmMpvSetProperty);
+USEFORM("FormIntroOutroSkip.cpp", frmIntroOutroSkip);
 //---------------------------------------------------------------------------
 #pragma link "jsoncpp.lib"
 #pragma link "common.lib"
@@ -32,6 +33,7 @@ WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		Application->CreateForm(__classid(TfrmSettings), &frmSettings);
 		Application->CreateForm(__classid(TfrmAbout), &frmAbout);
 		Application->CreateForm(__classid(TfrmMpvSetProperty), &frmMpvSetProperty);
+		Application->CreateForm(__classid(TfrmIntroOutroSkip), &frmIntroOutroSkip);
 		Application->Run();
 	}
 	catch (Exception &exception)

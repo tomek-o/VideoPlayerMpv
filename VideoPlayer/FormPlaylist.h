@@ -45,6 +45,7 @@ __published:	// IDE-managed Components
 	TMenuItem *miSetMplayerExtraParams;
 	TMenuItem *miAddRemainingFilesFromFolder;
 	TMenuItem *miResetBitrateInfo;
+	TMenuItem *miSetIntroOutroSkip;
 	void __fastcall miAddFilesClick(TObject *Sender);
 	void __fastcall lvPlaylistData(TObject *Sender, TListItem *Item);
 	void __fastcall lvPlaylistKeyDown(TObject *Sender, WORD &Key,
@@ -65,6 +66,7 @@ __published:	// IDE-managed Components
 	void __fastcall miSetMplayerExtraParamsClick(TObject *Sender);
 	void __fastcall miAddRemainingFilesFromFolderClick(TObject *Sender);
 	void __fastcall miResetBitrateInfoClick(TObject *Sender);
+	void __fastcall miSetIntroOutroSkipClick(TObject *Sender);
 private:	// User declarations
 	AnsiString fileName;
 	bool fileLoaded;

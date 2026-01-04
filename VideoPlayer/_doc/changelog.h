@@ -112,6 +112,7 @@ Version 3.2
 Vesion 3.x
 - added tool window for testing mpv properties (setting name + value as string)
 	- added example removing black bars
-- added 'Ignore mouse/cursor movement when playing in full screen mode' setting 
+- added 'Ignore mouse/cursor movement when playing in full screen mode' setting
+- options to skip file intro and outro (configurable times per playlist entry) 
 */
 

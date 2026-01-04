@@ -4,6 +4,7 @@
 #pragma hdrstop
 
 #include "FormPlaylist.h"
+#include "FormIntroOutroSkip.h"
 #include "Log.h"
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
@@ -756,6 +757,33 @@ void __fastcall TfrmPlaylist::miResetBitrateInfoClick(TObject *Sender)
 	}
 
 	update();
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TfrmPlaylist::miSetIntroOutroSkipClick(TObject *Sender)
+{
+	TListItem *item = lvPlaylist->Selected;
+	if (item == NULL)
+		return;
+	int id = item->Index;
+	const std::vector<FilteredPlaylistEntry>& entries = playlist.getFilteredEntries();
+	const FilteredPlaylistEntry &entry = entries[id];
+
+	frmIntroOutroSkip->SetTimes(entry.entry.skipIntroLength, entry.entry.skipOutroLength);
+	if (frmIntroOutroSkip->ShowModal() == mrOk)
+	{
+		unsigned int intro = 0, outro = 0;
+		frmIntroOutroSkip->GetTimes(intro, outro);
+		std::set<unsigned int> ids;		
+		for (int i=0; i<lvPlaylist->Items->Count; i++)
+		{
+			if (lvPlaylist->Items->Item[i]->Selected)
+			{
+				ids.insert(entries[i].id);
+			}
+		}
+		playlist.setSkipIntroOutro(ids, intro, outro);
+	}
 }
 //---------------------------------------------------------------------------
 

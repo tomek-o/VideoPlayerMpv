@@ -171,6 +171,10 @@ object frmPlaylist: TfrmPlaylist
       Visible = False
       OnClick = miSetMplayerExtraParamsClick
     end
+    object miSetIntroOutroSkip: TMenuItem
+      Caption = 'Set intro/outro skip'
+      OnClick = miSetIntroOutroSkipClick
+    end
   end
   object OpenDialog: TOpenDialog
     Options = [ofHideReadOnly, ofAllowMultiSelect, ofFileMustExist, ofEnableSizing]

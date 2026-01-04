@@ -514,7 +514,7 @@ void TfrmMain::Play(void)
 				volume = entry->softVolLevel;
 				LOG("File volume: %d\n", volume);
 			}
-			mplayer.play(entry->fileName, volume, entry->mplayerExtraParams);
+			mplayer.play(entry->fileName, volume, entry->skipOutroLength, entry->mplayerExtraParams);
 			mplayer.setOsdLevel(appSettings.Mplayer.osdLevel);
 			mplayer.setSubVisibility(appSettings.Mplayer.subVisibility);
 			if (appSettings.Mplayer.showFileNameOnPlayStart)
@@ -531,12 +531,18 @@ void TfrmMain::Play(void)
 					LOG("Strange: entry without filename?\n");
 				}
 			}
+			bool posSet = false;
 			if (prevState == STOP)
 			{
 				if (filePosition > 1.0 && filePosition + 10 < entry->length)
 				{
 					mplayer.seekAbsolute(filePosition);
+					posSet = true;
 				}
+			}
+			if (!posSet && entry->skipIntroLength > 0)
+			{
+            	mplayer.seekAbsolute(entry->skipIntroLength);
 			}
 		}
 		else

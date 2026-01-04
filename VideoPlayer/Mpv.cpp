@@ -30,6 +30,7 @@ MPlayer::MPlayer():
 	filePosition(0.0),
 	fileLengthValid(false),
 	fileLength(0.0),
+	skipOutroLength(0),
 	callbackStopPlaying(NULL),
 	callbackMediaInfoUpdate(NULL),
 	fileStarted(false),
@@ -65,11 +66,12 @@ void MPlayer::onStopPlayingFn(void)
 		callbackStopPlaying();
 }
 
-int MPlayer::play(AnsiString filename, int softVolLevel, AnsiString extraParams)
+int MPlayer::play(AnsiString filename, int softVolLevel, unsigned int skipOutroLength, AnsiString extraParams)
 {
 	AnsiString cmdLine;
 	this->filename = filename;
 	useStopCallback = true;
+	this->skipOutroLength = skipOutroLength;
 
 	if (mpv == NULL)
 		mpvCreate();
@@ -94,7 +96,8 @@ int MPlayer::play(AnsiString filename, int softVolLevel, AnsiString extraParams)
 	AnsiString utf8name = System::AnsiToUtf8(filename);
 	const char *cmd[] = { "loadfile", utf8name.c_str(), NULL };
 	int status = mpv_command(mpv, cmd);
-
+	if (status)
+		return status;
 	return status;
 }
 
@@ -341,6 +344,12 @@ void MPlayer::onMpvEvent(const mpv_event &e)
 			if (mpv_get_property(mpv, prop->name, MPV_FORMAT_DOUBLE, &data) == 0) {
 				filePosition = data;
 				filePositionValid = true;
+				if (skipOutroLength > 0 && fileLength > 0) {
+					if (filePosition + skipOutroLength >= fileLength) {
+                        LOG("Skipping outro");
+						stop();
+					}
+				}
 			}
 		} else if (strcmp(prop->name, "volume") == 0) {
 			double data = 0;

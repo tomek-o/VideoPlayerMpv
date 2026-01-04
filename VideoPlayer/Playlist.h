@@ -67,6 +67,7 @@ public:
 	void setBitrateVideo(unsigned int id, int val);
 	void setBitrateAudio(unsigned int id, int val);
 	int resetBitrateInfo(unsigned int id);
+	void setSkipIntroOutro(const std::set<unsigned int>& ids, unsigned int intro, unsigned int outro);
 
 
 	enum SortType {
