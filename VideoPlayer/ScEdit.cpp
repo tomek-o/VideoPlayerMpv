@@ -5,6 +5,7 @@
 
 #include "ScEdit.h"
 #include <assert.h>
+#include <math.h>
 
 //---------------------------------------------------------------------------
 
@@ -342,3 +343,37 @@ void TScEdit::copy(void)
 	SendEditor(SCI_COPY);
 }
 
+void TScEdit::updateMarginWidth(bool force)
+{
+	int lines = SendEditor(SCI_GETLINECOUNT, 0, 0);
+	if (lines < 10)
+		lines = 10;
+	if (force || lines/lineCount >= 10 || lineCount > lines)
+	{
+		int n = (int)log10(lines);
+		lineCount = static_cast<int>(pow(10.0, n) + 0.5);
+		char *text;
+		switch (n)
+		{
+		case 0:
+		case 1:
+			text = "00";
+			break;
+		case 2:
+			text = "000";
+			break;
+		case 3:
+			text = "0000";
+			break;
+		case 4:
+			text = "00000";
+			break;
+		default:
+			text = "000000";
+			break;
+		}
+
+		int width = SendEditor(SCI_TEXTWIDTH, STYLE_LINENUMBER, (WPARAM)text);
+		SendEditor(SCI_SETMARGINWIDTHN, 0, width + 4);
+	}
+}

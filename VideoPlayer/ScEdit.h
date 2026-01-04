@@ -11,6 +11,8 @@
 
 class TScEdit : public TWinControl
 {
+private:
+	int lineCount;
 protected:
 	virtual void __fastcall CreateParams(Controls::TCreateParams &Params);
 	virtual void __fastcall WndProc(Messages::TMessage &Message);
@@ -21,8 +23,11 @@ protected:
 public:
 	enum { MARGIN_SCRIPT_FOLD_INDEX = 1 };
 
-	__fastcall TScEdit(Classes::TComponent* AOwner)
-		:TWinControl(AOwner){;}
+	__fastcall TScEdit(Classes::TComponent* AOwner):
+		TWinControl(AOwner),
+		lineCount(10)
+	{
+	}
 
 	sptr_t SendEditor(unsigned int iMessage, uptr_t wParam = 0, sptr_t lParam = 0)
 	{
@@ -33,6 +38,7 @@ public:
 	/** \note must be called AFTER setFont */
 	void setStyle(enum ScEditStyle style, int colorSchemeId);
 	void copy(void);
+	void updateMarginWidth(bool force);
 };
 
 

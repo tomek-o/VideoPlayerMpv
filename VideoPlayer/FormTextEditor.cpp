@@ -6,7 +6,6 @@
 #include "FormTextEditor.h"
 #include "ScEdit.h"
 #include "Log.h"
-#include <math.h>
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
 #pragma resource "*.dfm"
@@ -18,7 +17,6 @@ __fastcall TfrmTextEditor::TfrmTextEditor(TComponent* Owner)
 	: TForm(Owner),
 	callbackTextChange(NULL),
 	m_se(NULL),
-	lineCount(10),
 	fontName("Courier New"),
 	fontSize(10),
 	scStyle(SC_STYLE_CPP),
@@ -112,7 +110,7 @@ void __fastcall TfrmTextEditor::WMNotify(TMessage &Message)
 		{
 			if (callbackTextChange)
 				callbackTextChange();
-			UpdateMarginWidth(false);
+			m_se->updateMarginWidth(false);
 		}
 		break;
 
@@ -147,89 +145,7 @@ void __fastcall TfrmTextEditor::WMNotify(TMessage &Message)
 	}
 
     TForm::Dispatch(&Message);
-#if 0
-SCN_STYLENEEDED:
-    doSciStyleNeeded(scn^.position);
-SCN_CHARADDED:
-    doSciCharAdded(scn^.ch);
-SCN_SAVEPOINTREACHED:
-    doSciSavePointReached;
-SCN_SAVEPOINTLEFT:
-    doSciSavePointLeft;
-SCN_MODIFYATTEMPTRO:
-    doSciModifyAttemptRO;
-SCN_DOUBLECLICK:
-    doSciDoubleClick;
-SCN_UPDATEUI:
-    doSciUpdateUI;
-SCN_MODIFIED:
-    doSciModified(scn^.position, scn^.modificationType, scn^.text, scn^.length, scn^.linesAdded, scn^.line, scn^.foldLevelNow, scn^.foldLevelPrev);
-SCN_MACRORECORD:
-    doSciMacroRecord(scn^.message, scn^.wParam, scn^.lParam);
-SCN_MARGINCLICK:
-    doSciMarginClick(scn^.modifiers, scn^.position, scn^.margin);
-SCN_NEEDSHOWN:
-    doSciNeedShown(scn^.position, scn^.length);
-SCN_PAINTED:
-    doSciPainted;
-SCN_USERLISTSELECTION:
-    doSciUserListSelection(scn^.listType, scn^.text);
-SCN_DWELLSTART:
-    doSciDwellStart(scn^.position,scn^.x,scn^.y);
-SCN_DWELLEND:
-    doSciDwellEnd(scn^.position,scn^.x,scn^.y);
-SCN_ZOOM:
-    doSciZoom;
-SCN_HOTSPOTCLICK:
-    doSciHotSpotClick(scn^.modifiers, scn^.position);
-SCN_HOTSPOTDOUBLECLICK:
-    doSciHotSpotDoubleClick(scn^.modifiers, scn^.position);
-SCN_CALLTIPCLICK:
-	doSciCallTipClick(scn^.position);
-SCN_AUTOCSELECTION:
-	doSciAutoCSelection(scn^.text);
-SCN_INDICATORCLICK:
-    doSciIndicatorClick(scn^.modifiers, scn^.position);
-SCN_INDICATORRELEASE:
-	doSciIndicatorRelease(scn^.modifiers, scn^.position);
-SCN_AUTOCCANCELLED:
-    doSciAutoCCancelled;
-#endif
-}
 
-void TfrmTextEditor::UpdateMarginWidth(bool force)
-{
-	int lines = m_se->SendEditor(SCI_GETLINECOUNT, 0, 0);
-	if (lines < 10)
-		lines = 10;
-	if (force || lines/lineCount >= 10 || lineCount > lines)
-	{
-		int n = (int)log10(lines);
-		lineCount = static_cast<int>(pow(10.0, n) + 0.5);
-		char *text;
-		switch (n)
-		{
-		case 0:
-		case 1:
-			text = "00";
-			break;
-		case 2:
-			text = "000";
-			break;
-		case 3:
-			text = "0000";
-			break;
-		case 4:
-			text = "00000";
-			break;
-		default:
-			text = "000000";
-			break;
-		}
-
-		int width = m_se->SendEditor(SCI_TEXTWIDTH, STYLE_LINENUMBER, (WPARAM)text);
-		m_se->SendEditor(SCI_SETMARGINWIDTHN, 0, width + 4);
-	}
 }
 
 void TfrmTextEditor::Search(AnsiString text, const TStringSearchOptions &so)
@@ -287,8 +203,7 @@ void TfrmTextEditor::SetStyle(enum ScEditStyle style, int colorSchemeId, bool ma
 	this->colorSchemeId = colorSchemeId;
 	this->matchBraces = matchBraces;
 	m_se->setStyle(style, colorSchemeId);
-	int TODO__MOVE_MARGIN_CALCULATION_TO_SC_EDIT;
-	UpdateMarginWidth(true);
+	m_se->updateMarginWidth(true);
 }
 
 AnsiString TfrmTextEditor::GetSelectedText(void)
