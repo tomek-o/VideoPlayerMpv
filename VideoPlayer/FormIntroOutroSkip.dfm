@@ -12,6 +12,7 @@ object frmIntroOutroSkip: TfrmIntroOutroSkip
   Font.Style = []
   KeyPreview = True
   OldCreateOrder = False
+  Position = poMainFormCenter
   OnKeyPress = FormKeyPress
   OnShow = FormShow
   PixelsPerInch = 96
