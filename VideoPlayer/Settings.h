@@ -11,6 +11,11 @@
 #include <list>
 #include <set>
 
+namespace Json
+{
+	class Value;
+}
+
 class Settings
 {
 public:
@@ -20,8 +25,13 @@ public:
 	struct _gui
 	{
 		enum { SCALING_MIN = 50 };
+		enum { SCALING_DEF = 100 };
 		enum { SCALING_MAX = 200 };
 		int scalingPct;					///< scaling (percentage)
+		bool showTrayIcon;
+		_gui(void);
+		void fromJson(const Json::Value &jv);
+		void toJson(Json::Value &jv) const;
 	} gui;
 	struct _frmMain
 	{

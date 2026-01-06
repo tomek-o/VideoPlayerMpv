@@ -126,6 +126,14 @@ object frmSettings: TfrmSettings
         Caption = 'Ignore mouse/cursor movement when playing in full screen mode'
         TabOrder = 5
       end
+      object chbShowTrayIcon: TCheckBox
+        Left = 3
+        Top = 93
+        Width = 358
+        Height = 17
+        Caption = 'Show icon in system tray'
+        TabOrder = 6
+      end
     end
     object tsLogging: TTabSheet
       Caption = 'Logging'

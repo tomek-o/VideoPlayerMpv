@@ -20,6 +20,27 @@ inline void strncpyz(char* dst, const char* src, int dstsize) {
 	dst[dstsize-1] = '\0';
 }
 
+Settings::_gui::_gui(void):
+	scalingPct(SCALING_DEF),
+	showTrayIcon(true)
+{
+}
+
+void Settings::_gui::fromJson(const Json::Value &jv)
+{
+	if (jv.type() != Json::objectValue)
+		return;
+	jv.getIntInRange("scalingPct", scalingPct, SCALING_MIN, SCALING_MAX);
+	jv.getBool("showTrayIcon", showTrayIcon);
+}
+
+void Settings::_gui::toJson(Json::Value &jv) const
+{
+	jv = Json::Value(Json::objectValue);
+	jv["scalingPct"] = scalingPct;
+	jv["showTrayIcon"] = showTrayIcon;
+}
+
 void Settings::SetDefault(void)
 {
 	frmMain.iWidth = 562;
@@ -195,6 +216,8 @@ int Settings::Read(AnsiString asFileName)
 	/** \todo Ugly fixed taskbar margin */
 	int maxY = GetSystemMetrics(SM_CYSCREEN) - 32;
 
+	gui.fromJson(root["gui"]);
+
 	const Json::Value &frmMainJson = root["frmMain"];
 	frmMain.iWidth = frmMainJson.get("AppWidth", 350).asInt();
 	frmMain.iHeight = frmMainJson.get("AppHeight", 300).asInt();
@@ -312,6 +335,8 @@ int Settings::Write(AnsiString asFileName)
 {
 	Json::Value root;
 	Json::StyledWriter writer("\t");
+
+    gui.toJson(root["gui"]);
 
 	{
 		Json::Value &jv = root["frmMain"];

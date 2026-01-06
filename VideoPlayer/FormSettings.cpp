@@ -37,6 +37,7 @@ void __fastcall TfrmSettings::FormShow(TObject *Sender)
 		cbControlPanelPosition->ItemIndex = tmpSettings.frmMain.controlPanelPosition;
 	}
 	chbIgnoreMouseMovementInFullScreenPlayback->Checked = tmpSettings.frmMain.ignoreMouseMovementInFullScreenPlayback;
+	chbShowTrayIcon->Checked = tmpSettings.gui.showTrayIcon;
 
 	chbLogToFile->Checked = tmpSettings.Logging.bLogToFile;
 	cmbMaxUiLogLines->ItemIndex = -1;
@@ -72,6 +73,8 @@ void __fastcall TfrmSettings::btnApplyClick(TObject *Sender)
 	tmpSettings.frmMain.bExitFullScreenOnStop = chbExitFullscreenOnStop->Checked;
 	tmpSettings.frmMain.controlPanelPosition = static_cast<Settings::_frmMain::ControlPanelPosition>(cbControlPanelPosition->ItemIndex);
 	tmpSettings.frmMain.ignoreMouseMovementInFullScreenPlayback = chbIgnoreMouseMovementInFullScreenPlayback->Checked;
+	tmpSettings.gui.showTrayIcon = chbShowTrayIcon->Checked;
+
 	tmpSettings.Logging.bLogToFile = chbLogToFile->Checked;
 
 	tmpSettings.Mplayer.softVolMax = StrToIntDef(edMplayerSoftVolMax->Text, 200);

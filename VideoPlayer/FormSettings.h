@@ -44,6 +44,7 @@ __published:	// IDE-managed Components
 	TCheckBox *chbUseSeparateVolumeForEachFile;
 	TCheckBox *chbMpvShowPropertyEditor;
 	TCheckBox *chbIgnoreMouseMovementInFullScreenPlayback;
+	TCheckBox *chbShowTrayIcon;
 	void __fastcall FormShow(TObject *Sender);
 	void __fastcall btnCancelClick(TObject *Sender);
 	void __fastcall btnApplyClick(TObject *Sender);

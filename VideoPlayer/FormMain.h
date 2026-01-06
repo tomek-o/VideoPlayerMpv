@@ -19,6 +19,7 @@
 
 struct Action;
 struct HotkeyConf;
+class TrayIcon;
 
 //---------------------------------------------------------------------------
 class TfrmMain : public TForm
@@ -41,6 +42,10 @@ __published:	// IDE-managed Components
 	TPanel *pnlMain;
 	TTimer *tmrAntirepeat;
 	TTimer *tmrSavePlaylists;
+	TPopupMenu *popupTray;
+	TMenuItem *miExit;
+	TMenuItem *miPlay;
+	TMenuItem *miPause;
 	void __fastcall FormCreate(TObject *Sender);
 	void __fastcall FormCloseQuery(TObject *Sender, bool &CanClose);
 	void __fastcall actShowAboutExecute(TObject *Sender);
@@ -67,7 +72,11 @@ __published:	// IDE-managed Components
 	void __fastcall tmrRefreshControlTimer(TObject *Sender);
 	void __fastcall tmrAntirepeatTimer(TObject *Sender);
 	void __fastcall tmrSavePlaylistsTimer(TObject *Sender);
+	void __fastcall miExitClick(TObject *Sender);
+	void __fastcall miPlayClick(TObject *Sender);
+	void __fastcall miPauseClick(TObject *Sender);
 private:	// User declarations
+	TrayIcon *trIcon;
 	void ApplySettings(const Settings &prev);
 	bool allowControlHide;
 	void ShowMediaBrowser(bool state);
@@ -101,12 +110,16 @@ private:	// User declarations
 	void __fastcall WMHotKey(TWMHotKey &Message);
 	void ExecAction(const struct Action& action);
 	bool MousePosOverControlPanel(const TPoint &Position);
-	int OnGetCurrentFileName(AnsiString &filename);	
+	int OnGetCurrentFileName(AnsiString &filename);
+	void __fastcall OnTrayIconLeftBtnDown(TObject *Sender);
+	void ToggleVisibility(void);
+	void UpdateTrayIcon(void);			
 
 protected:
 	void __fastcall CreateParams(TCreateParams   &Params);
 public:		// User declarations
 	__fastcall TfrmMain(TComponent* Owner);
+	__fastcall ~TfrmMain(void);
 	void CallbackStartPlayingFn(void);
 	void CallbackStopPlayingFn(void);
 	void CallbackMediaInfoUpdateFn(void);

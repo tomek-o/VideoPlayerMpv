@@ -13,6 +13,7 @@
 #include "Mpv.h"
 #include "PlaylistEntry.h"
 #include "common/OS.h"
+#include "common/TrayIcon.h"
 #include "ScriptExec.h"
 #include "FormLuaScript.h"
 #include "FormMpvSetProperty.h"
@@ -39,13 +40,23 @@ void __fastcall TfrmMain::CreateParams(TCreateParams &Params)
 }
 
 __fastcall TfrmMain::TfrmMain(TComponent* Owner)
-	: TForm(Owner), allowControlHide(true), state(STOP),
+	: TForm(Owner), trIcon(NULL), allowControlHide(true), state(STOP),
 	mouseMoveLastX(-1), mouseMoveLastY(-1), lastHotkey(NULL)
 {
 	// inform OS that we accepting dropping files
 	DragAcceptFiles(Handle, True);
 	mplayer.setParent(pnlMain->Handle);
 }
+
+__fastcall TfrmMain::~TfrmMain(void)
+{
+	if (trIcon)
+	{
+		delete trIcon;
+		trIcon = NULL;
+	}
+}
+
 //---------------------------------------------------------------------------
 void __fastcall TfrmMain::FormCreate(TObject *Sender)
 {
@@ -69,6 +80,8 @@ void __fastcall TfrmMain::FormCreate(TObject *Sender)
 	else
 		CLog::Instance()->SetFile("");
 	Caption = Application->Title;
+
+	UpdateTrayIcon();
 }
 //---------------------------------------------------------------------------
 void __fastcall TfrmMain::FormCloseQuery(TObject *Sender, bool &CanClose)
@@ -228,6 +241,8 @@ void TfrmMain::ApplySettings(const Settings &prev)
 	{
 		RegisterGlobalHotKeys();
 	}
+
+	UpdateTrayIcon();
 }
 
 void __fastcall TfrmMain::btnSettingsClick(TObject *Sender)
@@ -783,15 +798,21 @@ void TfrmMain::SetState(enum STATE state)
 	case STOP:
 		btnPlay->Down = false;
 		btnPauseStill->Down = false;
+		miPlay->Enabled = false;
+		miPause->Enabled = false;
 		ShowMediaBrowser(true);		
 		break;
 	case PAUSE:
 		btnPlay->Down = false;
 		btnPauseStill->Down = true;
+		miPlay->Enabled = true;
+		miPause->Enabled = false;
 		break;
 	case PLAY:
 		btnPlay->Down = true;
 		btnPauseStill->Down = false;
+		miPlay->Enabled = false;
+		miPause->Enabled = true;
 		ShowMediaBrowser(false);
 		break;
 	default:
@@ -1060,3 +1081,77 @@ void __fastcall TfrmMain::tmrSavePlaylistsTimer(TObject *Sender)
 }
 //---------------------------------------------------------------------------
 
+void __fastcall TfrmMain::OnTrayIconLeftBtnDown(TObject *Sender)
+{
+	ToggleVisibility();
+}
+//---------------------------------------------------------------------------
+
+void TfrmMain::ToggleVisibility(void)
+{
+	if (trIcon == NULL)
+	{
+    	return;
+	}
+
+	Visible = !Visible;
+	if (Visible)
+	{
+		Application->Restore();
+		//if (appSettings.frmMain.bNoTaskbarButtonRestore == false)
+		{
+			ShowWindow(Application->Handle, SW_SHOW);	// show taskbar button
+		}
+		SetActiveWindow (Handle);
+		SetForegroundWindow (Handle);
+		SetWindowPos (Handle, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+		//OnRestore(NULL);
+	}
+	else
+	{
+		ShowWindow(Application->Handle, SW_HIDE);	// hide taskbar button
+	}
+}
+
+void __fastcall TfrmMain::miExitClick(TObject *Sender)
+{
+	Close();
+}
+//---------------------------------------------------------------------------
+
+
+void __fastcall TfrmMain::miPlayClick(TObject *Sender)
+{
+    btnPlay->Down = true;
+	btnPlayClick(NULL);
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TfrmMain::miPauseClick(TObject *Sender)
+{
+	btnPauseStillClick(NULL);	
+}
+//---------------------------------------------------------------------------
+
+void TfrmMain::UpdateTrayIcon(void)
+{
+	if (appSettings.gui.showTrayIcon)
+	{
+		if (trIcon == NULL)
+		{
+			trIcon = new TrayIcon(this);
+			trIcon->OnLeftBtnDown = OnTrayIconLeftBtnDown;
+			trIcon->SetPopupMenu(popupTray);
+			trIcon->SetIcon(Application->Icon);
+			trIcon->ShowInTray(true);
+		}
+	}
+	else
+	{
+		if (trIcon)
+		{
+			delete trIcon;
+			trIcon = NULL;
+		}
+	}
+}

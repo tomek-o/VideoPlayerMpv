@@ -257,4 +257,20 @@ object frmMain: TfrmMain
     Left = 56
     Top = 40
   end
+  object popupTray: TPopupMenu
+    Left = 208
+    Top = 40
+    object miPlay: TMenuItem
+      Caption = 'Play'
+      OnClick = miPlayClick
+    end
+    object miPause: TMenuItem
+      Caption = 'Pause'
+      OnClick = miPauseClick
+    end
+    object miExit: TMenuItem
+      Caption = 'Exit'
+      OnClick = miExitClick
+    end
+  end
 end
