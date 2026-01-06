@@ -92,6 +92,11 @@ int MPlayer::play(AnsiString filename, int softVolLevel, unsigned int skipOutroL
 		int32_t flag = 0;
 		mpv_set_property(mpv, "pause", MPV_FORMAT_FLAG, &flag);
 	}
+	{
+		// use video output / OSD also for audio-only files
+		int32_t flag = 1;
+		mpv_set_property(mpv, "force-window", MPV_FORMAT_FLAG, &flag);
+	}
 
 	AnsiString utf8name = System::AnsiToUtf8(filename);
 	const char *cmd[] = { "loadfile", utf8name.c_str(), NULL };
