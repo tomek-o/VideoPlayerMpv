@@ -14,7 +14,8 @@ VideoPlayer: option to set video panel color and key color (looping videos witho
 VideoPlayer: playlist loop option
 VideoPlayer: playlist item context menu: move file to other playlist
 VideoPlayer: show file size on bottom panel in megabytes if space allows or as OSD
-VideoPlayer: odtwarzacz TSK/audio: tray icon, context menu, file name in hint, rewind/FF using tray
+
+command line interface to control from tSIP: play/pause
 
 mpv:
 	- UTF-8

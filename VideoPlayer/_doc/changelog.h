@@ -1,5 +1,5 @@
 /** \file
-	\brief OVCP changelog
+	\brief OVCP / VideoPlayer / VideoPlayerMpv changelog
 */
 
 /** \page changelog Changelog
@@ -113,6 +113,8 @@ Vesion 3.x
 - added tool window for testing mpv properties (setting name + value as string)
 	- added example removing black bars
 - added 'Ignore mouse/cursor movement when playing in full screen mode' setting
-- options to skip file intro and outro (configurable times per playlist entry) 
+- options to skip file intro and outro (configurable times per playlist entry)
+- forcing video output / OSD also for audio-only files 
+- added tray icon (opt-out)
 */
 
