@@ -1383,9 +1383,27 @@ void Value::getInt(const char* key, int &val) const
 	val = get(key, val).asInt();
 }
 
+void Value::getIntInRange(const char* key, int &val, int valMin, int valMax) const
+{
+	int tmp = get(key, val).asInt();
+	if (tmp >= valMin && tmp <= valMax)
+	{
+		val = tmp;
+	}
+}
+
 void Value::getUInt(const char* key, unsigned int &val) const
 {
 	val = get(key, val).asUInt();
+}
+
+void Value::getUIntInRange(const char* key, unsigned int &val, unsigned int valMin, unsigned int valMax) const
+{
+	unsigned int tmp = get(key, val).asUInt();
+	if (tmp >= valMin && tmp <= valMax)
+	{
+		val = tmp;
+	}
 }
 
 void Value::getBool(const char* key, bool &val) const
@@ -1394,6 +1412,11 @@ void Value::getBool(const char* key, bool &val) const
 }
 
 void Value::getDouble(const char* key, double &val) const
+{
+	val = get(key, val).asDouble();
+}
+
+void Value::getFloat(const char* key, float &val) const
 {
 	val = get(key, val).asDouble();
 }
