@@ -8,7 +8,6 @@
 - multimedia keys support
 - disable screensaver while playing
 - mplayer pan / wide (zoom: W/E keys)
-- prepare for audio file playback (TSK)
 
 VideoPlayer: option to set video panel color and key color (looping videos without visible transition)
 VideoPlayer: playlist loop option
