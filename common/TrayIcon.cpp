@@ -204,3 +204,17 @@ void TrayIcon::ShowInTray(bool bShow)
 }
 //---------------------------------------------------------------------------
 
+bool TrayIcon::ShowBalloonNotification(AnsiString title, AnsiString text)
+{
+	assert(Icon);
+    IconData.hIcon = Icon->Handle;
+	IconData.hWnd = IconHandle;
+	IconData.uFlags = NIF_INFO | NIF_ICON | NIF_MESSAGE;
+	strncpy(IconData.szInfo, text.c_str(), sizeof(IconData.szInfo)-1);
+	strncpy(IconData.szInfoTitle, title.c_str(), sizeof(IconData.szInfoTitle));
+	IconData.dwInfoFlags = NIIF_INFO; // info, warning, error
+	IconData.uCallbackMessage = WM_TRAYICON;
+	
+	BOOL res = Shell_NotifyIcon(NIM_MODIFY, &IconData);
+	return res;
+}

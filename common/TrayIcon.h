@@ -42,6 +42,7 @@ public:
 	void SetIcon(TImageList *imgList, int id);
 	void SetIcon(TIcon *icon);
 	void SetHint(AnsiString hint);
+	bool ShowBalloonNotification(AnsiString title, AnsiString text);
 	inline void SetImageList(TImageList *imgList)
 	{
 		ImageList = imgList;
