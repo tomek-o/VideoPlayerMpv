@@ -25,7 +25,7 @@ object frmPlaylist: TfrmPlaylist
         Width = 20
       end
       item
-        Caption = 'File'
+        Caption = 'File/URL'
         Width = 280
       end
       item
@@ -125,6 +125,13 @@ object frmPlaylist: TfrmPlaylist
     object miResetBitrateInfo: TMenuItem
       Caption = 'Reset bitrate info'
       OnClick = miResetBitrateInfoClick
+    end
+    object N5: TMenuItem
+      Caption = '-'
+    end
+    object miAddUrl: TMenuItem
+      Caption = 'Add URL'
+      OnClick = miAddUrlClick
     end
     object N1: TMenuItem
       Caption = '-'

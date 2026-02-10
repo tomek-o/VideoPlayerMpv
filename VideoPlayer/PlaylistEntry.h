@@ -15,6 +15,10 @@ namespace Json
 struct PlaylistEntry
 {
 	AnsiString fileName;
+
+	AnsiString url;
+	AnsiString name;
+
 	uint64_t size;
 	AnsiString timeStamp;
 	bool mark;
@@ -44,6 +48,13 @@ struct PlaylistEntry
 	bool isValid(void) const;
 	void fromJson(const Json::Value &jv);
 	void toJson(Json::Value &jv) const;
+
+	AnsiString getTarget(void) const {
+		if (fileName != "")
+			return fileName;
+		return url;
+	}
+	AnsiString getDescription(void) const;
 };
 
 #endif

@@ -4,7 +4,9 @@
 #pragma hdrstop
 
 #include "PlaylistEntry.h"
+#include "Log.h"
 #include <json/json.h>
+#include <SysUtils.hpp>
 
 //---------------------------------------------------------------------------
 
@@ -12,7 +14,7 @@
 
 bool PlaylistEntry::isValid(void) const
 {
-	if (fileName == "")
+	if (fileName == "" && url == "")
 		return false;
 	return true;
 }
@@ -20,6 +22,8 @@ bool PlaylistEntry::isValid(void) const
 void PlaylistEntry::fromJson(const Json::Value &jv)
 {
 	jv.getAString("fileName", fileName);
+	jv.getAString("url", url);
+	jv.getAString("name", name);
 	size = jv.get("size", size).asUInt64();
 	jv.getAString("timeStamp", timeStamp);
 	jv.getBool("mark", mark);
@@ -49,27 +53,43 @@ void PlaylistEntry::fromJson(const Json::Value &jv)
 
 void PlaylistEntry::toJson(Json::Value &jv) const
 {
-	jv["fileName"] = fileName;
-	jv["size"] = size;
-	jv["timeStamp"] = timeStamp;
-	jv["mark"] = mark;
-	jv["length"] = length;
-	jv["playbackProgress"] = playbackProgress;
-	if (bitrateVideoMin != BITRATE_DEFAULT)
+	if (fileName != "")
 	{
-		jv["bitrateVideoMin"] = bitrateVideoMin;
+		jv["fileName"] = fileName;
+		jv["size"] = size;
+		jv["timeStamp"] = timeStamp;
+		jv["mark"] = mark;
+		jv["length"] = length;
+		jv["playbackProgress"] = playbackProgress;
+		if (bitrateVideoMin != BITRATE_DEFAULT)
+		{
+			jv["bitrateVideoMin"] = bitrateVideoMin;
+		}
+		if (bitrateVideoMax != BITRATE_DEFAULT)
+		{
+			jv["bitrateVideoMax"] = bitrateVideoMax;
+		}
+		if (bitrateAudioMin != BITRATE_DEFAULT)
+		{
+			jv["bitrateAudioMin"] = bitrateAudioMin;
+		}
+		if (bitrateAudioMax != BITRATE_DEFAULT)
+		{
+			jv["bitrateAudioMax"] = bitrateAudioMax;
+		}
+		if (skipIntroLength != 0)
+		{
+			jv["skipIntroLength"] = skipIntroLength;
+		}
+		if (skipOutroLength != 0)
+		{
+			jv["skipOutroLength"] = skipOutroLength;
+		}
 	}
-	if (bitrateVideoMax != BITRATE_DEFAULT)
+	else if (url != "")
 	{
-		jv["bitrateVideoMax"] = bitrateVideoMax;
-	}
-	if (bitrateAudioMin != BITRATE_DEFAULT)
-	{
-		jv["bitrateAudioMin"] = bitrateAudioMin;
-	}
-	if (bitrateAudioMax != BITRATE_DEFAULT)
-	{
-		jv["bitrateAudioMax"] = bitrateAudioMax;
+		jv["url"] = url;
+		jv["name"] = name;
 	}
 	if (mplayerExtraParams != "")
 	{
@@ -79,14 +99,27 @@ void PlaylistEntry::toJson(Json::Value &jv) const
 	{
 		jv["softVol"] = softVolLevel;
 	}
-	if (skipIntroLength != 0)
-	{
-		jv["skipIntroLength"] = skipIntroLength;
-	}
-	if (skipOutroLength != 0)
-	{
-		jv["skipOutroLength"] = skipOutroLength;
-	}
 }
 
+AnsiString PlaylistEntry::getDescription(void) const
+{
+	AnsiString text;
+	if (fileName != "")
+	{
+		text.sprintf("File: %s", System::AnsiToUtf8(ExtractFileName(fileName)).c_str());
+	}
+	else if (name != "")
+	{
+		text = name;
+	}
+	else if (url != "")
+	{
+		text = url;
+	}
+	else
+	{
+		LOG("Strange: entry without filename?\n");
+	}
+	return text;
+}
 

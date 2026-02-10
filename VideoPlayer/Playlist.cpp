@@ -238,6 +238,16 @@ void Playlist::add(const std::vector<AnsiString>& fileNames)
 	modified = true;
 }
 
+void Playlist::addUrl(AnsiString url, AnsiString name)
+{
+	PlaylistEntry newEntry;
+	newEntry.url = url;
+	newEntry.name = name;
+	entries.push_back(newEntry);
+	filter(filterText);
+	modified = true;
+}
+
 void Playlist::remove(const std::set<unsigned int>& ids)
 {
 	std::vector<PlaylistEntry> newEntries;
@@ -365,7 +375,11 @@ void Playlist::filter(AnsiString text)
 	for (unsigned int i=0; i<entries.size(); i++)
 	{
 		const PlaylistEntry& entry = entries[i];
-		if (empty || UpperCase(ExtractFileName(entry.fileName)).Pos(needle) > 0)
+		if (empty
+			|| UpperCase(ExtractFileName(entry.fileName)).Pos(needle) > 0
+			|| UpperCase(ExtractFileName(entry.url)).Pos(needle) > 0
+			|| UpperCase(ExtractFileName(entry.name)).Pos(needle) > 0
+			)
 		{
 			FilteredPlaylistEntry fpe;
 			fpe.entry = entry;

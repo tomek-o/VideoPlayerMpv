@@ -529,22 +529,13 @@ void TfrmMain::Play(void)
 				volume = entry->softVolLevel;
 				LOG("File volume: %d\n", volume);
 			}
-			mplayer.play(entry->fileName, volume, entry->skipOutroLength, entry->mplayerExtraParams);
+			mplayer.play(entry->getTarget(), volume, entry->skipOutroLength, entry->mplayerExtraParams);
 			mplayer.setOsdLevel(appSettings.Mplayer.osdLevel);
 			mplayer.setSubVisibility(appSettings.Mplayer.subVisibility);
 			if (appSettings.Mplayer.showFileNameOnPlayStart)
 			{
-				AnsiString text;
 				assert(entry);
-				if (entry->fileName != "")
-				{
-					text.sprintf("File: %s", System::AnsiToUtf8(ExtractFileName(entry->fileName)).c_str());
-					mplayer.osdShowText(text, 2000);					
-				}
-				else
-				{
-					LOG("Strange: entry without filename?\n");
-				}
+				mplayer.osdShowText(entry->getDescription(), 2000);
 			}
 			bool posSet = false;
 			if (prevState == STOP)

@@ -275,6 +275,7 @@
         <FILE FILENAME="scripting\ScriptSource.h" CONTAINERID="" LOCALCOMMAND="" UNITNAME="" FORMNAME="" DESIGNCLASS=""/>
         <FILE FILENAME="FormMpvSetProperty.cpp" CONTAINERID="CCompiler" LOCALCOMMAND="" UNITNAME="FormMpvSetProperty" FORMNAME="frmMpvSetProperty" DESIGNCLASS="" ADDITIONAL="FormMpvSetProperty.h"/>
         <FILE FILENAME="FormIntroOutroSkip.cpp" CONTAINERID="CCompiler" LOCALCOMMAND="" UNITNAME="FormIntroOutroSkip" FORMNAME="frmIntroOutroSkip" DESIGNCLASS="" ADDITIONAL="FormIntroOutroSkip.h"/>
+        <FILE FILENAME="FormAddUrl.cpp" CONTAINERID="CCompiler" LOCALCOMMAND="" UNITNAME="FormAddUrl" FORMNAME="frmAddUrl" DESIGNCLASS="" ADDITIONAL="FormAddUrl.h"/>
       </FILELIST>
       <IDEOPTIONS>
         <VersionInfo>

@@ -5,6 +5,7 @@
 
 #include "FormPlaylist.h"
 #include "FormIntroOutroSkip.h"
+#include "FormAddUrl.h"
 #include "Log.h"
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
@@ -115,78 +116,89 @@ void __fastcall TfrmPlaylist::lvPlaylistData(TObject *Sender, TListItem *Item)
 	{
 		Item->ImageIndex = -1;
 	}
-	Item->SubItems->Add(ExtractFileName(entry.entry.fileName));
-	AnsiString asSize;
-	asSize.sprintf("%.1f MB", static_cast<double>(entry.entry.size) / (1024*1024));
-	Item->SubItems->Add(asSize);
-	if (entry.entry.length < 0)
+
+	if (entry.entry.fileName != "")
 	{
-		Item->SubItems->Add("");
-	}
-	else if (entry.entry.length > 0.1)
-	{
-		double length = entry.entry.length;
-		int hours = static_cast<int>(length / 3600);
-		length -= hours * 3600;
-		int minutes = static_cast<int>(length / 60);
-		length -= minutes * 60;
-		int seconds = static_cast<int>(length);
-		AnsiString text;
-		text.sprintf("%d:%02d:%02d", hours, minutes, seconds);
-		Item->SubItems->Add(text);
-	}
-	else
-	{
-		Item->SubItems->Add("?");
-	}
-	Item->SubItems->Add(entry.entry.timeStamp);
-	if (entry.entry.bitrateVideoMin != PlaylistEntry::BITRATE_DEFAULT)
-	{
-		if (entry.entry.bitrateVideoMin == entry.entry.bitrateVideoMax)
+		Item->SubItems->Add(ExtractFileName(entry.entry.fileName));
+		AnsiString asSize;
+		asSize.sprintf("%.1f MB", static_cast<double>(entry.entry.size) / (1024*1024));
+		Item->SubItems->Add(asSize);
+		if (entry.entry.length < 0)
 		{
-			Item->SubItems->Add(entry.entry.bitrateVideoMin);
+			Item->SubItems->Add("");
+		}
+		else if (entry.entry.length > 0.1)
+		{
+			double length = entry.entry.length;
+			int hours = static_cast<int>(length / 3600);
+			length -= hours * 3600;
+			int minutes = static_cast<int>(length / 60);
+			length -= minutes * 60;
+			int seconds = static_cast<int>(length);
+			AnsiString text;
+			text.sprintf("%d:%02d:%02d", hours, minutes, seconds);
+			Item->SubItems->Add(text);
 		}
 		else
 		{
-			AnsiString str;
-			str.sprintf("%d ... %d", entry.entry.bitrateVideoMin, entry.entry.bitrateVideoMax);
-			Item->SubItems->Add(str);
+			Item->SubItems->Add("?");
 		}
-	}
-	else
-	{
-		Item->SubItems->Add("");
-	}
-	if (entry.entry.bitrateAudioMin != PlaylistEntry::BITRATE_DEFAULT)
-	{
-		if (entry.entry.bitrateAudioMin == entry.entry.bitrateAudioMax)
+		Item->SubItems->Add(entry.entry.timeStamp);
+		if (entry.entry.bitrateVideoMin != PlaylistEntry::BITRATE_DEFAULT)
 		{
-			Item->SubItems->Add(entry.entry.bitrateAudioMin);
+			if (entry.entry.bitrateVideoMin == entry.entry.bitrateVideoMax)
+			{
+				Item->SubItems->Add(entry.entry.bitrateVideoMin);
+			}
+			else
+			{
+				AnsiString str;
+				str.sprintf("%d ... %d", entry.entry.bitrateVideoMin, entry.entry.bitrateVideoMax);
+				Item->SubItems->Add(str);
+			}
 		}
 		else
 		{
-			AnsiString str;
-			str.sprintf("%d ... %d", entry.entry.bitrateAudioMin, entry.entry.bitrateAudioMax);
-			Item->SubItems->Add(str);
+			Item->SubItems->Add("");
+		}
+		if (entry.entry.bitrateAudioMin != PlaylistEntry::BITRATE_DEFAULT)
+		{
+			if (entry.entry.bitrateAudioMin == entry.entry.bitrateAudioMax)
+			{
+				Item->SubItems->Add(entry.entry.bitrateAudioMin);
+			}
+			else
+			{
+				AnsiString str;
+				str.sprintf("%d ... %d", entry.entry.bitrateAudioMin, entry.entry.bitrateAudioMax);
+				Item->SubItems->Add(str);
+			}
+		}
+		else
+		{
+			Item->SubItems->Add("");
+		}
+		// playback progress
+		if (entry.entry.length > 0)
+		{
+			AnsiString text;
+			double percents = 100.0 * entry.entry.playbackProgress / entry.entry.length;
+			if (entry.entry.playbackProgress > 0 && entry.entry.playbackProgress + 3 >= entry.entry.length)
+				percents = 100.0;
+			text.sprintf("%d%%", static_cast<int>(percents + 0.5));
+			Item->SubItems->Add(text);
+		}
+		else
+		{
+			Item->SubItems->Add("");
 		}
 	}
 	else
 	{
-		Item->SubItems->Add("");
-	}
-	// playback progress
-	if (entry.entry.length > 0)
-	{
-		AnsiString text;
-		double percents = 100.0 * entry.entry.playbackProgress / entry.entry.length;
-		if (entry.entry.playbackProgress > 0 && entry.entry.playbackProgress + 3 >= entry.entry.length)
-			percents = 100.0;
-		text.sprintf("%d%%", static_cast<int>(percents + 0.5));
-		Item->SubItems->Add(text);
-	}
-	else
-	{
-		Item->SubItems->Add("");
+		if (entry.entry.name != "")
+			Item->SubItems->Add(entry.entry.name);
+		else
+			Item->SubItems->Add(entry.entry.url);
 	}
 }
 //---------------------------------------------------------------------------
@@ -784,6 +796,17 @@ void __fastcall TfrmPlaylist::miSetIntroOutroSkipClick(TObject *Sender)
 		}
 		playlist.setSkipIntroOutro(ids, intro, outro);
 	}
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TfrmPlaylist::miAddUrlClick(TObject *Sender)
+{
+	frmAddUrl->ShowModal();
+	if (frmAddUrl->ModalResult == mrOk)
+	{
+		playlist.addUrl(frmAddUrl->getUrl(), frmAddUrl->getName());
+		update();
+	}	
 }
 //---------------------------------------------------------------------------
 

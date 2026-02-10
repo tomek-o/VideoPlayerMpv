@@ -119,5 +119,6 @@ Vesion 3.3
 
 Version 3.4
 - added option to start minimized to tray
+- URLs (like HTTP/HTTPS radio stations) can be added to playlist
 */
 
