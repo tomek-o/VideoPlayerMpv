@@ -116,5 +116,8 @@ Vesion 3.3
 - options to skip file intro and outro (configurable times per playlist entry)
 - forcing video output / OSD also for audio-only files 
 - added tray icon (opt-out)
+
+Version 3.4
+- added option to start minimized to tray
 */
 

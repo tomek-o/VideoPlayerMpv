@@ -22,11 +22,15 @@ USEFORM("FormIntroOutroSkip.cpp", frmIntroOutroSkip);
 #pragma link "lua_static.lib"
 #pragma link "scintilla.lib"
 
+#include "Settings.h"
+#include "FormMain.h"
+
 WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 {
 	try
 	{
 		Application->Initialize();
+		Application->ShowMainForm = false;
 		Application->Title = "Video Player";
 		Application->CreateForm(__classid(TfrmMain), &frmMain);
 		Application->CreateForm(__classid(TfrmLog), &frmLog);
@@ -34,6 +38,16 @@ WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		Application->CreateForm(__classid(TfrmAbout), &frmAbout);
 		Application->CreateForm(__classid(TfrmMpvSetProperty), &frmMpvSetProperty);
 		Application->CreateForm(__classid(TfrmIntroOutroSkip), &frmIntroOutroSkip);
+
+		if (!appSettings.gui.showTrayIcon || !appSettings.gui.startMinimizedToTray)
+		{
+			frmMain->Show();
+		}
+		else
+		{
+			ShowWindow(Application->Handle, SW_HIDE); // hide taskbar button
+		}
+
 		Application->Run();
 	}
 	catch (Exception &exception)

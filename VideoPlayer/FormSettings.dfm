@@ -79,7 +79,7 @@ object frmSettings: TfrmSettings
       end
       object btnShowLogWindow: TButton
         Left = 3
-        Top = 122
+        Top = 138
         Width = 126
         Height = 25
         Caption = 'Show log window'
@@ -97,7 +97,7 @@ object frmSettings: TfrmSettings
       end
       object btnAbout: TButton
         Left = 3
-        Top = 153
+        Top = 169
         Width = 126
         Height = 25
         Caption = 'About...'
@@ -133,6 +133,14 @@ object frmSettings: TfrmSettings
         Height = 17
         Caption = 'Show icon in system tray'
         TabOrder = 6
+      end
+      object chbStartMinimizedToTray: TCheckBox
+        Left = 22
+        Top = 112
+        Width = 243
+        Height = 17
+        Caption = 'Start minimized to tray'
+        TabOrder = 7
       end
     end
     object tsLogging: TTabSheet

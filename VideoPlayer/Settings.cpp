@@ -32,6 +32,7 @@ void Settings::_gui::fromJson(const Json::Value &jv)
 		return;
 	jv.getIntInRange("scalingPct", scalingPct, SCALING_MIN, SCALING_MAX);
 	jv.getBool("showTrayIcon", showTrayIcon);
+	jv.getBool("startMinimizedToTray", startMinimizedToTray);
 }
 
 void Settings::_gui::toJson(Json::Value &jv) const
@@ -39,6 +40,7 @@ void Settings::_gui::toJson(Json::Value &jv) const
 	jv = Json::Value(Json::objectValue);
 	jv["scalingPct"] = scalingPct;
 	jv["showTrayIcon"] = showTrayIcon;
+	jv["startMinimizedToTray"] = startMinimizedToTray;
 }
 
 void Settings::SetDefault(void)

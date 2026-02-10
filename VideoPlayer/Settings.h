@@ -29,6 +29,7 @@ public:
 		enum { SCALING_MAX = 200 };
 		int scalingPct;					///< scaling (percentage)
 		bool showTrayIcon;
+		bool startMinimizedToTray;
 		_gui(void);
 		void fromJson(const Json::Value &jv);
 		void toJson(Json::Value &jv) const;
