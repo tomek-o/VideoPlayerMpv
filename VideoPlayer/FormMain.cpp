@@ -537,6 +537,11 @@ void TfrmMain::Play(void)
 				assert(entry);
 				mplayer.osdShowText(entry->getDescription(), 2000);
 			}
+			if (appSettings.gui.showTrayIcon && appSettings.gui.showTrayBalloonOnPlayStart && trIcon)
+			{
+				assert(entry);
+				trIcon->ShowBalloonNotification(Caption, entry->getDescription());
+			}
 			bool posSet = false;
 			if (prevState == STOP)
 			{

@@ -22,7 +22,8 @@ inline void strncpyz(char* dst, const char* src, int dstsize) {
 
 Settings::_gui::_gui(void):
 	scalingPct(SCALING_DEF),
-	showTrayIcon(true)
+	showTrayIcon(true),
+	showTrayBalloonOnPlayStart(false)
 {
 }
 
@@ -33,6 +34,7 @@ void Settings::_gui::fromJson(const Json::Value &jv)
 	jv.getIntInRange("scalingPct", scalingPct, SCALING_MIN, SCALING_MAX);
 	jv.getBool("showTrayIcon", showTrayIcon);
 	jv.getBool("startMinimizedToTray", startMinimizedToTray);
+	jv.getBool("showTrayBalloonOnPlayStart", showTrayBalloonOnPlayStart);
 }
 
 void Settings::_gui::toJson(Json::Value &jv) const
@@ -41,6 +43,7 @@ void Settings::_gui::toJson(Json::Value &jv) const
 	jv["scalingPct"] = scalingPct;
 	jv["showTrayIcon"] = showTrayIcon;
 	jv["startMinimizedToTray"] = startMinimizedToTray;
+	jv["showTrayBalloonOnPlayStart"] = showTrayBalloonOnPlayStart;
 }
 
 void Settings::SetDefault(void)

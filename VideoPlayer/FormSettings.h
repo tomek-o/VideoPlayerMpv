@@ -46,6 +46,7 @@ __published:	// IDE-managed Components
 	TCheckBox *chbIgnoreMouseMovementInFullScreenPlayback;
 	TCheckBox *chbShowTrayIcon;
 	TCheckBox *chbStartMinimizedToTray;
+	TCheckBox *chbShowTrayBalloonOnPlayStart;
 	void __fastcall FormShow(TObject *Sender);
 	void __fastcall btnCancelClick(TObject *Sender);
 	void __fastcall btnApplyClick(TObject *Sender);

@@ -30,6 +30,7 @@ public:
 		int scalingPct;					///< scaling (percentage)
 		bool showTrayIcon;
 		bool startMinimizedToTray;
+		bool showTrayBalloonOnPlayStart;
 		_gui(void);
 		void fromJson(const Json::Value &jv);
 		void toJson(Json::Value &jv) const;

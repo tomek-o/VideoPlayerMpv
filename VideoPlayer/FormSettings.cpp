@@ -39,6 +39,7 @@ void __fastcall TfrmSettings::FormShow(TObject *Sender)
 	chbIgnoreMouseMovementInFullScreenPlayback->Checked = tmpSettings.frmMain.ignoreMouseMovementInFullScreenPlayback;
 	chbShowTrayIcon->Checked = tmpSettings.gui.showTrayIcon;
 	chbStartMinimizedToTray->Checked = tmpSettings.gui.startMinimizedToTray;
+	chbShowTrayBalloonOnPlayStart->Checked = tmpSettings.gui.showTrayBalloonOnPlayStart;
 
 	chbLogToFile->Checked = tmpSettings.Logging.bLogToFile;
 	cmbMaxUiLogLines->ItemIndex = -1;
@@ -76,6 +77,7 @@ void __fastcall TfrmSettings::btnApplyClick(TObject *Sender)
 	tmpSettings.frmMain.ignoreMouseMovementInFullScreenPlayback = chbIgnoreMouseMovementInFullScreenPlayback->Checked;
 	tmpSettings.gui.showTrayIcon = chbShowTrayIcon->Checked;
 	tmpSettings.gui.startMinimizedToTray = chbStartMinimizedToTray->Checked;
+	tmpSettings.gui.showTrayBalloonOnPlayStart = chbShowTrayBalloonOnPlayStart->Checked;
 
 	tmpSettings.Logging.bLogToFile = chbLogToFile->Checked;
 

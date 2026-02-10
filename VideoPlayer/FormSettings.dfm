@@ -79,7 +79,7 @@ object frmSettings: TfrmSettings
       end
       object btnShowLogWindow: TButton
         Left = 3
-        Top = 138
+        Top = 162
         Width = 126
         Height = 25
         Caption = 'Show log window'
@@ -97,7 +97,7 @@ object frmSettings: TfrmSettings
       end
       object btnAbout: TButton
         Left = 3
-        Top = 169
+        Top = 193
         Width = 126
         Height = 25
         Caption = 'About...'
@@ -141,6 +141,16 @@ object frmSettings: TfrmSettings
         Height = 17
         Caption = 'Start minimized to tray'
         TabOrder = 7
+      end
+      object chbShowTrayBalloonOnPlayStart: TCheckBox
+        Left = 22
+        Top = 132
+        Width = 475
+        Height = 17
+        Caption = 
+          'Show tray notification balloon on play start (for Windows 7, pro' +
+          'bably won'#39't work with Win 10)'
+        TabOrder = 8
       end
     end
     object tsLogging: TTabSheet
