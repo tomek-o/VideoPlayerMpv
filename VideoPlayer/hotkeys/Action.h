@@ -8,7 +8,7 @@ struct Action
 	enum Type
 	{
 		TYPE_NONE = 0,
-		TYPE_PLAY_STOP,
+		TYPE_STOP,
 		TYPE_PLAY_PAUSE,
 		TYPE_SEEK_M3,
 		TYPE_SEEK_P3,

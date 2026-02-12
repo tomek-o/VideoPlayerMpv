@@ -76,7 +76,7 @@ void Settings::SetDefault(void)
 
 		hk.keyCode = "VK_RETURN";
 		hk.modifiers = 0;
-		action.type = Action::TYPE_PLAY_STOP;
+		action.type = Action::TYPE_STOP;
 		hk.action = action;
 		hotKeyConf.push_back(hk);
 

@@ -6,8 +6,8 @@ const char* Action::getTypeDescription(enum Action::Type type)
 	{
 	case TYPE_NONE:
 		return "none";
-	case TYPE_PLAY_STOP:
-		return "play/stop";
+	case TYPE_STOP:
+		return "stop";
 	case TYPE_PLAY_PAUSE:
 		return "play/pause";
 	case TYPE_SEEK_M3:
