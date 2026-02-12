@@ -29,6 +29,7 @@ struct Action
 		TYPE_OPEN_SCRIPT_WINDOW,
 		TYPE_TOGGLE_SUB_VISIBILITY,
 		TYPE_PAUSE_FRAME_STEP,
+		TYPE_PLAY_STOP,				///< play (start) or stop
 
 		TYPE_LIMITER
 	} type;

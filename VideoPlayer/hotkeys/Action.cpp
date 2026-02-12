@@ -48,6 +48,8 @@ const char* Action::getTypeDescription(enum Action::Type type)
 		return "toggle subtitles visibility";
 	case TYPE_PAUSE_FRAME_STEP:
 		return "pause / frame step";
+	case TYPE_PLAY_STOP:
+		return "play/stop";
 	default:
 		return "???";
 	}

@@ -888,6 +888,16 @@ void TfrmMain::ExecAction(const struct Action& action)
 			Stop();
 		}
 		break;
+	case Action::TYPE_PLAY_STOP:
+		if (state != PLAY)
+		{
+			Play();
+		}
+		else
+		{
+			Stop();
+		}
+		break;
 	case Action::TYPE_PLAY_PAUSE:
 		if (state == PLAY || state == PAUSE)
 		{
