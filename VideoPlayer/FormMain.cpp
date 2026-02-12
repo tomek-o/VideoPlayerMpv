@@ -883,7 +883,10 @@ void TfrmMain::ExecAction(const struct Action& action)
 	case Action::TYPE_NONE:
 		break;
 	case Action::TYPE_STOP:
-		Stop();
+		if (state != STOP)
+		{
+			Stop();
+		}
 		break;
 	case Action::TYPE_PLAY_PAUSE:
 		if (state == PLAY || state == PAUSE)
