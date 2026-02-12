@@ -74,6 +74,12 @@ void Settings::SetDefault(void)
 		hk.action = action;
 		hotKeyConf.push_back(hk);
 
+		hk.keyCode = "VK_MEDIA_PLAY_PAUSE";
+		hk.modifiers = 0;
+		action.type = Action::TYPE_PLAY_STOP;
+		hk.action = action;
+		hotKeyConf.push_back(hk);
+
 		hk.keyCode = "VK_RETURN";
 		hk.modifiers = 0;
 		action.type = Action::TYPE_STOP;
@@ -134,6 +140,12 @@ void Settings::SetDefault(void)
 		hk.action = action;
 		hotKeyConf.push_back(hk);
 
+		hk.keyCode = "VK_MEDIA_NEXT_TRACK";
+		hk.modifiers = 0;
+		action.type = Action::TYPE_SKIP;
+		hk.action = action;
+		hotKeyConf.push_back(hk);
+
 		hk.keyCode = "P key";
 		hk.modifiers = 0;
 		action.type = Action::TYPE_PREV;
@@ -141,6 +153,12 @@ void Settings::SetDefault(void)
 		hotKeyConf.push_back(hk);
 
 		hk.keyCode = "VK_PRIOR";
+		hk.modifiers = 0;
+		action.type = Action::TYPE_PREV;
+		hk.action = action;
+		hotKeyConf.push_back(hk);
+
+		hk.keyCode = "VK_MEDIA_PREV_TRACK";
 		hk.modifiers = 0;
 		action.type = Action::TYPE_PREV;
 		hk.action = action;
