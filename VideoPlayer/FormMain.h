@@ -88,7 +88,7 @@ private:	// User declarations
 	} state;
 	void SetState(enum STATE state);
 	void Play(void);
-	void Pause(void);
+	void PlayPause(void);
 	void Stop(void);
 	void Skip(void);
 	void Prev(void);

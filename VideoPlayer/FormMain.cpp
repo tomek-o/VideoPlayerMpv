@@ -720,7 +720,7 @@ void __fastcall TfrmMain::btnPauseStillClick(TObject *Sender)
 {
 	if (state == PLAY)
 	{
-		Pause();
+		PlayPause();
 	}
 	else if (state == PAUSE)
 	{
@@ -734,7 +734,7 @@ void __fastcall TfrmMain::btnPauseStillClick(TObject *Sender)
 }
 //---------------------------------------------------------------------------
 
-void TfrmMain::Pause(void)
+void TfrmMain::PlayPause(void)
 {
 	if (state == PLAY)
 	{
@@ -891,7 +891,7 @@ void TfrmMain::ExecAction(const struct Action& action)
 	case Action::TYPE_PLAY_PAUSE:
 		if (state == PLAY || state == PAUSE)
 		{
-			Pause();
+			PlayPause();
 		}
 		break;
 	case Action::TYPE_PAUSE_FRAME_STEP:
