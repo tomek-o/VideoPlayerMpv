@@ -801,12 +801,46 @@ void __fastcall TfrmPlaylist::miSetIntroOutroSkipClick(TObject *Sender)
 
 void __fastcall TfrmPlaylist::miAddUrlClick(TObject *Sender)
 {
+	frmAddUrl->Caption = "Add URL";
 	frmAddUrl->ShowModal();
 	if (frmAddUrl->ModalResult == mrOk)
 	{
 		playlist.addUrl(frmAddUrl->getUrl(), frmAddUrl->getName());
 		update();
-	}	
+	}
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TfrmPlaylist::miEditUrlClick(TObject *Sender)
+{
+	TListItem *item = lvPlaylist->Selected;
+	if (item == NULL)
+		return;
+	int id = item->Index;
+	const std::vector<FilteredPlaylistEntry>& entries = playlist.getFilteredEntries();
+	const FilteredPlaylistEntry &fentry = entries[id];
+
+	frmAddUrl->Caption = "Edit URL";
+	frmAddUrl->set(fentry.entry.url, fentry.entry.name);
+	frmAddUrl->ShowModal();
+	if (frmAddUrl->ModalResult == mrOk)
+	{
+		playlist.updateUrl(fentry.id, frmAddUrl->getUrl(), frmAddUrl->getName());
+		update();
+	}
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TfrmPlaylist::popupMenuPopup(TObject *Sender)
+{
+	TListItem *item = lvPlaylist->Selected;
+	if (item == NULL)
+		return;
+	int id = item->Index;
+	const std::vector<FilteredPlaylistEntry>& entries = playlist.getFilteredEntries();
+	const FilteredPlaylistEntry &fentry = entries[id];
+
+	miEditUrl->Visible = (fentry.entry.fileName == "");	
 }
 //---------------------------------------------------------------------------
 

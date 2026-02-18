@@ -248,6 +248,15 @@ void Playlist::addUrl(AnsiString url, AnsiString name)
 	modified = true;
 }
 
+void Playlist::updateUrl(unsigned int id, AnsiString url, AnsiString name)
+{
+	PlaylistEntry& entry = entries[id];
+	entry.url = url;
+	entry.name = name;
+	filter(filterText);
+	modified = true;
+}
+
 void Playlist::remove(const std::set<unsigned int>& ids)
 {
 	std::vector<PlaylistEntry> newEntries;
@@ -684,7 +693,7 @@ int Playlist::resetBitrateInfo(unsigned int id)
 	entry.bitrateVideoMax = PlaylistEntry::BITRATE_DEFAULT;
 	entry.bitrateAudioMin = PlaylistEntry::BITRATE_DEFAULT;
 	entry.bitrateAudioMax = PlaylistEntry::BITRATE_DEFAULT;
-	filter(filterText);	
+	filter(filterText);
 	modified = true;
 	return 0;
 }

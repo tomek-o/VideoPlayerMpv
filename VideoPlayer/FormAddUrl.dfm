@@ -39,8 +39,6 @@ object frmAddUrl: TfrmAddUrl
     Align = alBottom
     BevelOuter = bvNone
     TabOrder = 0
-    ExplicitTop = 62
-    ExplicitWidth = 234
     DesignSize = (
       426
       37)
@@ -53,7 +51,6 @@ object frmAddUrl: TfrmAddUrl
       Caption = 'Cancel'
       ModalResult = 2
       TabOrder = 1
-      ExplicitLeft = 151
     end
     object btnApply: TButton
       Left = 262
@@ -64,7 +61,6 @@ object frmAddUrl: TfrmAddUrl
       Caption = 'Apply'
       ModalResult = 1
       TabOrder = 0
-      ExplicitLeft = 70
     end
   end
   object edUrl: TEdit

@@ -99,6 +99,7 @@ object frmPlaylist: TfrmPlaylist
     end
   end
   object popupMenu: TPopupMenu
+    OnPopup = popupMenuPopup
     Left = 8
     Top = 24
     object miAddFiles: TMenuItem
@@ -132,6 +133,10 @@ object frmPlaylist: TfrmPlaylist
     object miAddUrl: TMenuItem
       Caption = 'Add URL'
       OnClick = miAddUrlClick
+    end
+    object miEditUrl: TMenuItem
+      Caption = 'Edit URL entry'
+      OnClick = miEditUrlClick
     end
     object N1: TMenuItem
       Caption = '-'

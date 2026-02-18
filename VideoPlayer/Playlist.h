@@ -70,6 +70,7 @@ public:
 	void setSkipIntroOutro(const std::set<unsigned int>& ids, unsigned int intro, unsigned int outro);
 
 	void addUrl(AnsiString url, AnsiString name);
+	void updateUrl(unsigned int id, AnsiString url, AnsiString name);
 
 	enum SortType {
 		SortRandom = 0,

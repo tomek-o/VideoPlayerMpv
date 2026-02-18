@@ -120,5 +120,8 @@ Vesion 3.3
 Version 3.4
 - added option to start minimized to tray
 - URLs (like HTTP/HTTPS radio stations) can be added to playlist
+- added option to show ballon tooltip with file/URL name on play start (Win7)
+- renamed play/stop action to stop, added actual play/stop (start/stop) action
+- added media hotkeys (Play/Pause, Previous Track and Next Track) to default configuration, by default not global
 */
 

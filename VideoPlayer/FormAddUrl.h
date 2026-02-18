@@ -29,6 +29,10 @@ public:		// User declarations
 	AnsiString getName(void) {
 		return edName->Text.Trim();
 	}
+	void set(AnsiString url, AnsiString name) {
+		edUrl->Text = url;
+		edName->Text = name;
+	}
 };
 //---------------------------------------------------------------------------
 extern PACKAGE TfrmAddUrl *frmAddUrl;
