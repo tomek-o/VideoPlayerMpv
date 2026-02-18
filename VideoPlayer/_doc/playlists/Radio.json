@@ -1,0 +1,29 @@
+{
+	"playlist" : {
+		"entries" : [
+			{
+				"name" : "Radio 357",
+				"url" : "https://stream.rcs.revma.com/an1ugyygzk8uv"
+			},
+			{
+				"name" : "PR 1",
+				"url" : "http://mp3.polskieradio.pl:8900/"
+			},
+			{
+				"name" : "PR 2",
+				"url" : "http://mp3.polskieradio.pl:8902/"
+			},
+			{
+				"name" : "PR 3",
+				"url" : "http://mp3.polskieradio.pl:8904/"
+			},
+			{
+				"name" : "PR 4",
+				"url" : "http://mp3.polskieradio.pl:8906/"
+			}
+		],
+		"filePosition" : 9.77299752380945,
+		"filterText" : "",
+		"position" : -1
+	}
+}
