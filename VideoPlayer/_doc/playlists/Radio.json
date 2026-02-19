@@ -20,10 +20,22 @@
 			{
 				"name" : "PR 4",
 				"url" : "http://mp3.polskieradio.pl:8906/"
+			},
+			{
+				"name" : "rockantenne.de",
+				"url" : "http://stream.rockantenne.de/gothic/stream/mp3?aw_0_1st.playerid=radio.de"
+			},
+			{
+				"name" : "streamplus",
+				"url" : "http://streamplus20.leonex.de:16010"
+			},
+			{
+				"name" : "Bialystok",
+				"url" : "http://stream4.nadaje.com:15476/radiobialystok"
 			}
 		],
-		"filePosition" : 9.77299752380945,
+		"filePosition" : 5.23719400000001,
 		"filterText" : "",
-		"position" : -1
+		"position" : 0
 	}
 }
