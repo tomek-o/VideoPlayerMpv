@@ -123,5 +123,10 @@ Version 3.4
 - added option to show ballon tooltip with file/URL name on play start (Win7)
 - renamed play/stop action to stop, added actual play/stop (start/stop) action
 - added media hotkeys (Play/Pause, Previous Track and Next Track) to default configuration, by default not global
+- added "Stop" to tray menu
+- added bitmaps (icons) to tray menu items
+- added option to ignore "Prev" command/hotkey when playing first item from the playlist
+- added option to ignore "Next" command/hotkey when playing last item from the playlist
+- settings window height can be resized (allows displaying more hotkeys same time)
 */
 

@@ -22,6 +22,11 @@ mpv:
 	
 - handle multiple monitors (initial position) like with tSIP
 
+- autostart?
+- configurable buffer length for radio stations?
+- add prev/next to tray menu?
+
+
 */
 
 
