@@ -2,11 +2,13 @@ object frmSettings: TfrmSettings
   Left = 0
   Top = 0
   BorderIcons = [biSystemMenu]
-  BorderStyle = bsSingle
   Caption = 'Settings'
-  ClientHeight = 363
-  ClientWidth = 621
+  ClientHeight = 353
+  ClientWidth = 627
   Color = clBtnFace
+  Constraints.MaxWidth = 635
+  Constraints.MinHeight = 380
+  Constraints.MinWidth = 635
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
@@ -21,17 +23,18 @@ object frmSettings: TfrmSettings
   TextHeight = 13
   object pnlBottom: TPanel
     Left = 0
-    Top = 326
-    Width = 621
+    Top = 316
+    Width = 627
     Height = 37
     Align = alBottom
     BevelOuter = bvNone
     TabOrder = 1
+    ExplicitWidth = 624
     DesignSize = (
-      621
+      627
       37)
     object btnCancel: TButton
-      Left = 538
+      Left = 544
       Top = 6
       Width = 75
       Height = 25
@@ -39,9 +42,10 @@ object frmSettings: TfrmSettings
       Caption = 'Cancel'
       TabOrder = 1
       OnClick = btnCancelClick
+      ExplicitLeft = 541
     end
     object btnApply: TButton
-      Left = 457
+      Left = 463
       Top = 6
       Width = 75
       Height = 25
@@ -49,18 +53,21 @@ object frmSettings: TfrmSettings
       Caption = 'Apply'
       TabOrder = 0
       OnClick = btnApplyClick
+      ExplicitLeft = 460
     end
   end
   object pcSettings: TPageControl
     Left = 0
     Top = 0
-    Width = 621
-    Height = 326
+    Width = 627
+    Height = 316
     ActivePage = tsGeneral
     Align = alClient
     TabOrder = 0
+    ExplicitWidth = 624
     object tsGeneral: TTabSheet
       Caption = 'General'
+      ExplicitWidth = 616
       object lblControlPanelPosition: TLabel
         Left = 3
         Top = 49
@@ -173,6 +180,10 @@ object frmSettings: TfrmSettings
       Caption = 'Logging'
       ImageIndex = 1
       TabVisible = False
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 606
+      ExplicitHeight = 0
       object lblUiCapacity: TLabel
         Left = 5
         Top = 26
@@ -186,7 +197,7 @@ object frmSettings: TfrmSettings
         Width = 111
         Height = 21
         Style = csDropDownList
-        ItemHeight = 13
+        ItemHeight = 0
         TabOrder = 0
         OnChange = cmbMaxUiLogLinesChange
         Items.Strings = (
@@ -211,6 +222,10 @@ object frmSettings: TfrmSettings
     object tsMplayer: TTabSheet
       Caption = 'mpv'
       ImageIndex = 2
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object lblSoftVolMax: TLabel
         Left = 3
         Top = 3
@@ -261,6 +276,10 @@ object frmSettings: TfrmSettings
     object tsHotkeys: TTabSheet
       Caption = 'Hotkeys'
       ImageIndex = 3
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
     end
   end
   object OpenDialog: TOpenDialog
