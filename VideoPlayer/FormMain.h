@@ -46,6 +46,8 @@ __published:	// IDE-managed Components
 	TMenuItem *miExit;
 	TMenuItem *miPlay;
 	TMenuItem *miPause;
+	TMenuItem *miStop;
+	TMenuItem *N1;
 	void __fastcall FormCreate(TObject *Sender);
 	void __fastcall FormCloseQuery(TObject *Sender, bool &CanClose);
 	void __fastcall actShowAboutExecute(TObject *Sender);
@@ -75,6 +77,7 @@ __published:	// IDE-managed Components
 	void __fastcall miExitClick(TObject *Sender);
 	void __fastcall miPlayClick(TObject *Sender);
 	void __fastcall miPauseClick(TObject *Sender);
+	void __fastcall miStopClick(TObject *Sender);
 private:	// User declarations
 	TrayIcon *trIcon;
 	void ApplySettings(const Settings &prev);

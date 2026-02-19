@@ -57,6 +57,8 @@ void Settings::SetDefault(void)
 	frmMain.bExitFullScreenOnStop = true;
 	frmMain.controlPanelPosition = _frmMain::CONTROL_PANEL_TOP;
 	frmMain.ignoreMouseMovementInFullScreenPlayback = false;
+	frmMain.ignorePrevCommandWhenPlayingFirstItem = false;
+	frmMain.ignoreNextCommandWhenPlayingLastItem = false;
 
 	Logging.bLogToFile = false;
 	Logging.bFlush = false;
@@ -267,6 +269,8 @@ int Settings::Read(AnsiString asFileName)
 	frmMain.bExitFullScreenOnStop = frmMainJson.get("ExitFullScreenOnStop", frmMain.bExitFullScreenOnStop).asBool();
 	frmMain.controlPanelPosition = static_cast<_frmMain::ControlPanelPosition>(frmMainJson.get("ControlPanelPosition", frmMain.controlPanelPosition).asInt());
 	frmMainJson.getBool("IgnoreMouseMovementInFullScreenPlayback", frmMain.ignoreMouseMovementInFullScreenPlayback);
+	frmMainJson.getBool("IgnorePrevCommandWhenPlayingFirstItem", frmMain.ignorePrevCommandWhenPlayingFirstItem);
+	frmMainJson.getBool("IgnoreNextCommandWhenPlayingLastItem", frmMain.ignoreNextCommandWhenPlayingLastItem);
 
 	const Json::Value &LoggingJson = root["Logging"];
 	Logging.bLogToFile = LoggingJson.get("LogToFile", false).asBool();
@@ -372,6 +376,8 @@ int Settings::Write(AnsiString asFileName)
 		jv["ExitFullScreenOnStop"] = frmMain.bExitFullScreenOnStop;
 		jv["ControlPanelPosition"] = frmMain.controlPanelPosition;
 		jv["IgnoreMouseMovementInFullScreenPlayback"] = frmMain.ignoreMouseMovementInFullScreenPlayback;
+		jv["IgnorePrevCommandWhenPlayingFirstItem"] = frmMain.ignorePrevCommandWhenPlayingFirstItem;
+		jv["IgnoreNextCommandWhenPlayingLastItem"] = frmMain.ignoreNextCommandWhenPlayingLastItem;
 	}
 
 	{

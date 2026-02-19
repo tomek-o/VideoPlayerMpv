@@ -88,7 +88,9 @@ public:		// User declarations
 	const PlaylistEntry* getFileToPlay(void);
 	void setFiles(const std::vector<AnsiString>& filenames, bool switchTo);
 	CallbackStartPlaying callbackStartPlaying;
+	bool hasNextFile(void);
 	int playNextFile(void);
+	bool hasPrevFile(void);
 	int playPrevFile(void);
 	AnsiString getFileName(void) const {
     	return fileName;

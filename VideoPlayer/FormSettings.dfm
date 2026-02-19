@@ -79,7 +79,7 @@ object frmSettings: TfrmSettings
       end
       object btnShowLogWindow: TButton
         Left = 3
-        Top = 162
+        Top = 218
         Width = 126
         Height = 25
         Caption = 'Show log window'
@@ -97,7 +97,7 @@ object frmSettings: TfrmSettings
       end
       object btnAbout: TButton
         Left = 3
-        Top = 193
+        Top = 249
         Width = 126
         Height = 25
         Caption = 'About...'
@@ -151,6 +151,22 @@ object frmSettings: TfrmSettings
           'Show tray notification balloon on play start (for Windows 7, pro' +
           'bably won'#39't work with Win 10)'
         TabOrder = 8
+      end
+      object chbIgnorePrevCommandWhenPlayingFirstItem: TCheckBox
+        Left = 3
+        Top = 155
+        Width = 390
+        Height = 17
+        Caption = 'Ignore "Prev" command when playing first item from the playlist'
+        TabOrder = 9
+      end
+      object chbIgnoreNextCommandWhenPlayingLastItem: TCheckBox
+        Left = 3
+        Top = 176
+        Width = 390
+        Height = 17
+        Caption = 'Ignore "Next" command when playing last item from the playlist'
+        TabOrder = 10
       end
     end
     object tsLogging: TTabSheet

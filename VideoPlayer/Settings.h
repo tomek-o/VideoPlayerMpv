@@ -48,6 +48,8 @@ public:
 			CONTROL_PANEL_BOTTOM
 		} controlPanelPosition;
 		bool ignoreMouseMovementInFullScreenPlayback;
+		bool ignorePrevCommandWhenPlayingFirstItem;
+		bool ignoreNextCommandWhenPlayingLastItem;
 	} frmMain;
 	struct _Logging
 	{

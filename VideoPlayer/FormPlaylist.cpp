@@ -334,6 +334,19 @@ void TfrmPlaylist::play(void)
 	callbackStartPlaying();
 }
 
+bool TfrmPlaylist::hasNextFile(void)
+{
+	TListItem *item = lvPlaylist->Selected;
+	if (item == NULL)
+		return false;
+	int id = item->Index;
+	if (id < lvPlaylist->Items->Count - 1)
+	{
+		return true;
+	}
+	return false;
+}
+
 int TfrmPlaylist::playNextFile(void)
 {
 	TListItem *item = lvPlaylist->Selected;
@@ -350,6 +363,19 @@ int TfrmPlaylist::playNextFile(void)
 		return 0;
 	}
 	return -3;
+}
+
+bool TfrmPlaylist::hasPrevFile(void)
+{
+	TListItem *item = lvPlaylist->Selected;
+	if (item == NULL)
+		return false;
+	int id = item->Index;
+	if (id > 0)
+	{
+		return true;
+	}
+	return false;
 }
 
 int TfrmPlaylist::playPrevFile(void)

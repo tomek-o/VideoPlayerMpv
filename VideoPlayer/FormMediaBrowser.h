@@ -67,7 +67,9 @@ public:		// User declarations
 	void SetFiles(const std::vector<AnsiString>& filenames, bool switchTo);
 	CallbackStartPlaying callbackStartPlaying;
 	void SavePlaylists(void);
+	bool HasNextFile(void);
 	int PlayNextFile(void);
+	bool HasPrevFile(void);
 	int PlayPrevFile(void);
 	void DeleteFile(AnsiString filename);
 	void SetFileLength(double length);

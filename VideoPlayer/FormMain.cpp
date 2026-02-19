@@ -754,6 +754,10 @@ void TfrmMain::Skip(void)
 	{
 		return;
 	}
+	if (appSettings.frmMain.ignoreNextCommandWhenPlayingLastItem && !frmMediaBrowser->HasNextFile())
+	{
+    	return;
+	}
 	mplayer.stop(false);
 	state = STOP;	// forcing PAUSE -> STOP transition
 	int status = frmMediaBrowser->PlayNextFile();
@@ -773,6 +777,11 @@ void TfrmMain::Prev(void)
 	{
 		return;
 	}
+	if (appSettings.frmMain.ignorePrevCommandWhenPlayingFirstItem && !frmMediaBrowser->HasPrevFile())
+	{
+    	return;
+	}
+
 	mplayer.stop(false);
 	state = STOP;	// forcing PAUSE -> STOP transition
 	int status = frmMediaBrowser->PlayPrevFile();
@@ -794,21 +803,24 @@ void TfrmMain::SetState(enum STATE state)
 	case STOP:
 		btnPlay->Down = false;
 		btnPauseStill->Down = false;
-		miPlay->Enabled = false;
+		miPlay->Enabled = true;
 		miPause->Enabled = false;
-		ShowMediaBrowser(true);		
+		miStop->Enabled = false;
+		ShowMediaBrowser(true);
 		break;
 	case PAUSE:
 		btnPlay->Down = false;
 		btnPauseStill->Down = true;
 		miPlay->Enabled = true;
 		miPause->Enabled = false;
+		miStop->Enabled = true;
 		break;
 	case PLAY:
 		btnPlay->Down = true;
 		btnPauseStill->Down = false;
 		miPlay->Enabled = false;
 		miPause->Enabled = true;
+		miStop->Enabled = true;
 		ShowMediaBrowser(false);
 		break;
 	default:
@@ -1164,3 +1176,10 @@ void TfrmMain::UpdateTrayIcon(void)
 		}
 	}
 }
+
+void __fastcall TfrmMain::miStopClick(TObject *Sender)
+{
+	Stop();
+}
+//---------------------------------------------------------------------------
+

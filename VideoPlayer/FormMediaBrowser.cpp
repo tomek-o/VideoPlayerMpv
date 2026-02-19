@@ -413,6 +413,16 @@ void TfrmMediaBrowser::Play(void)
 		callbackStartPlaying();
 }
 
+bool TfrmMediaBrowser::HasNextFile(void)
+{
+	TfrmPlaylist *frm = getPlaylist(pcSource->ActivePageIndex);
+	if (frm)
+	{
+		return frm->hasNextFile();
+	}
+	return false;
+}
+
 int TfrmMediaBrowser::PlayNextFile(void)
 {
 	TfrmPlaylist *frm = getPlaylist(pcSource->ActivePageIndex);
@@ -421,6 +431,16 @@ int TfrmMediaBrowser::PlayNextFile(void)
 		return frm->playNextFile();
 	}
 	return -1;
+}
+
+bool TfrmMediaBrowser::HasPrevFile(void)
+{
+	TfrmPlaylist *frm = getPlaylist(pcSource->ActivePageIndex);
+	if (frm)
+	{
+		return frm->hasPrevFile();
+	}
+	return false;
 }
 
 int TfrmMediaBrowser::PlayPrevFile(void)
