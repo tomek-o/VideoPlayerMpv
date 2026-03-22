@@ -748,6 +748,15 @@ void TfrmMain::PlayPause(void)
 	}
 }
 
+void TfrmMain::Pause(void)
+{
+	if (state == PLAY)
+	{
+		SetState(PAUSE);
+		mplayer.pause(true);
+	}
+}
+
 void TfrmMain::Skip(void)
 {
 	if (state != PLAY && state != PAUSE)
@@ -1183,3 +1192,21 @@ void __fastcall TfrmMain::miStopClick(TObject *Sender)
 }
 //---------------------------------------------------------------------------
 
+void __fastcall TfrmMain::WMPowerBroadcast(TMessage &Msg)
+{
+    switch (Msg.WParam)
+    {
+		case PBT_APMSUSPEND:
+			if (appSettings.frmMain.pauseOnSuspend)
+			{
+				Pause();
+			}
+            break;
+
+		default:
+            break;
+    }
+
+	// continue with default processing
+	TForm::Dispatch(&Msg);
+}

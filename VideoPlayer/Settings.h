@@ -50,6 +50,7 @@ public:
 		bool ignoreMouseMovementInFullScreenPlayback;
 		bool ignorePrevCommandWhenPlayingFirstItem;
 		bool ignoreNextCommandWhenPlayingLastItem;
+		bool pauseOnSuspend;
 	} frmMain;
 	struct _Logging
 	{

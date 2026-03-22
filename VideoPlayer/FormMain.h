@@ -92,6 +92,7 @@ private:	// User declarations
 	void SetState(enum STATE state);
 	void Play(void);
 	void PlayPause(void);
+	void Pause(void);
 	void Stop(void);
 	void Skip(void);
 	void Prev(void);
@@ -116,10 +117,13 @@ private:	// User declarations
 	int OnGetCurrentFileName(AnsiString &filename);
 	void __fastcall OnTrayIconLeftBtnDown(TObject *Sender);
 	void ToggleVisibility(void);
-	void UpdateTrayIcon(void);			
+	void UpdateTrayIcon(void);
+
+	void __fastcall WMPowerBroadcast(TMessage &Msg);
 
 protected:
 	void __fastcall CreateParams(TCreateParams   &Params);
+	
 public:		// User declarations
 	__fastcall TfrmMain(TComponent* Owner);
 	__fastcall ~TfrmMain(void);
@@ -130,6 +134,7 @@ public:		// User declarations
 	BEGIN_MESSAGE_MAP
 		MESSAGE_HANDLER(WM_DROPFILES, TWMDropFiles, WMDropFiles)
 		VCL_MESSAGE_HANDLER(WM_HOTKEY, TWMHotKey, WMHotKey)
+		VCL_MESSAGE_HANDLER(WM_POWERBROADCAST, TMessage, WMPowerBroadcast)		
 	END_MESSAGE_MAP(TForm);
 };
 //---------------------------------------------------------------------------

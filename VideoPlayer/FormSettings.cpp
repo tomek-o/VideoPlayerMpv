@@ -42,6 +42,7 @@ void __fastcall TfrmSettings::FormShow(TObject *Sender)
 	chbShowTrayBalloonOnPlayStart->Checked = tmpSettings.gui.showTrayBalloonOnPlayStart;
 	chbIgnorePrevCommandWhenPlayingFirstItem->Checked = tmpSettings.frmMain.ignorePrevCommandWhenPlayingFirstItem;
 	chbIgnoreNextCommandWhenPlayingLastItem->Checked = tmpSettings.frmMain.ignoreNextCommandWhenPlayingLastItem;
+	chbPauseOnSuspend->Checked = tmpSettings.frmMain.pauseOnSuspend;
 
 	chbLogToFile->Checked = tmpSettings.Logging.bLogToFile;
 	cmbMaxUiLogLines->ItemIndex = -1;
@@ -82,6 +83,7 @@ void __fastcall TfrmSettings::btnApplyClick(TObject *Sender)
 	tmpSettings.gui.showTrayBalloonOnPlayStart = chbShowTrayBalloonOnPlayStart->Checked;
 	tmpSettings.frmMain.ignorePrevCommandWhenPlayingFirstItem = chbIgnorePrevCommandWhenPlayingFirstItem->Checked;
 	tmpSettings.frmMain.ignoreNextCommandWhenPlayingLastItem = chbIgnoreNextCommandWhenPlayingLastItem->Checked;
+	tmpSettings.frmMain.pauseOnSuspend = chbPauseOnSuspend->Checked;
 
 	tmpSettings.Logging.bLogToFile = chbLogToFile->Checked;
 

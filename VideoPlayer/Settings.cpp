@@ -59,6 +59,7 @@ void Settings::SetDefault(void)
 	frmMain.ignoreMouseMovementInFullScreenPlayback = false;
 	frmMain.ignorePrevCommandWhenPlayingFirstItem = false;
 	frmMain.ignoreNextCommandWhenPlayingLastItem = false;
+	frmMain.pauseOnSuspend = true;
 
 	Logging.bLogToFile = false;
 	Logging.bFlush = false;
@@ -271,6 +272,7 @@ int Settings::Read(AnsiString asFileName)
 	frmMainJson.getBool("IgnoreMouseMovementInFullScreenPlayback", frmMain.ignoreMouseMovementInFullScreenPlayback);
 	frmMainJson.getBool("IgnorePrevCommandWhenPlayingFirstItem", frmMain.ignorePrevCommandWhenPlayingFirstItem);
 	frmMainJson.getBool("IgnoreNextCommandWhenPlayingLastItem", frmMain.ignoreNextCommandWhenPlayingLastItem);
+	frmMainJson.getBool("PauseOnSuspend", frmMain.pauseOnSuspend);
 
 	const Json::Value &LoggingJson = root["Logging"];
 	Logging.bLogToFile = LoggingJson.get("LogToFile", false).asBool();
@@ -378,6 +380,7 @@ int Settings::Write(AnsiString asFileName)
 		jv["IgnoreMouseMovementInFullScreenPlayback"] = frmMain.ignoreMouseMovementInFullScreenPlayback;
 		jv["IgnorePrevCommandWhenPlayingFirstItem"] = frmMain.ignorePrevCommandWhenPlayingFirstItem;
 		jv["IgnoreNextCommandWhenPlayingLastItem"] = frmMain.ignoreNextCommandWhenPlayingLastItem;
+		jv["PauseOnSuspend"] = frmMain.pauseOnSuspend;
 	}
 
 	{

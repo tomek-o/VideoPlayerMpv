@@ -29,7 +29,6 @@ object frmSettings: TfrmSettings
     Align = alBottom
     BevelOuter = bvNone
     TabOrder = 1
-    ExplicitWidth = 624
     DesignSize = (
       627
       37)
@@ -42,7 +41,6 @@ object frmSettings: TfrmSettings
       Caption = 'Cancel'
       TabOrder = 1
       OnClick = btnCancelClick
-      ExplicitLeft = 541
     end
     object btnApply: TButton
       Left = 463
@@ -53,7 +51,6 @@ object frmSettings: TfrmSettings
       Caption = 'Apply'
       TabOrder = 0
       OnClick = btnApplyClick
-      ExplicitLeft = 460
     end
   end
   object pcSettings: TPageControl
@@ -64,10 +61,8 @@ object frmSettings: TfrmSettings
     ActivePage = tsGeneral
     Align = alClient
     TabOrder = 0
-    ExplicitWidth = 624
     object tsGeneral: TTabSheet
       Caption = 'General'
-      ExplicitWidth = 616
       object lblControlPanelPosition: TLabel
         Left = 3
         Top = 49
@@ -86,7 +81,7 @@ object frmSettings: TfrmSettings
       end
       object btnShowLogWindow: TButton
         Left = 3
-        Top = 218
+        Top = 229
         Width = 126
         Height = 25
         Caption = 'Show log window'
@@ -104,7 +99,7 @@ object frmSettings: TfrmSettings
       end
       object btnAbout: TButton
         Left = 3
-        Top = 249
+        Top = 260
         Width = 126
         Height = 25
         Caption = 'About...'
@@ -175,15 +170,19 @@ object frmSettings: TfrmSettings
         Caption = 'Ignore "Next" command when playing last item from the playlist'
         TabOrder = 10
       end
+      object chbPauseOnSuspend: TCheckBox
+        Left = 3
+        Top = 197
+        Width = 390
+        Height = 17
+        Caption = 'Pause playback on suspend to RAM (S3) or hibernation (S4)'
+        TabOrder = 11
+      end
     end
     object tsLogging: TTabSheet
       Caption = 'Logging'
       ImageIndex = 1
       TabVisible = False
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 606
-      ExplicitHeight = 0
       object lblUiCapacity: TLabel
         Left = 5
         Top = 26
@@ -197,7 +196,7 @@ object frmSettings: TfrmSettings
         Width = 111
         Height = 21
         Style = csDropDownList
-        ItemHeight = 0
+        ItemHeight = 13
         TabOrder = 0
         OnChange = cmbMaxUiLogLinesChange
         Items.Strings = (
@@ -222,10 +221,6 @@ object frmSettings: TfrmSettings
     object tsMplayer: TTabSheet
       Caption = 'mpv'
       ImageIndex = 2
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object lblSoftVolMax: TLabel
         Left = 3
         Top = 3
@@ -276,10 +271,6 @@ object frmSettings: TfrmSettings
     object tsHotkeys: TTabSheet
       Caption = 'Hotkeys'
       ImageIndex = 3
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
     end
   end
   object OpenDialog: TOpenDialog
@@ -287,6 +278,7 @@ object frmSettings: TfrmSettings
     FileName = 'mplayer.exe'
     Filter = 'Executables|*.exe'
     Options = [ofHideReadOnly, ofFileMustExist, ofEnableSizing]
-    Top = 224
+    Left = 8
+    Top = 320
   end
 end

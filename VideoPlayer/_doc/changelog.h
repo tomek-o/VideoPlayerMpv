@@ -128,5 +128,8 @@ Version 3.4
 - added option to ignore "Prev" command/hotkey when playing first item from the playlist
 - added option to ignore "Next" command/hotkey when playing last item from the playlist
 - settings window height can be resized (allows displaying more hotkeys same time)
+
+Version 3.5
+- added option (opt-out) to pause when suspending to RAM or hibernating
 */
 
