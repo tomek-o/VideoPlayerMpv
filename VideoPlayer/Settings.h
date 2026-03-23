@@ -51,6 +51,7 @@ public:
 		bool ignorePrevCommandWhenPlayingFirstItem;
 		bool ignoreNextCommandWhenPlayingLastItem;
 		bool pauseOnSuspend;
+		bool exitFullScreenOnSuspend;
 	} frmMain;
 	struct _Logging
 	{

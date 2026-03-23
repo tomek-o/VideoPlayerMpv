@@ -1201,6 +1201,13 @@ void __fastcall TfrmMain::WMPowerBroadcast(TMessage &Msg)
 			{
 				Pause();
 			}
+			if (appSettings.frmMain.exitFullScreenOnSuspend)
+			{
+				if (WindowState == wsMaximized)
+				{
+					ToggleFullscreen();
+				}
+			}
             break;
 
 		default:

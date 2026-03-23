@@ -6,7 +6,7 @@ object frmSettings: TfrmSettings
   ClientHeight = 353
   ClientWidth = 627
   Color = clBtnFace
-  Constraints.MaxWidth = 635
+  Constraints.MaxWidth = 643
   Constraints.MinHeight = 380
   Constraints.MinWidth = 635
   Font.Charset = DEFAULT_CHARSET
@@ -81,7 +81,7 @@ object frmSettings: TfrmSettings
       end
       object btnShowLogWindow: TButton
         Left = 3
-        Top = 229
+        Top = 260
         Width = 126
         Height = 25
         Caption = 'Show log window'
@@ -98,7 +98,7 @@ object frmSettings: TfrmSettings
         OnClick = chbAlwaysOnTopClick
       end
       object btnAbout: TButton
-        Left = 3
+        Left = 139
         Top = 260
         Width = 126
         Height = 25
@@ -177,6 +177,14 @@ object frmSettings: TfrmSettings
         Height = 17
         Caption = 'Pause playback on suspend to RAM (S3) or hibernation (S4)'
         TabOrder = 11
+      end
+      object chbExitFullscreenOnSuspend: TCheckBox
+        Left = 3
+        Top = 217
+        Width = 390
+        Height = 17
+        Caption = 'Exit fullscreen on suspend to RAM (S3) or hibernation (S4)'
+        TabOrder = 12
       end
     end
     object tsLogging: TTabSheet
