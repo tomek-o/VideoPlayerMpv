@@ -226,39 +226,10 @@ void TScEdit::setLuaStyle(void)
 	//SendEditor(SCI_SETMARGINTYPEN, 1, SC_MARGIN_SYMBOL);
 	//SendEditor(SCI_SETMARGINWIDTHN, 1, 16);
 
+	SendEditor(SCI_STYLESETBACK, STYLE_BRACELIGHT, 0x00777777);
+	SendEditor(SCI_STYLESETFORE, STYLE_BRACELIGHT, 0x00FFFFFF);	
+
 	SendEditor(SCI_MARKERDEFINE, 0, SC_MARK_ARROW);
-#if 0
-	const char* szKeywords1=
-		"ShowMessage Sleep Call Dial Hangup CheckBreak ClearOutput";
-	//const char* szKeywords2=
-	//	"bool char float int long short void wchar_t";
-
-	SendEditor(SCI_STYLESETFONT, STYLE_DEFAULT, (sptr_t)fontName.c_str());
-	SendEditor(SCI_STYLESETSIZE, STYLE_DEFAULT, fontSize);
-	SendEditor(SCI_STYLECLEARALL);
-
-	SendEditor(SCI_SETLEXER, SCLEX_LUA);
-	SendEditor(SCI_SETKEYWORDS, 0, (sptr_t)szKeywords1);
-	//SendEditor(SCI_SETKEYWORDS, 1, (sptr_t)szKeywords2);
-
-	SendEditor(SCI_STYLESETFORE, SCE_LUA_DEFAULT,			(int)RGB(0x00, 0x00, 0x00));
-	SendEditor(SCI_STYLESETFORE, SCE_LUA_COMMENT,			(int)RGB(0x00, 0x80, 0x00));
-	SendEditor(SCI_STYLESETFORE, SCE_LUA_COMMENTLINE,		(int)RGB(0x00, 0x80, 0x00));
-	SendEditor(SCI_STYLESETFORE, SCE_LUA_COMMENTDOC,		(int)RGB(0x00, 0x80, 0x80));
-	SendEditor(SCI_STYLESETFORE, SCE_LUA_LITERALSTRING,		(int)RGB(0x95, 0x00, 0x4A));
-	SendEditor(SCI_STYLESETFORE, SCE_LUA_PREPROCESSOR,		(int)RGB(0x80, 0x40, 0x00));
-	SendEditor(SCI_STYLESETFORE, SCE_LUA_WORD,				(int)RGB(0x00, 0x00, 0xFF));
-	SendEditor(SCI_STYLESETFORE, SCE_LUA_NUMBER,			(int)RGB(0xFF, 0x80, 0x00));
-	SendEditor(SCI_STYLESETFORE, SCE_LUA_STRING,			(int)RGB(0x80, 0x80, 0x80));
-	SendEditor(SCI_STYLESETFORE, SCE_LUA_CHARACTER,			(int)RGB(0x80, 0x80, 0x80));
-	SendEditor(SCI_STYLESETFORE, SCE_LUA_OPERATOR,			(int)RGB(0x00, 0x00, 0x80));
-	SendEditor(SCI_STYLESETFORE, SCE_LUA_WORD2,				(int)RGB(0x00, 0x80, 0xCF));
-	SendEditor(SCI_STYLESETFORE, SCE_LUA_WORD3,				(int)RGB(0x80, 0x00, 0xFF));
-	SendEditor(SCI_STYLESETFORE, SCE_LUA_WORD4,				(int)RGB(0x00, 0x00, 0xA0));
-
-	SendEditor(SCI_SETCARETLINEVISIBLE, TRUE);
-	SendEditor(SCI_SETCARETLINEBACK, 0xb0ffff);
-#endif		
 }
 
 void TScEdit::SetExtraStyle(void)
