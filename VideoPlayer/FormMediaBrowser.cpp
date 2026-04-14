@@ -41,7 +41,82 @@ int ItemAtPos(HWND ControlHandle, int X, int Y)
 	return HitIndex;
 }
 
+// Append the newDir directory to the path, retaining any
+// filename that might already be on the path.
+//
+AnsiString appendDirectory(AnsiString path, AnsiString newDir)
+{
+	char drillIntoPath[MAXPATH];
+	char drive[MAXDRIVE];
+	char dir[MAXDIR];
+	char file[MAXFILE];
+	char ext[MAXEXT];
+
+	fnsplit(path.c_str(),drive,dir,file,ext);
+
+	strcat(dir, newDir.c_str());
+
+	fnmerge(drillIntoPath,drive,dir,file,ext);
+
+	return(AnsiString(drillIntoPath));
 }
+
+void AddSourceDir(std::vector<AnsiString> &ret, AnsiString path, AnsiString rootPath)
+{
+    int iAttributes = faAnyFile;
+	Sysutils::TSearchRec sr;
+	LOG("Add source directory: %s, root path %s", path.c_str(), rootPath.c_str());
+    if (FindFirst(path, iAttributes, sr) == 0)
+    {
+        do
+        {
+            // drill into subdirs
+            if (sr.Attr & faDirectory) {
+                // Do not drill into "." or ".."
+                if (sr.Name != "." && sr.Name != "..") {
+                    if(path.Length() + sr.Name.Length() < MAX_PATH-1)
+                    {
+	                    AnsiString drillPath = appendDirectory(path, sr.Name);
+                        AddSourceDir(ret, drillPath, rootPath);
+					}
+				}
+			}
+			else
+			{
+				AnsiString name = ExtractFilePath(path) + sr.Name;
+				//AddSourceFile(name, rootPath);
+				ret.push_back(name);
+			}
+		} while (FindNext(sr) == 0);
+		FindClose(sr);
+	}
+}
+
+std::vector<AnsiString> ExpandFolders(const std::vector<AnsiString> &filenames)
+{
+	std::vector<AnsiString> ret;
+	for (unsigned int i=0; i<filenames.size(); i++)
+	{
+		AnsiString FileName = filenames[i];
+		if (DirectoryExists(FileName))
+		{
+			AnsiString rootPath = "";
+			const char* ptr = strrchr(FileName.c_str(), '\\');
+			if (ptr)
+			{
+            	rootPath = FileName.SubString(1, ptr - FileName.c_str());
+			}
+			AddSourceDir(ret, FileName + "\\*", rootPath);
+		}
+		else
+		{
+			ret.push_back(FileName);
+		}
+	}
+	return ret;
+}
+
+}	// namespace
 
 __fastcall TfrmMediaBrowser::TfrmMediaBrowser(TComponent* Owner)
 	: TForm(Owner),
@@ -258,7 +333,8 @@ void TfrmMediaBrowser::SetFiles(const std::vector<AnsiString>& filenames, bool s
 		}
 	}
 	TfrmPlaylist *frm = getPlaylist(pcSource->ActivePageIndex);
-	frm->setFiles(filenames, switchTo);
+	std::vector<AnsiString> expandedFileNames = ExpandFolders(filenames);
+	frm->setFiles(expandedFileNames, switchTo);
 }
 
 void TfrmMediaBrowser::SavePlaylists(void)

@@ -132,5 +132,7 @@ Version 3.4
 Version 3.5
 - added option (opt-out) to pause when suspending to RAM or hibernating
 - added option to exit fullscreen when suspending to RAM or hibernating
+- player asks if new playlist should be created if single folder is dropped into application
+- files from dropped folders are added recursively to playlist
 */
 
