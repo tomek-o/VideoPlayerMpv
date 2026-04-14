@@ -240,6 +240,23 @@ void __fastcall TfrmMediaBrowser::miCopyFileClick(TObject *Sender)
 
 void TfrmMediaBrowser::SetFiles(const std::vector<AnsiString>& filenames, bool switchTo)
 {
+	if (filenames.size() == 1 && DirectoryExists(filenames[0]))
+	{
+		AnsiString msg = "Single folder is dropped - would you like to create new playlist from it?";
+		if (MessageBox(this->Handle, msg.c_str(), Application->Title.c_str(), MB_YESNO | MB_ICONQUESTION) == IDYES)
+		{
+			AnsiString name = filenames[0];
+			int pos = name.LastDelimiter("\\");
+			if (pos > 0)
+				name = name.SubString(pos+1, name.Length() - pos);
+			bool ret = InputQuery("Playlist name", "Name for new playlist", name);
+			if (ret == false)
+				return;
+			CreatePlaylistTab(GetPlaylistsDir() + "\\" + name + "." + PLAYLIST_EXTENSION, false);
+			// switch to new playlist (bug with new playlist visible already)
+			pcSource->ActivePage = pcSource->Pages[pcSource->PageCount - 1];
+		}
+	}
 	TfrmPlaylist *frm = getPlaylist(pcSource->ActivePageIndex);
 	frm->setFiles(filenames, switchTo);
 }
