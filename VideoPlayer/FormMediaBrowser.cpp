@@ -463,7 +463,7 @@ void __fastcall TfrmMediaBrowser::pcSourceDragDrop(TObject *Sender,
 	if (!Sender->ClassNameIs("TPageControl"))
 		return;
 	TPageControl *pc = (TPageControl*)Sender;
-	int i = ItemAtPos(pc->Handle, X, Y); //GetTabIndex(Sender, X, Y);
+	int i = tabIndexToPlaylistId(ItemAtPos(pc->Handle, X, Y)); //GetTabIndex(Sender, X, Y);
 	if (i != pc->ActivePage->PageIndex)
 	{
 		pc->ActivePage->PageIndex = i;
