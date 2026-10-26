@@ -52,10 +52,10 @@ private:	// User declarations
 	AnsiString asLastSelectedFile;
 	typedef void (__closure *CallbackStartPlaying)(void);
 	void CreatePlaylistTab(AnsiString fileName, bool hidden);
-	int LoadPlaylist(TTabSheet *ts);
 	TfrmPlaylist* getPlaylist(int id);
 	int mouseDownTabIndex;
 	int tabIndexToPlaylistId(int index);
+	void GetPlaylists(std::vector<TfrmPlaylist*>& playlists);
 	TTabSheet* getTabSheetAtIndex(int index);
 	void Play(void);
 	void UpdateHiddenPlaylistsList(void);
@@ -63,6 +63,8 @@ public:		// User declarations
 	__fastcall TfrmMediaBrowser(TComponent* Owner);
 	void LoadPlaylists(void);
 	const PlaylistEntry* GetFileToPlay(void);
+	/** \brief Resolve (possibly relative) path from active playlist */
+	AnsiString GetFullPath(AnsiString path);
 	void Focus(void);
 	void SetFiles(const std::vector<AnsiString>& filenames, bool switchTo);
 	CallbackStartPlaying callbackStartPlaying;

@@ -7,6 +7,7 @@
 #include "FormIntroOutroSkip.h"
 #include "FormAddUrl.h"
 #include "Log.h"
+#include "Settings.h"
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
 #pragma resource "*.dfm"
@@ -14,9 +15,11 @@
 __fastcall TfrmPlaylist::TfrmPlaylist(TComponent* Owner, AnsiString fileName)
 	: TForm(Owner),
 	callbackStartPlaying(NULL),
+	callbackGetPlaylists(NULL),
 	fileName(fileName),
 	fileLoaded(false)
 {
+	playlist.setBaseDir(ExtractFileDir(fileName));
 }
 //---------------------------------------------------------------------------
 
@@ -71,15 +74,10 @@ void __fastcall TfrmPlaylist::miAddFilesClick(TObject *Sender)
 {
 	OpenDialog->Filter = "Video files|*.mp4;*.mkv;*.avi;*.mpg;*.wmv;*.flv;*.mov;*.rmvb;*.webm;*.3gp;*.asf|All files|*.*";
 	OpenDialog->FilterIndex = 0;
-	const std::vector<PlaylistEntry>& entries = playlist.getEntries();
-	if (!entries.empty())
+	AnsiString dir = getLastFileDir();
+	if (dir != "" && DirectoryExists(dir))
 	{
-		const AnsiString& fname = entries[entries.size()-1].fileName;
-		AnsiString dir = ExtractFileDir(fname);
-		if (DirectoryExists(dir))
-		{
-        	OpenDialog->InitialDir = dir;
-		}
+		OpenDialog->InitialDir = dir;
 	}
 	if (OpenDialog->Execute())
 	{
@@ -230,6 +228,48 @@ const PlaylistEntry* TfrmPlaylist::getFileToPlay(void)
 	}
 }
 
+AnsiString TfrmPlaylist::getLastFileDir(void)
+{
+	// directory of last file entry (skipping URLs), relative path resolved
+	const std::vector<PlaylistEntry>& entries = playlist.getEntries();
+	for (int i=static_cast<int>(entries.size())-1; i>=0; i--)
+	{
+		if (entries[i].fileName != "")
+			return ExtractFileDir(ExpandFileName(playlist.getFullPath(entries[i].fileName)));
+	}
+	return "";
+}
+
+int TfrmPlaylist::getFilteredIndex(unsigned int id)
+{
+	const std::vector<FilteredPlaylistEntry>& entries = playlist.getFilteredEntries();
+	for (unsigned int i=0; i<entries.size(); i++)
+	{
+		if (entries[i].id == id)
+			return i;
+	}
+	return -1;
+}
+
+void TfrmPlaylist::selectEntry(unsigned int id)
+{
+	// id is index in unfiltered list - find its row in filtered view
+	int row = getFilteredIndex(id);
+	if (row < 0 && playlist.getFilterText() != "")
+	{
+		// entry hidden by filter - clear it directly, not relying on edFilter OnChange
+		// (window might be not created yet, e.g. file from command line when starting minimized)
+		edFilter->Text = "";
+		playlist.filter("");
+		update();
+		row = getFilteredIndex(id);
+	}
+	if (row >= 0 && row < lvPlaylist->Items->Count)
+	{
+		lvPlaylist->Items->Item[row]->Selected = true;
+	}
+}
+
 void TfrmPlaylist::setFiles(const std::vector<AnsiString>& filenames, bool switchTo)
 {
 	if (switchTo)
@@ -238,36 +278,21 @@ void TfrmPlaylist::setFiles(const std::vector<AnsiString>& filenames, bool switc
 		{
 			lvPlaylist->Items->Item[i]->Selected = false;
 		}
-		if (filenames.size() > 1)
+		int id = -1;
+		if (filenames.size() == 1)
 		{
-			int originalCount = lvPlaylist->Items->Count;
+			id = playlist.findByName(filenames[0]);
+		}
+		if (id < 0 && !filenames.empty())
+		{
+			// new entries are appended - select first of them
+			id = playlist.getEntries().size();
 			playlist.add(filenames);
 			update();
-			if (lvPlaylist->Items->Count > originalCount)
-			{
-				lvPlaylist->Items->Item[originalCount]->Selected = true;
-			}
 		}
-		else if (filenames.size() == 1)
+		if (id >= 0)
 		{
-			int id = playlist.findByName(filenames[0]);
-			if (id < 0)
-			{
-				int originalCount = lvPlaylist->Items->Count;
-				playlist.add(filenames);
-				update();
-				if (lvPlaylist->Items->Count > originalCount)
-				{
-					lvPlaylist->Items->Item[originalCount]->Selected = true;
-				}
-			}
-			else
-			{
-				if (lvPlaylist->Items->Count > id)
-				{
-					lvPlaylist->Items->Item[id]->Selected = true;
-				}
-			}
+			selectEntry(id);
 		}
 	}
 	else
@@ -344,7 +369,7 @@ bool TfrmPlaylist::hasNextFile(void)
 	{
 		return true;
 	}
-	return false;
+	return appSettings.frmMain.loopPlaylist;
 }
 
 int TfrmPlaylist::playNextFile(void)
@@ -362,6 +387,15 @@ int TfrmPlaylist::playNextFile(void)
 		play();
 		return 0;
 	}
+	else if (appSettings.frmMain.loopPlaylist)
+	{
+		item->Selected = false;
+		TListItem *nextItem = lvPlaylist->Items->Item[0];
+		nextItem->Selected = true;
+		nextItem->MakeVisible(false);
+		play();
+		return 0;
+	}
 	return -3;
 }
 
@@ -375,7 +409,7 @@ bool TfrmPlaylist::hasPrevFile(void)
 	{
 		return true;
 	}
-	return false;
+	return appSettings.frmMain.loopPlaylist;
 }
 
 int TfrmPlaylist::playPrevFile(void)
@@ -393,6 +427,15 @@ int TfrmPlaylist::playPrevFile(void)
 		play();
 		return 0;
 	}
+	else if (appSettings.frmMain.loopPlaylist)
+	{
+		item->Selected = false;
+		TListItem *nextItem = lvPlaylist->Items->Item[lvPlaylist->Items->Count - 1];
+		nextItem->Selected = true;
+		nextItem->MakeVisible(false);
+		play();
+		return 0;
+	}
 	return -3;
 }
 
@@ -406,6 +449,7 @@ int TfrmPlaylist::renamePlaylistFile(AnsiString newName)
 		}
 	}
 	fileName = newName;
+	playlist.setBaseDir(ExtractFileDir(fileName));
 	return 0;
 }
 
@@ -421,13 +465,21 @@ void __fastcall TfrmPlaylist::miRenameFileClick(TObject *Sender)
 	const std::vector<FilteredPlaylistEntry>& entries = playlist.getFilteredEntries();
 	const FilteredPlaylistEntry &entry = entries[id];
 
-	AnsiString name = ExtractFileName(entry.entry.fileName);
+	if (entry.entry.fileName == "")
+		return;	// URL entry - nothing to rename
+	// copy - entry reference might be invalidated by playback updates while dialog is shown
+	AnsiString fileName = entry.entry.fileName;
+	unsigned int entryId = entry.id;
+
+	AnsiString name = ExtractFileName(fileName);
 	bool ret = InputQuery("File name", "Name for the file", name);
-	if (ret == false || name == ExtractFileName(entry.entry.fileName))
+	if (ret == false || name == ExtractFileName(fileName))
 		return;
 
-	AnsiString newFileName = ExtractFileDir(entry.entry.fileName) + "\\" + name;
-	int status = playlist.rename(entry.id, newFileName);
+	// keep relative/absolute form; relative entry without directory part stays without it
+	AnsiString dir = ExtractFileDir(fileName);
+	AnsiString newFileName = (dir == "") ? name : (dir + "\\" + name);
+	int status = playlist.rename(entryId, newFileName);
 	if (status != 0)
 	{
 		MessageBox(this->Handle, "Failed to rename file.", Application->Title.c_str(), MB_ICONEXCLAMATION);
@@ -480,7 +532,7 @@ void TfrmPlaylist::deleteFile(AnsiString filename)
 	const std::vector<PlaylistEntry>& entries = playlist.getEntries();
 	for (unsigned int i=0; i<entries.size(); i++)
 	{
-		if (entries[i].fileName == filename)
+		if (entries[i].fileName == filename || playlist.getFullPath(entries[i].fileName) == filename)
 			ids.insert(i);
 	}
 	playlist.removeWithFiles(ids);
@@ -681,7 +733,7 @@ void __fastcall TfrmPlaylist::miGoToFileClick(TObject *Sender)
 	const FilteredPlaylistEntry &entry = entries[lvPlaylist->Selected->Index];
 
 	AnsiString params;
-	params.sprintf("/e, /select, %s", entry.entry.fileName.c_str());
+	params.sprintf("/e, /select, %s", playlist.getFullPath(entry.entry.fileName).c_str());
 	ShellExecute(NULL, "open", "explorer.exe", params.c_str(), NULL, SW_SHOWNORMAL);
 }
 //---------------------------------------------------------------------------
@@ -693,8 +745,8 @@ void __fastcall TfrmPlaylist::miSetMplayerExtraParamsClick(TObject *Sender)
 
 	AnsiString params;
 	{
-		const PlaylistEntry& entry = playlist.getEntry(lvPlaylist->Selected->Index);
-		params = entry.mplayerExtraParams;
+		const FilteredPlaylistEntry& fentry = playlist.getFilteredEntries()[lvPlaylist->Selected->Index];
+		params = fentry.entry.mplayerExtraParams;
 		bool ret = InputQuery("Extra parameters", "Extra parameters for mplayer", params);
 		if (ret == false)
 			return;
@@ -721,18 +773,19 @@ void __fastcall TfrmPlaylist::miAddRemainingFilesFromFolderClick(
 		return;
 	}
 
-	const AnsiString& fname = entries[entries.size()-1].fileName;
-	AnsiString dir = ExtractFileDir(fname);
-	if (DirectoryExists(dir) == false)
+	AnsiString dir = getLastFileDir();
+	if (dir == "" || DirectoryExists(dir) == false)
 	{
 		MessageBox(this->Handle, "Directory associated with last playlist entry does not exist.", Application->Title.c_str(), MB_ICONWARNING);
 		return;
 	}
 
+	// entries might be stored as relative paths - compare resolved, case-insensitive paths
 	std::set<AnsiString> playlistSet;
 	for (unsigned int i=0; i<entries.size(); i++)
 	{
-		playlistSet.insert(entries[i].fileName);
+		if (entries[i].fileName != "")
+			playlistSet.insert(UpperCase(ExpandFileName(playlist.getFullPath(entries[i].fileName))));
 	}
 
 	std::vector<AnsiString> filesToAdd;
@@ -755,10 +808,10 @@ void __fastcall TfrmPlaylist::miAddRemainingFilesFromFolderClick(
 				AnsiString ext = ExtractFileExt(sr.Name);
 				for (unsigned int i=0; i<sizeof(extensions)/sizeof(extensions[0]); i++)
 				{
-					if (extensions[i] == ext)
+					if (extensions[i] == LowerCase(ext))
 					{
 						AnsiString Path = ExtractFilePath(path) + sr.Name;
-						if (playlistSet.find(Path) == playlistSet.end())
+						if (playlistSet.find(UpperCase(ExpandFileName(Path))) == playlistSet.end())
 						{
 							filesToAdd.push_back(Path);
 						}
@@ -859,6 +912,29 @@ void __fastcall TfrmPlaylist::miEditUrlClick(TObject *Sender)
 
 void __fastcall TfrmPlaylist::popupMenuPopup(TObject *Sender)
 {
+	miMoveToPlaylist->Clear();
+	moveTargets.clear();
+	if (callbackGetPlaylists)
+	{
+		std::vector<TfrmPlaylist*> playlists;
+		callbackGetPlaylists(playlists);
+		for (unsigned int i=0; i<playlists.size(); i++)
+		{
+			if (playlists[i] == this)
+				continue;
+			TMenuItem* item = new TMenuItem(popupMenu);
+			item->AutoHotkeys = maManual;
+			item->Caption = playlists[i]->getCaption();
+			item->Tag = moveTargets.size();
+			item->OnClick = miMoveToPlaylistTargetClick;
+			miMoveToPlaylist->Add(item);
+			moveTargets.push_back(playlists[i]);
+		}
+	}
+	miMoveToPlaylist->Enabled = (lvPlaylist->Selected != NULL && !moveTargets.empty());
+	miPathsSelectedRelative->Enabled = (lvPlaylist->Selected != NULL);
+	miPathsSelectedAbsolute->Enabled = (lvPlaylist->Selected != NULL);
+
 	TListItem *item = lvPlaylist->Selected;
 	if (item == NULL)
 		return;
@@ -870,3 +946,99 @@ void __fastcall TfrmPlaylist::popupMenuPopup(TObject *Sender)
 }
 //---------------------------------------------------------------------------
 
+
+void __fastcall TfrmPlaylist::miMoveToPlaylistTargetClick(TObject *Sender)
+{
+	TMenuItem *item = dynamic_cast<TMenuItem*>(Sender);
+	if (item == NULL || item->Tag < 0 || item->Tag >= static_cast<int>(moveTargets.size()))
+		return;
+	if (!lvPlaylist->Selected)
+		return;
+	std::set<unsigned int> ids;
+	const std::vector<FilteredPlaylistEntry>& entries = playlist.getFilteredEntries();
+	for (int i=0; i<lvPlaylist->Items->Count; i++)
+	{
+		if (lvPlaylist->Items->Item[i]->Selected)
+		{
+			ids.insert(entries[i].id);
+		}
+	}
+	std::vector<PlaylistEntry> moved;
+	for (std::set<unsigned int>::const_iterator iter = ids.begin(); iter != ids.end(); ++iter)
+	{
+		moved.push_back(playlist.getEntry(*iter));
+	}
+	moveTargets[item->Tag]->addEntries(moved);
+	playlist.remove(ids);
+	update();
+	lvPlaylist->ClearSelection();
+}
+//---------------------------------------------------------------------------
+
+void TfrmPlaylist::addEntries(const std::vector<PlaylistEntry>& entries)
+{
+	// target playlist might not be loaded yet - load it first so saving does not overwrite its file
+	load();
+	playlist.addEntries(entries);
+	update();
+}
+
+std::set<unsigned int> TfrmPlaylist::getSelectedIds(void)
+{
+	std::set<unsigned int> ids;
+	const std::vector<FilteredPlaylistEntry>& entries = playlist.getFilteredEntries();
+	for (int i=0; i<lvPlaylist->Items->Count; i++)
+	{
+		if (lvPlaylist->Items->Item[i]->Selected)
+		{
+			ids.insert(entries[i].id);
+		}
+	}
+	return ids;
+}
+
+std::set<unsigned int> TfrmPlaylist::getAllIds(void)
+{
+	// whole playlist, not only entries matching current filter
+	std::set<unsigned int> ids;
+	for (unsigned int i=0; i<playlist.getEntries().size(); i++)
+	{
+		ids.insert(i);
+	}
+	return ids;
+}
+
+void TfrmPlaylist::convertPaths(const std::set<unsigned int>& ids, bool relative)
+{
+	int count;
+	if (relative)
+		count = playlist.makePathsRelative(ids);
+	else
+		count = playlist.makePathsAbsolute(ids);
+	LOG("%s: converted %d path(s) to %s", fileName.c_str(), count, relative ? "relative" : "absolute");
+	update();
+}
+
+void __fastcall TfrmPlaylist::miPathsAllRelativeClick(TObject *Sender)
+{
+	convertPaths(getAllIds(), true);
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TfrmPlaylist::miPathsAllAbsoluteClick(TObject *Sender)
+{
+	convertPaths(getAllIds(), false);
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TfrmPlaylist::miPathsSelectedRelativeClick(TObject *Sender)
+{
+	convertPaths(getSelectedIds(), true);
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TfrmPlaylist::miPathsSelectedAbsoluteClick(TObject *Sender)
+{
+	convertPaths(getSelectedIds(), false);
+}
+//---------------------------------------------------------------------------

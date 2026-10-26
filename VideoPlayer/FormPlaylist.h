@@ -49,6 +49,13 @@ __published:	// IDE-managed Components
 	TMenuItem *N5;
 	TMenuItem *miAddUrl;
 	TMenuItem *miEditUrl;
+	TMenuItem *miMoveToPlaylist;
+	TMenuItem *miPaths;
+	TMenuItem *miPathsAllRelative;
+	TMenuItem *miPathsAllAbsolute;
+	TMenuItem *N6;
+	TMenuItem *miPathsSelectedRelative;
+	TMenuItem *miPathsSelectedAbsolute;
 	void __fastcall miAddFilesClick(TObject *Sender);
 	void __fastcall lvPlaylistData(TObject *Sender, TListItem *Item);
 	void __fastcall lvPlaylistKeyDown(TObject *Sender, WORD &Key,
@@ -73,21 +80,40 @@ __published:	// IDE-managed Components
 	void __fastcall miAddUrlClick(TObject *Sender);
 	void __fastcall miEditUrlClick(TObject *Sender);
 	void __fastcall popupMenuPopup(TObject *Sender);
+	void __fastcall miPathsAllRelativeClick(TObject *Sender);
+	void __fastcall miPathsAllAbsoluteClick(TObject *Sender);
+	void __fastcall miPathsSelectedRelativeClick(TObject *Sender);
+	void __fastcall miPathsSelectedAbsoluteClick(TObject *Sender);
 private:	// User declarations
 	AnsiString fileName;
 	bool fileLoaded;
 	Playlist playlist;
 	void update(void);
+	std::set<unsigned int> getSelectedIds(void);
+	int getFilteredIndex(unsigned int id);
+	void selectEntry(unsigned int id);
+	AnsiString getLastFileDir(void);
+	std::set<unsigned int> getAllIds(void);
+	void convertPaths(const std::set<unsigned int>& ids, bool relative);
 	typedef void (__closure *CallbackStartPlaying)(void);
+	typedef std::vector<TfrmPlaylist*> Playlists;
+	typedef void (__closure *CallbackGetPlaylists)(Playlists& playlists);
 	void play(void);
+	std::vector<TfrmPlaylist*> moveTargets;
+	void __fastcall miMoveToPlaylistTargetClick(TObject *Sender);
 public:		// User declarations
 	__fastcall TfrmPlaylist(TComponent* Owner, AnsiString fileName);
 	int load(void);
+	AnsiString getFullPath(const AnsiString &path) const {
+		return playlist.getFullPath(path);
+	}
 	int saveToFile(AnsiString fileName = "");
 	int deletePlaylistFile(void);
 	const PlaylistEntry* getFileToPlay(void);
 	void setFiles(const std::vector<AnsiString>& filenames, bool switchTo);
 	CallbackStartPlaying callbackStartPlaying;
+	CallbackGetPlaylists callbackGetPlaylists;
+	void addEntries(const std::vector<PlaylistEntry>& entries);
 	bool hasNextFile(void);
 	int playNextFile(void);
 	bool hasPrevFile(void);

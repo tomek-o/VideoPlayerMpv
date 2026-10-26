@@ -122,7 +122,10 @@ int Playlist::loadFromFile(AnsiString fileName)
 		jPlaylist.getDouble("filePosition", filePosition);
 		if (filePosition >= 0)
 		{
-			fileWithPosition = entries[position].fileName;
+			// file name stored explicitly - not affected by filter/sorting/path conversion;
+			// position is index in filtered list (older playlists)
+			fileWithPosition = filteredEntries[position].entry.fileName;
+			jPlaylist.getAString("fileWithPosition", fileWithPosition);
 			LOG("    last file id = %d, last position: %f s", position, filePosition);
 		}
 	}
@@ -154,6 +157,7 @@ int Playlist::saveToFile(AnsiString fileName)
 
 	jPlaylist["position"] = position;
 	jPlaylist["filePosition"] = filePosition;
+	jPlaylist["fileWithPosition"] = fileWithPosition;
 	jPlaylist["filterText"] = filterText;
 
 	std::string outputConfig = writer.write( root );
@@ -207,7 +211,8 @@ void Playlist::setFilePos(unsigned int id, double position)
 void Playlist::setFileSoftVol(unsigned int id, unsigned int filteredId, int val)
 {
 	entries[id].softVolLevel = val;
-	filteredEntries[id].entry.softVolLevel = val;
+	if (filteredId < filteredEntries.size())
+		filteredEntries[filteredId].entry.softVolLevel = val;
 	modified = true;
 }
 
@@ -230,10 +235,17 @@ void Playlist::add(const std::vector<AnsiString>& fileNames)
 		PlaylistEntry newEntry;
 		const AnsiString& fileName = fileNames[i];
 		newEntry.fileName = fileName;
-		getFileDetails(fileName.c_str(), newEntry.size, newEntry.timeStamp);
+		getFileDetails(getFullPath(fileName).c_str(), newEntry.size, newEntry.timeStamp);
 
 		entries.push_back(newEntry);
 	}
+	filter(filterText);
+	modified = true;
+}
+
+void Playlist::addEntries(const std::vector<PlaylistEntry>& newEntries)
+{
+	entries.insert(entries.end(), newEntries.begin(), newEntries.end());
 	filter(filterText);
 	modified = true;
 }
@@ -287,7 +299,7 @@ void Playlist::removeWithFiles(const std::set<unsigned int>& ids)
 		}
 		else
 		{
-			if (DeleteFile(entry.fileName) == false)
+			if (DeleteFile(getFullPath(entry.fileName)) == false)
 			{
 				LOG("Failed to delete %s", entry.fileName.c_str());
 				newEntries.push_back(entry);
@@ -328,7 +340,7 @@ void Playlist::removeMissingFiles(void)
 	for (unsigned int i=0; i<entries.size(); i++)
 	{
 		const PlaylistEntry& entry = entries[i];
-		if (FileExists(entry.fileName))
+		if (entry.fileName == "" || FileExists(getFullPath(entry.fileName)))
 		{
 			newEntries.push_back(entry);
 		}
@@ -338,13 +350,92 @@ void Playlist::removeMissingFiles(void)
 	modified = true;
 }
 
+bool Playlist::isAbsolutePath(const AnsiString &path)
+{
+	if (path.Length() >= 2 && path[2] == ':')	// drive letter
+		return true;
+	if (path.Length() >= 1 && (path[1] == '\\' || path[1] == '/'))	// UNC or root of current drive
+		return true;
+	if (path.Pos("://") > 0)	// URL
+		return true;
+	return false;
+}
+
+AnsiString Playlist::toAbsolute(const AnsiString &path) const
+{
+	if (path == "" || baseDir == "" || isAbsolutePath(path))
+		return path;
+	return ExpandFileName(IncludeTrailingPathDelimiter(baseDir) + path);
+}
+
+AnsiString Playlist::getFullPath(const AnsiString &path) const
+{
+	AnsiString full = toAbsolute(path);
+	if (full != path && (FileExists(full) || DirectoryExists(full)))
+		return full;
+	return path;
+}
+
+int Playlist::makePathsRelative(const std::set<unsigned int>& ids)
+{
+	if (baseDir == "")
+		return 0;
+	int count = 0;
+	for (std::set<unsigned int>::const_iterator iter = ids.begin(); iter != ids.end(); ++iter)
+	{
+		PlaylistEntry &entry = entries[*iter];
+		if (entry.fileName == "" || !isAbsolutePath(entry.fileName))
+			continue;
+		// file on other drive stays absolute
+		AnsiString rel = ExtractRelativePath(IncludeTrailingPathDelimiter(baseDir), entry.fileName);
+		if (rel != entry.fileName && !isAbsolutePath(rel))
+		{
+			if (fileWithPosition == entry.fileName)
+				fileWithPosition = rel;
+			entry.fileName = rel;
+			count++;
+		}
+	}
+	if (count)
+	{
+		filter(filterText);
+		modified = true;
+	}
+	return count;
+}
+
+int Playlist::makePathsAbsolute(const std::set<unsigned int>& ids)
+{
+	int count = 0;
+	for (std::set<unsigned int>::const_iterator iter = ids.begin(); iter != ids.end(); ++iter)
+	{
+		PlaylistEntry &entry = entries[*iter];
+		AnsiString abs = toAbsolute(entry.fileName);
+		if (abs != entry.fileName)
+		{
+			if (fileWithPosition == entry.fileName)
+				fileWithPosition = abs;
+			entry.fileName = abs;
+			count++;
+		}
+	}
+	if (count)
+	{
+		filter(filterText);
+		modified = true;
+	}
+	return count;
+}
+
 int Playlist::rename(unsigned int id, AnsiString newFileName)
 {
 	PlaylistEntry& entry = entries[id];
-	if (RenameFile(entry.fileName, newFileName) == false)
+	if (RenameFile(getFullPath(entry.fileName), toAbsolute(newFileName)) == false)
 	{
 		return -1;
 	}
+	if (fileWithPosition == entry.fileName)
+		fileWithPosition = newFileName;
 	entry.fileName = newFileName;
 	filter(filterText);
 	modified = true;
@@ -364,7 +455,8 @@ int Playlist::findByName(AnsiString fileName)
 {
 	for (unsigned int i=0; i<entries.size(); i++)
 	{
-		if (entries[i].fileName == fileName)
+		// entry might be stored as relative path
+		if (entries[i].fileName == fileName || getFullPath(entries[i].fileName) == fileName)
 			return i;
 	}
 	return -1;
@@ -620,7 +712,7 @@ void Playlist::markDuplicatesBySize(void)
 		}
 		else
 		{
-			sizes[fe.entry.size] = i;
+			sizes[fe.entry.size] = fe.id;
 		}
 	}
 	if (modified)
@@ -708,6 +800,7 @@ void Playlist::setSkipIntroOutro(const std::set<unsigned int>& ids, unsigned int
 			entries[i].skipOutroLength = outro;
 		}
 	}
+	filter(filterText);
 	modified = true;
 }
 

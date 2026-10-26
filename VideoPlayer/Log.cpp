@@ -44,11 +44,11 @@ int CLog::SetFile(std::string file)
 	if (file == "")
 		return -1;
 	FILE *fout = fopen(sFile.c_str(),"at+");
-	fclose(fout);
 	if (fout == NULL)
     {
         return -1;
 	}
+	fclose(fout);
 	return 0;
 }
 

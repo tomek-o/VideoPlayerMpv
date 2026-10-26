@@ -35,7 +35,8 @@ MPlayer::MPlayer():
 	callbackMediaInfoUpdate(NULL),
 	fileStarted(false),
 	useStopCallback(true),
-	absoluteSeekRequested(-1)
+	absoluteSeekRequested(-1),
+	outroSkipRequested(false)
 {
 	timer = new TTimer(NULL);
 	timer->Interval = 20;
@@ -83,6 +84,9 @@ int MPlayer::play(AnsiString filename, int softVolLevel, unsigned int skipOutroL
 	mediaInfo.audioBitrateKnown = false;
 	filePositionValid = false;
 	fileLengthValid = false;
+	fileLength = 0.0;
+	absoluteSeekRequested = -1;	// seek request from previous file (e.g. failed to load) must not apply to this one
+	outroSkipRequested = false;
 	if (this->callbackMediaInfoUpdate)
 	{
     	callbackMediaInfoUpdate();
@@ -134,7 +138,7 @@ int MPlayer::seekRelative(int seconds)
 {
 	if (mpv == NULL)
 		return -1;
-	LOG("seekRelative %d");
+	LOG("seekRelative %d", seconds);
 	AnsiString secondsStr = seconds;
 	const char *cmd[] = { "seek", secondsStr.c_str(), "relative", NULL };
 	return mpv_command(mpv, cmd);
@@ -198,11 +202,12 @@ int MPlayer::changeVolume(int delta)
 
 int MPlayer::changeVolumeAbs(int val)
 {
+	// keep level also if mpv is not created yet (volume changed before first playback)
+	cfg.softVolLevel = val;
 	if (mpv == NULL)
 		return -1;
 
 	AnsiString msg;
-	cfg.softVolLevel = val;
 	int64_t val64 = cfg.softVolLevel;
 	if (mpv_set_property(mpv, "volume", MPV_FORMAT_INT64, &val64) < 0) {
 		LOG("failed to set mpv volume");
@@ -223,6 +228,8 @@ int MPlayer::osdShowText(AnsiString text, int duration)
 
 int MPlayer::setSubVisibility(bool state)
 {
+	if (mpv == NULL)
+		return -1;
 	int val = state ? 1 : 0;
 	if (mpv_set_property(mpv, "sub-visibility", MPV_FORMAT_FLAG, &val) < 0) {
 		LOG("failed to set mpv sub-visibility");
@@ -249,7 +256,7 @@ int MPlayer::stop(bool useCallback)
 	{
 		Application->ProcessMessages();
 		Sleep(20);
-		if (cnt > 500)
+		if (++cnt > 500)
 		{
 			LOG("Timed out stopping...");
 			return -3;
@@ -349,10 +356,14 @@ void MPlayer::onMpvEvent(const mpv_event &e)
 			if (mpv_get_property(mpv, prop->name, MPV_FORMAT_DOUBLE, &data) == 0) {
 				filePosition = data;
 				filePositionValid = true;
-				if (skipOutroLength > 0 && fileLength > 0) {
+				if (skipOutroLength > 0 && fileLengthValid && !outroSkipRequested) {
 					if (filePosition + skipOutroLength >= fileLength) {
                         LOG("Skipping outro");
-						stop();
+						// non-blocking: blocking stop() would process events recursively from inside event handler;
+						// END_FILE with outroSkipRequested set starts next file
+						outroSkipRequested = true;
+						const char *cmd[] = { "stop", NULL };
+						mpv_command(mpv, cmd);
 					}
 				}
 			}
@@ -375,11 +386,19 @@ void MPlayer::onMpvEvent(const mpv_event &e)
 			seekAbsolute(absoluteSeekRequested);
 		}
 		break;
-	case MPV_EVENT_END_FILE:
+	case MPV_EVENT_END_FILE: {
 		fileStarted = false;
-		if (callbackStopPlaying && useStopCallback)
-			callbackStopPlaying();	
+		// go to next file only if file ended by itself (or outro was skipped), not if it was stopped
+		// or replaced by another file (e.g. quick Next/Prev while previous file was still loading)
+		bool naturalEnd = outroSkipRequested;
+		const mpv_event_end_file *ef = static_cast<const mpv_event_end_file*>(e.data);
+		if (ef && (ef->reason == MPV_END_FILE_REASON_EOF || ef->reason == MPV_END_FILE_REASON_ERROR))
+			naturalEnd = true;
+		outroSkipRequested = false;
+		if (callbackStopPlaying && useStopCallback && naturalEnd)
+			callbackStopPlaying();
 		break;
+	}
     case MPV_EVENT_SHUTDOWN:
         mpvDestroy();
         break;
@@ -477,6 +496,16 @@ void MPlayer::applyConfiguration(void)
 	}
 
 	changeVolumeAbs(cfg.softVolLevel);
+
+	{
+		AnsiString color;
+		color.sprintf("#%02X%02X%02X", cfg.backgroundColor & 0xFF, (cfg.backgroundColor >> 8) & 0xFF, (cfg.backgroundColor >> 16) & 0xFF);
+		// "background-color" since mpv 0.38, "background" in older versions
+		if (setProperty("background-color", color) != 0)
+		{
+			setProperty("background", color);
+		}
+	}
 
 
 }

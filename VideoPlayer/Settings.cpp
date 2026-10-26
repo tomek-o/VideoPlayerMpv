@@ -60,7 +60,10 @@ void Settings::SetDefault(void)
 	frmMain.ignorePrevCommandWhenPlayingFirstItem = false;
 	frmMain.ignoreNextCommandWhenPlayingLastItem = false;
 	frmMain.pauseOnSuspend = true;
-	frmMain.exitFullScreenOnSuspend = false;	
+	frmMain.exitFullScreenOnSuspend = false;
+	frmMain.loopPlaylist = false;
+	frmMain.resumePlaybackOnStart = false;
+	frmMain.mouseWheelSeekWithoutShift = false;	
 
 	Logging.bLogToFile = false;
 	Logging.bFlush = false;
@@ -239,9 +242,9 @@ int Settings::Read(AnsiString asFileName)
 		return 1;
 	}
 
-	int maxX = GetSystemMetrics(SM_CXSCREEN);
-	/** \todo Ugly fixed taskbar margin */
-	int maxY = GetSystemMetrics(SM_CYSCREEN) - 32;
+	// size limit: whole virtual desktop (all monitors); position is verified against monitors in TfrmMain::OnRestore
+	int maxX = GetSystemMetrics(SM_CXVIRTUALSCREEN);
+	int maxY = GetSystemMetrics(SM_CYVIRTUALSCREEN);
 
 	gui.fromJson(root["gui"]);
 
@@ -258,14 +261,6 @@ int Settings::Read(AnsiString asFileName)
 	}
 	frmMain.iPosX = frmMainJson.get("AppPositionX", 30).asInt();
 	frmMain.iPosY = frmMainJson.get("AppPositionY", 30).asInt();
-	if (frmMain.iPosX < 0)
-		frmMain.iPosX = 0;
-	if (frmMain.iPosY < 0)
-		frmMain.iPosY = 0;
-	if (frmMain.iPosX + frmMain.iWidth > maxX)
-		frmMain.iPosX = maxX - frmMain.iWidth;
-	if (frmMain.iPosY + frmMain.iHeight > maxY)
-		frmMain.iPosY = maxY - frmMain.iHeight;
 	frmMain.bWindowMaximized = frmMainJson.get("Maximized", false).asBool();
 	frmMain.bAlwaysOnTop = frmMainJson.get("AlwaysOnTop", false).asBool();
 	frmMain.bExitFullScreenOnStop = frmMainJson.get("ExitFullScreenOnStop", frmMain.bExitFullScreenOnStop).asBool();
@@ -275,6 +270,9 @@ int Settings::Read(AnsiString asFileName)
 	frmMainJson.getBool("IgnoreNextCommandWhenPlayingLastItem", frmMain.ignoreNextCommandWhenPlayingLastItem);
 	frmMainJson.getBool("PauseOnSuspend", frmMain.pauseOnSuspend);
 	frmMainJson.getBool("ExitFullScreenOnSuspend", frmMain.exitFullScreenOnSuspend);
+	frmMainJson.getBool("LoopPlaylist", frmMain.loopPlaylist);
+	frmMainJson.getBool("ResumePlaybackOnStart", frmMain.resumePlaybackOnStart);
+	frmMainJson.getBool("MouseWheelSeekWithoutShift", frmMain.mouseWheelSeekWithoutShift);
 
 	const Json::Value &LoggingJson = root["Logging"];
 	Logging.bLogToFile = LoggingJson.get("LogToFile", false).asBool();
@@ -303,6 +301,7 @@ int Settings::Read(AnsiString asFileName)
 		jv.getBool("ShowFileNameOnPlayStart", Mplayer.showFileNameOnPlayStart);
 		jv.getBool("UseSeparateVolumeForEachFile", Mplayer.useSeparateVolumeForEachFile);
 		jv.getBool("ShowPropertyEditor", Mplayer.showPropertyEditor);
+		jv.getIntInRange("BackgroundColor", Mplayer.backgroundColor, 0, 0xFFFFFF);
 	}
 
 	{
@@ -384,6 +383,9 @@ int Settings::Write(AnsiString asFileName)
 		jv["IgnoreNextCommandWhenPlayingLastItem"] = frmMain.ignoreNextCommandWhenPlayingLastItem;
 		jv["PauseOnSuspend"] = frmMain.pauseOnSuspend;
 		jv["ExitFullScreenOnSuspend"] = frmMain.exitFullScreenOnSuspend;
+		jv["LoopPlaylist"] = frmMain.loopPlaylist;
+		jv["ResumePlaybackOnStart"] = frmMain.resumePlaybackOnStart;
+		jv["MouseWheelSeekWithoutShift"] = frmMain.mouseWheelSeekWithoutShift;
 	}
 
 	{
@@ -403,6 +405,7 @@ int Settings::Write(AnsiString asFileName)
 		jv["ShowFileNameOnPlayStart"] = Mplayer.showFileNameOnPlayStart;
 		jv["UseSeparateVolumeForEachFile"] = Mplayer.useSeparateVolumeForEachFile;
 		jv["ShowPropertyEditor"] = Mplayer.showPropertyEditor;
+		jv["BackgroundColor"] = Mplayer.backgroundColor;
 	}
 
 	{

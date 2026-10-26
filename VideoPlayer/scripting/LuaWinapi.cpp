@@ -53,7 +53,7 @@ int l_WinapiPlaySound(lua_State* L)
 }	// namespace
 
 
-int luaopen_jsonedit_winapi (lua_State *L)
+int luaopen_vp_winapi (lua_State *L)
 {
 	static const struct luaL_Reg tsip_winapi[] = {
 		{"FindWindow", l_WinapiFindWindow},

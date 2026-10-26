@@ -41,7 +41,8 @@ void __fastcall TfrmMain::CreateParams(TCreateParams &Params)
 
 __fastcall TfrmMain::TfrmMain(TComponent* Owner)
 	: TForm(Owner), trIcon(NULL), allowControlHide(true), state(STOP),
-	mouseMoveLastX(-1), mouseMoveLastY(-1), lastHotkey(NULL)
+	mouseMoveLastX(-1), mouseMoveLastY(-1), lastHotkey(NULL),
+	tmrResumePlayback(NULL)
 {
 	// inform OS that we accepting dropping files
 	DragAcceptFiles(Handle, True);
@@ -73,6 +74,8 @@ void __fastcall TfrmMain::FormCreate(TObject *Sender)
 	}
 	this->Top = appSettings.frmMain.iPosY;
 	this->Left = appSettings.frmMain.iPosX;
+	Application->OnRestore = OnRestore;
+	OnRestore(NULL);
 	if (appSettings.frmMain.bWindowMaximized)
 		this->WindowState = wsMaximized;
 	if (appSettings.Logging.bLogToFile)
@@ -126,6 +129,13 @@ void TfrmMain::WriteSettings(void)
 
 void __fastcall TfrmMain::FormShow(TObject *Sender)
 {
+	Initialize();
+}
+//---------------------------------------------------------------------------
+
+void TfrmMain::Initialize(void)
+{
+	// called from WinMain before main window is shown (or not shown if starting minimized to tray)
     static bool once = false;
     if (!once)
     {
@@ -179,10 +189,18 @@ void __fastcall TfrmMain::FormShow(TObject *Sender)
 			files.push_back(ParamStr(1));
 			OpenFiles(files);
 		}
+		else if (appSettings.frmMain.resumePlaybackOnStart)
+		{
+			// delayed - let main window and mpv initialize first
+			tmrResumePlayback = new TTimer(this);
+			tmrResumePlayback->Interval = 500;
+			tmrResumePlayback->OnTimer = tmrResumePlaybackTimer;
+			tmrResumePlayback->Enabled = true;
+		}
 
 		frmMediaBrowser->Focus();
+		LOG("Application started");
 	}
-	LOG("Application started");
 }
 //---------------------------------------------------------------------------
 
@@ -226,6 +244,9 @@ void TfrmMain::ApplySettings(const Settings &prev)
 
 	mcfg.softVolLevel = appSettings.Mplayer.softVolLevel;
 	mcfg.softVolMax = appSettings.Mplayer.softVolMax;
+	mcfg.backgroundColor = appSettings.Mplayer.backgroundColor;
+	this->Color = static_cast<TColor>(appSettings.Mplayer.backgroundColor);
+	pnlMain->Color = static_cast<TColor>(appSettings.Mplayer.backgroundColor);
 	mplayer.configure(mcfg);
 
 	if (appSettings.Mplayer.showPropertyEditor)
@@ -529,7 +550,13 @@ void TfrmMain::Play(void)
 				volume = entry->softVolLevel;
 				LOG("File volume: %d\n", volume);
 			}
-			mplayer.play(entry->getTarget(), volume, entry->skipOutroLength, entry->mplayerExtraParams);
+			int rc = mplayer.play(frmMediaBrowser->GetFullPath(entry->getTarget()), volume, entry->skipOutroLength, entry->mplayerExtraParams);
+			if (rc != 0)
+			{
+				LOG("Failed to start playback (%d)", rc);
+				SetState(STOP);
+				return;
+			}
 			mplayer.setOsdLevel(appSettings.Mplayer.osdLevel);
 			mplayer.setSubVisibility(appSettings.Mplayer.subVisibility);
 			if (appSettings.Mplayer.showFileNameOnPlayStart)
@@ -596,7 +623,21 @@ void __fastcall TfrmMain::FormMouseWheel(TObject *Sender, TShiftState Shift,
 	  int WheelDelta, TPoint &MousePos, bool &Handled)
 {
 	int delta = (WheelDelta>0)?(1):(-1);
-	ChangeVolume(delta);
+	bool seek = Shift.Contains(ssShift);
+	if (appSettings.frmMain.mouseWheelSeekWithoutShift)
+		seek = !seek;
+	if (seek)
+	{
+		if (state == PLAY || state == PAUSE)
+		{
+			mplayer.seekRelative(delta * 3);	// wheel up = forward
+		}
+		Handled = true;
+	}
+	else
+	{
+		ChangeVolume(delta);
+	}
 }
 //---------------------------------------------------------------------------
 
@@ -959,7 +1000,9 @@ void TfrmMain::ExecAction(const struct Action& action)
 		}
 		else if (state == STOP)
 		{
-			AnsiString cname = Screen->ActiveControl->ClassName();
+			AnsiString cname;
+			if (Screen->ActiveControl)	// NULL e.g. on global hotkey when application is not active
+				cname = Screen->ActiveControl->ClassName();
 			if (cname != "TEdit" && cname != "TMemo")
 			{
 				ToggleFullscreen();
@@ -987,7 +1030,9 @@ void TfrmMain::ExecAction(const struct Action& action)
 		}
 		else if (state == STOP)
 		{
-			AnsiString cname = Screen->ActiveControl->ClassName();
+			AnsiString cname;
+			if (Screen->ActiveControl)	// NULL e.g. on global hotkey when application is not active
+				cname = Screen->ActiveControl->ClassName();
 			if (cname != "TEdit" && cname != "TMemo")
 			{
 				Application->Minimize();
@@ -1039,7 +1084,10 @@ void TfrmMain::ExecAction(const struct Action& action)
 			{
 				return;
 			}
-			Skip();
+			if (appSettings.frmMain.ignoreNextCommandWhenPlayingLastItem && !frmMediaBrowser->HasNextFile())
+				Stop();	// Skip() would be ignored and file would stay open
+			else
+				Skip();
 			Sleep(1500);	/** \todo Wait properly until mplayer quits and releases file */
 			frmMediaBrowser->DeleteFile(filename);
 		}
@@ -1079,7 +1127,7 @@ int TfrmMain::OnGetCurrentFileName(AnsiString &filename)
 	const PlaylistEntry* pe = frmMediaBrowser->GetFileToPlay();
 	if (pe == NULL)
 		return -1;
-	filename = pe->fileName;
+	filename = frmMediaBrowser->GetFullPath(pe->fileName);
 	return 0;
 }
 
@@ -1189,6 +1237,66 @@ void TfrmMain::UpdateTrayIcon(void)
 void __fastcall TfrmMain::miStopClick(TObject *Sender)
 {
 	Stop();
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TfrmMain::tmrResumePlaybackTimer(TObject *Sender)
+{
+	tmrResumePlayback->Enabled = false;
+	if (state == STOP)
+	{
+		LOG("Resuming playback on start");
+		Play();
+	}
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TfrmMain::OnRestore(TObject *Sender)
+{
+	// make sure window is visible on any of the monitors (monitor might have been disconnected)
+	if (WindowState == wsMaximized)
+		return;	// maximized window is placed by Windows (and its Top is slightly above monitor area)
+	bool monitorFound = false;
+	for (int i=0; i<Screen->MonitorCount; i++)
+	{
+		TMonitor *monitor = Screen->Monitors[i];
+		enum { MARGIN = 30 };
+		if (
+			(Left + Width + MARGIN >= monitor->Left) &&
+			(Left - MARGIN <= monitor->Left + monitor->Width) &&
+			(Top + 5 >= monitor->Top) &&
+			(Top - MARGIN <= monitor->Top + monitor->Height)
+			)
+		{
+			monitorFound = true;
+			break;
+		}
+	}
+	if (!monitorFound)
+	{
+		if (Screen->MonitorCount > 0)
+		{
+			TMonitor *monitor = Screen->Monitors[0];
+			if (monitor)
+			{
+				LOG("Moving main window to first monitor");
+				Left = monitor->Left + 50;
+				Top = monitor->Top + 50;
+			}
+		}
+	}
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TfrmMain::miPrevClick(TObject *Sender)
+{
+	Prev();
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TfrmMain::miNextClick(TObject *Sender)
+{
+	Skip();
 }
 //---------------------------------------------------------------------------
 

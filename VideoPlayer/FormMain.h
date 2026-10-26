@@ -47,6 +47,8 @@ __published:	// IDE-managed Components
 	TMenuItem *miPlay;
 	TMenuItem *miPause;
 	TMenuItem *miStop;
+	TMenuItem *miPrev;
+	TMenuItem *miNext;
 	TMenuItem *N1;
 	void __fastcall FormCreate(TObject *Sender);
 	void __fastcall FormCloseQuery(TObject *Sender, bool &CanClose);
@@ -78,6 +80,8 @@ __published:	// IDE-managed Components
 	void __fastcall miPlayClick(TObject *Sender);
 	void __fastcall miPauseClick(TObject *Sender);
 	void __fastcall miStopClick(TObject *Sender);
+	void __fastcall miPrevClick(TObject *Sender);
+	void __fastcall miNextClick(TObject *Sender);
 private:	// User declarations
 	TrayIcon *trIcon;
 	void ApplySettings(const Settings &prev);
@@ -120,6 +124,10 @@ private:	// User declarations
 	void UpdateTrayIcon(void);
 
 	void __fastcall WMPowerBroadcast(TMessage &Msg);
+	void __fastcall OnRestore(TObject *Sender);
+
+	TTimer *tmrResumePlayback;
+	void __fastcall tmrResumePlaybackTimer(TObject *Sender);
 
 protected:
 	void __fastcall CreateParams(TCreateParams   &Params);
@@ -127,6 +135,7 @@ protected:
 public:		// User declarations
 	__fastcall TfrmMain(TComponent* Owner);
 	__fastcall ~TfrmMain(void);
+	void Initialize(void);
 	void CallbackStartPlayingFn(void);
 	void CallbackStopPlayingFn(void);
 	void CallbackMediaInfoUpdateFn(void);

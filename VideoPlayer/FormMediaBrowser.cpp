@@ -29,6 +29,32 @@ AnsiString GetPlaylistsDir(void) {
 const AnsiString DEFAULT_PLAYLIST_NAME = "Default";
 const AnsiString PLAYLIST_EXTENSION = "json";
 
+static bool isDefaultPlaylist(TfrmPlaylist *frm)
+{
+	return frm && UpperCase(ExtractFileName(frm->getFileName())) == UpperCase(DEFAULT_PLAYLIST_NAME + "." + PLAYLIST_EXTENSION);
+}
+
+static bool isValidPlaylistName(const AnsiString &name)
+{
+	if (name.Trim() == "")
+		return false;
+	return name.LastDelimiter("\\/:*?\"<>|") == 0;
+}
+
+static bool playlistFileExists(TPageControl *pc, AnsiString fileName)
+{
+	for (int i=0; i<pc->PageCount; i++)
+	{
+		TTabSheet *ts = pc->Pages[i];
+		if (ts->ControlCount <= 0)
+			continue;
+		TfrmPlaylist *frm = dynamic_cast<TfrmPlaylist*>(ts->Controls[0]);
+		if (frm && UpperCase(frm->getFileName()) == UpperCase(fileName))
+			return true;
+	}
+	return false;
+}
+
 int ItemAtPos(HWND ControlHandle, int X, int Y)
 {
 	TTCHitTestInfo HitTestInfo;
@@ -147,20 +173,17 @@ void TfrmMediaBrowser::CreatePlaylistTab(AnsiString fileName, bool hidden)
 	frmPlaylist->Parent = ts;
 	frmPlaylist->Visible = true;
 	frmPlaylist->callbackStartPlaying = Play;
+	frmPlaylist->callbackGetPlaylists = GetPlaylists;
 }
 
-int TfrmMediaBrowser::LoadPlaylist(TTabSheet *ts)
+void TfrmMediaBrowser::GetPlaylists(std::vector<TfrmPlaylist*>& playlists)
 {
-	TfrmPlaylist* frmPlaylist = getPlaylist(tabIndexToPlaylistId(ts->TabIndex));
-	int rc = frmPlaylist->load();
-	if (rc != 0 /* && FileExists(fileName)*/)
+	for (int i=0; i<pcSource->PageCount; i++)
 	{
-		LOG("Error %d loading playlist from %s", rc, frmPlaylist->getFileName().c_str());
+		TfrmPlaylist *frm = getPlaylist(i);
+		if (frm)
+			playlists.push_back(frm);
 	}
-	frmPlaylist->Visible = true;
-	frmPlaylist->Parent = ts;
-	frmPlaylist->callbackStartPlaying = Play;
-	return rc;
 }
 
 void TfrmMediaBrowser::LoadPlaylists(void)
@@ -185,7 +208,7 @@ void TfrmMediaBrowser::LoadPlaylists(void)
 	{
 		AnsiString filename = dir + file.cFileName;
 
-		if (ExtractFileName(filename) != defaultPlaylist)
+		if (UpperCase(ExtractFileName(filename)) != UpperCase(defaultPlaylist))
 		{
 			AnsiString caption = ChangeFileExt(ExtractFileName(filename), "");
 			playlistsNames.insert(caption);
@@ -209,7 +232,7 @@ void TfrmMediaBrowser::LoadPlaylists(void)
 	for (int i=0; i<pcSource->PageCount; i++)
 	{
 		TfrmPlaylist* frmPlaylist = getPlaylist(i); //tabIndexToPlaylistId(i));
-		if (frmPlaylist)
+		if (frmPlaylist && pcSource->Pages[i]->TabVisible)
 		{
 			AnsiString name = ExtractFileName(frmPlaylist->getFileName());
 			name = UpperCase(name);
@@ -263,6 +286,14 @@ const PlaylistEntry* TfrmMediaBrowser::GetFileToPlay(void)
 	return frm->getFileToPlay();		
 }
 
+AnsiString TfrmMediaBrowser::GetFullPath(AnsiString path)
+{
+	TfrmPlaylist *frm = getPlaylist(pcSource->ActivePageIndex);
+	if (frm == NULL)
+		return path;
+	return frm->getFullPath(path);
+}
+
 void __fastcall TfrmMediaBrowser::lvCachedFilesKeyDown(TObject *Sender,
       WORD &Key, TShiftState Shift)
 {
@@ -276,6 +307,8 @@ void __fastcall TfrmMediaBrowser::lvCachedFilesKeyDown(TObject *Sender,
 
 void TfrmMediaBrowser::Focus(void)
 {
+	if (!CanFocus())	// e.g. main window not shown yet (start minimized to tray)
+		return;
 	this->SetFocus();
 	TfrmPlaylist *frm = getPlaylist(pcSource->ActivePageIndex);
 	if (frm)
@@ -327,7 +360,20 @@ void TfrmMediaBrowser::SetFiles(const std::vector<AnsiString>& filenames, bool s
 			bool ret = InputQuery("Playlist name", "Name for new playlist", name);
 			if (ret == false)
 				return;
-			CreatePlaylistTab(GetPlaylistsDir() + "\\" + name + "." + PLAYLIST_EXTENSION, false);
+			if (!isValidPlaylistName(name))
+			{
+				MessageBox(this->Handle, "Invalid playlist name.",
+					Application->Title.c_str(), MB_ICONEXCLAMATION);
+				return;
+			}
+			AnsiString fileName = GetPlaylistsDir() + "\\" + name + "." + PLAYLIST_EXTENSION;
+			if (playlistFileExists(pcSource, fileName))
+			{
+				MessageBox(this->Handle, "Playlist with this name already exists.",
+					Application->Title.c_str(), MB_ICONEXCLAMATION);
+				return;
+			}
+			CreatePlaylistTab(fileName, false);
 			// switch to new playlist (bug with new playlist visible already)
 			pcSource->ActivePage = pcSource->Pages[pcSource->PageCount - 1];
 		}
@@ -354,7 +400,20 @@ void __fastcall TfrmMediaBrowser::miNewPlaylistClick(TObject *Sender)
 	bool ret = InputQuery("Playlist name", "Name for new playlist", name);
 	if (ret == false)
 		return;
-	CreatePlaylistTab(GetPlaylistsDir() + "\\" + name + "." + PLAYLIST_EXTENSION, false);
+	if (!isValidPlaylistName(name))
+	{
+		MessageBox(this->Handle, "Invalid playlist name.",
+			Application->Title.c_str(), MB_ICONEXCLAMATION);
+		return;
+	}
+	AnsiString fileName = GetPlaylistsDir() + "\\" + name + "." + PLAYLIST_EXTENSION;
+	if (playlistFileExists(pcSource, fileName))
+	{
+		MessageBox(this->Handle, "Playlist with this name already exists.",
+			Application->Title.c_str(), MB_ICONEXCLAMATION);
+		return;
+	}
+	CreatePlaylistTab(fileName, false);
 	// switch to new playlist (bug with new playlist visible already)
 	pcSource->ActivePage = pcSource->Pages[pcSource->PageCount - 1];
 }
@@ -367,7 +426,7 @@ void __fastcall TfrmMediaBrowser::miRenamePlaylistClick(TObject *Sender)
 		LOG("Rename playlist failed: tabIndex = %d", mouseDownTabIndex);
 		return;
 	}
-	if (mouseDownTabIndex == 0)
+	if (isDefaultPlaylist(getPlaylist(tabIndexToPlaylistId(mouseDownTabIndex))))
 	{
 		MessageBox(this->Handle, "Default playlist cannot be renamed", Application->Title.c_str(), MB_ICONINFORMATION);
 		return;
@@ -378,13 +437,19 @@ void __fastcall TfrmMediaBrowser::miRenamePlaylistClick(TObject *Sender)
 	bool ret = InputQuery("Playlist name", "Name for the playlist", name);
 	if (ret == false || name == ts->Caption)
 		return;
+	if (!isValidPlaylistName(name))
+	{
+		MessageBox(this->Handle, "Invalid playlist name.",
+			Application->Title.c_str(), MB_ICONEXCLAMATION);
+		return;
+	}
 
 	AnsiString fileName = GetPlaylistsDir() + "\\" + name + "." + PLAYLIST_EXTENSION;
 	for (int i=0; i<pcSource->PageCount; i++)
 	{
 		TfrmPlaylist *frm = getPlaylist(i);
 		assert(frm);
-		if (frm->getFileName() == fileName)
+		if (UpperCase(frm->getFileName()) == UpperCase(fileName))
 		{
 			MessageBox(this->Handle, "Playlist with this name already exists.",
 				Application->Title.c_str(), MB_ICONEXCLAMATION);
@@ -402,6 +467,11 @@ void __fastcall TfrmMediaBrowser::miRenamePlaylistClick(TObject *Sender)
 	}
 
 	ts->Caption = name;
+	if (ts == pcSource->ActivePage)
+	{
+		// keep active playlist selected after restart
+		appSettings.mediaBrowser.asLastPlaylist = ExtractFileName(frm->getFileName());
+	}
 }
 //---------------------------------------------------------------------------
 
@@ -423,7 +493,7 @@ void __fastcall TfrmMediaBrowser::miDeletePlaylistClick(TObject *Sender)
         LOG("Delete playlist failed: tabIndex = %d", mouseDownTabIndex);
 		return;
 	}
-	if (mouseDownTabIndex == 0)
+	if (isDefaultPlaylist(getPlaylist(tabIndexToPlaylistId(mouseDownTabIndex))))
 	{
 		MessageBox(this->Handle, "Default playlist cannot be deleted", Application->Title.c_str(), MB_ICONINFORMATION);
 		return;
@@ -444,9 +514,12 @@ void __fastcall TfrmMediaBrowser::miDeletePlaylistClick(TObject *Sender)
 	{
 		MessageBox(this->Handle, "Failed to delete playlist file. Check if file is write protected.",
 			Application->Title.c_str(), MB_ICONEXCLAMATION);
+		return;
 	}
 
 	delete ts;
+	pcSourceChange(NULL);
+	UpdateHiddenPlaylistsList();
 }
 //---------------------------------------------------------------------------
 
@@ -464,9 +537,12 @@ void __fastcall TfrmMediaBrowser::pcSourceDragDrop(TObject *Sender,
 		return;
 	TPageControl *pc = (TPageControl*)Sender;
 	int i = tabIndexToPlaylistId(ItemAtPos(pc->Handle, X, Y)); //GetTabIndex(Sender, X, Y);
+	if (i < 0)
+		return;
 	if (i != pc->ActivePage->PageIndex)
 	{
 		pc->ActivePage->PageIndex = i;
+		UpdateHiddenPlaylistsList();
 	}
 }
 //---------------------------------------------------------------------------
@@ -634,7 +710,7 @@ void __fastcall TfrmMediaBrowser::miHidePlaylistClick(TObject *Sender)
 		LOG("Hide playlist failed: tabIndex = %d", mouseDownTabIndex);
 		return;
 	}
-	if (mouseDownTabIndex == 0)
+	if (isDefaultPlaylist(getPlaylist(tabIndexToPlaylistId(mouseDownTabIndex))))
 	{
 		MessageBox(this->Handle, "Default playlist cannot be hidden", Application->Title.c_str(), MB_ICONINFORMATION);
 		return;
@@ -642,6 +718,7 @@ void __fastcall TfrmMediaBrowser::miHidePlaylistClick(TObject *Sender)
 	TTabSheet *ts = getTabSheetAtIndex(mouseDownTabIndex);
 
 	TfrmPlaylist* frmPlaylist = getPlaylist(tabIndexToPlaylistId(mouseDownTabIndex));
+	assert(frmPlaylist);
 	AnsiString caption = frmPlaylist->getCaption();
 	appSettings.hiddenPlaylists.insert(caption);
 	appSettings.hiddenPlaylistsModified = true;
@@ -649,7 +726,14 @@ void __fastcall TfrmMediaBrowser::miHidePlaylistClick(TObject *Sender)
 	ts->TabVisible = false;
 	ts->Visible = false;
 
-    pcSource->ActivePage = pcSource->Pages[0];
+	for (int i=0; i<pcSource->PageCount; i++)
+	{
+		if (isDefaultPlaylist(getPlaylist(i)))
+		{
+			pcSource->ActivePage = pcSource->Pages[i];
+			break;
+		}
+	}
 	pcSourceChange(NULL);
 
 	UpdateHiddenPlaylistsList();

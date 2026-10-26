@@ -12,7 +12,7 @@
 
 class LuaState;
 struct lua_State;
-extern "C" int luaopen_jsonedit_winapi (lua_State *L);
+extern "C" int luaopen_vp_winapi (lua_State *L);
 
 
 class ScriptExec
@@ -29,7 +29,7 @@ private:
 	
 	// let's put some winapi equivalents into library
 	// sharing "Beep" and "MessageBox" - both in global namespace (backward compatibility) and in library
-	friend int luaopen_jsonedit_winapi (lua_State *L);
+	friend int luaopen_vp_winapi (lua_State *L);
 
 	bool breakReq;
 	bool running;

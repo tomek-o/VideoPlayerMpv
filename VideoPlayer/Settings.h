@@ -52,6 +52,9 @@ public:
 		bool ignoreNextCommandWhenPlayingLastItem;
 		bool pauseOnSuspend;
 		bool exitFullScreenOnSuspend;
+		bool loopPlaylist;
+		bool resumePlaybackOnStart;
+		bool mouseWheelSeekWithoutShift;	///< swap mouse wheel actions: seek without Shift, volume with Shift
 	} frmMain;
 	struct _Logging
 	{
@@ -81,6 +84,8 @@ public:
 		bool showFileNameOnPlayStart;
 		bool useSeparateVolumeForEachFile;
 		bool showPropertyEditor;
+		enum { BACKGROUND_COLOR_DEF = 0x010203 };
+		int backgroundColor;		///< video panel and mpv background (TColor value), same color allows seamless transition between files
 		_Mplayer(void):
 			softVolLevel(100),
 			softVolMax(SOFTVOL_MAX_DEF),
@@ -88,7 +93,8 @@ public:
 			subVisibility(true),
 			showFileNameOnPlayStart(true),
 			useSeparateVolumeForEachFile(false),
-			showPropertyEditor(false)
+			showPropertyEditor(false),
+			backgroundColor(BACKGROUND_COLOR_DEF)
 		{}
 	} Mplayer;
 	struct MediaBrowser

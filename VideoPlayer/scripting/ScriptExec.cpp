@@ -66,9 +66,11 @@ static BOOL CALLBACK EnumWindowsProc(HWND hWnd, LPARAM lParam)
 	if (findWindowData.windowName)
 	{
 		char String[512];
-		if (!SendMessage(hWnd, WM_GETTEXT, sizeof(String), (LPARAM)String))
+		DWORD_PTR len = 0;
+		// timeout: plain SendMessage would block on hung window
+		if (!SendMessageTimeout(hWnd, WM_GETTEXT, sizeof(String), (LPARAM)String, SMTO_ABORTIFHUNG, 500, &len) || len == 0)
 		{
-			return TRUE;		// No window title (length = 0)
+			return TRUE;		// No window title (length = 0) or window not responding
 		}
 		if (strcmp(String, findWindowData.windowName))
 		{
@@ -170,6 +172,7 @@ void ScriptExec::QueuePush(const char* name, const char* value)
 
 int ScriptExec::QueuePop(const char* name, AnsiString &value)
 {
+	ScopedLock<Mutex> lock(mutexQueues);
 	std::map<AnsiString, std::deque<AnsiString> >::iterator it;
 	it = queues.find(name);
 	if (it != queues.end())
@@ -188,6 +191,7 @@ int ScriptExec::QueuePop(const char* name, AnsiString &value)
 
 int ScriptExec::QueueClear(const char* name)
 {
+	ScopedLock<Mutex> lock(mutexQueues);
 	std::map<AnsiString, std::deque<AnsiString> >::iterator it;
 	it = queues.find(name);
 	if (it != queues.end())
@@ -200,6 +204,7 @@ int ScriptExec::QueueClear(const char* name)
 
 int ScriptExec::QueueGetSize(const char* name)
 {
+	ScopedLock<Mutex> lock(mutexQueues);
 	std::map<AnsiString, std::deque<AnsiString> >::iterator it;
 	it = queues.find(name);
 	if (it != queues.end())
@@ -275,15 +280,15 @@ static int LuaPrint(lua_State *L)
 static int LuaError( lua_State *L )
 {
 	const char* str = lua_tostring( L, -1 );
-	lua_pop(L, 1);
 	//send string to console
-	GetContext(L)->onAddOutputText(str);
+	if (str)
+		GetContext(L)->onAddOutputText(str);
 	return 0;
 }
 
 static int l_ShowMessage( lua_State* L )
 {
-	AnsiString msg = lua_tostring(L, -1);
+	AnsiString msg = lua_tostring(L, 1);
 	MessageBox(NULL, msg.c_str(), "Lua message", MB_ICONINFORMATION);
 	lua_pushnumber( L, 0 );
 	return 1;
@@ -328,7 +333,7 @@ static int l_InputQuery(lua_State* L)
 static int l_Sleep(lua_State* L)
 {
 	int ret = 0;
-	int time = static_cast<int>(lua_tointegerx(L, -1, NULL));
+	int time = static_cast<int>(lua_tonumber(L, 1));	// lua_tointeger would return 0 for non-integral numbers
 	clock_t t1 = clock();
 	long elapsed = 0;
 	if (GetContext(L)->breakReq)
@@ -367,7 +372,7 @@ static int l_GetClipboardText( lua_State* L )
 
 static int l_SetClipboardText( lua_State* L )
 {
-	const char* str = lua_tostring( L, -1 );
+	const char* str = lua_tostring( L, 1 );
 	if (str == NULL)
 	{
 		LOG("Lua error: str == NULL\n");
@@ -380,7 +385,12 @@ static int l_SetClipboardText( lua_State* L )
 /** \return 0 on success */
 static int l_ForceDirectories(lua_State* L)
 {
-	const char* str = lua_tostring(L, -1);
+	const char* str = lua_tostring(L, 1);
+	if (str == NULL || str[0] == '\0')
+	{
+		lua_pushnumber(L, -1);	// VCL ForceDirectories raises exception for empty path
+		return 1;
+	}
 	if (DirectoryExists(str))
 	{
 		lua_pushnumber(L, 0);
@@ -401,6 +411,7 @@ static int l_FindWindowByCaptionAndExeName(lua_State* L)
 
 	ScopedLock<Mutex> lock(mutex);
 	findWindowData.hWndFound = NULL;
+	findWindowData.exeName = NULL;
 
 	findWindowData.windowName = lua_tostring(L, 1);
 	const char* exeName = lua_tostring(L, 2);
@@ -419,11 +430,11 @@ static int l_FindWindowByCaptionAndExeName(lua_State* L)
 				dosExeName.cat_printf("%s%s", targetPath, &exeName[2]);
 				findWindowData.exeName = dosExeName.c_str();
 			}
+			else
+			{
+				LOG("Lua FindWindowByCaptionAndExeName: QueryDosDevice failed for drive %.2s\n", exeName);
+			}
 		}
-	}
-	else
-	{
-		findWindowData.exeName = NULL;
 	}
 	if (findWindowData.windowName == NULL && findWindowData.exeName == NULL)
 	{
@@ -495,6 +506,7 @@ static int l_ClearVariable(lua_State* L)
 
 static int l_ClearAllVariables(lua_State* L)
 {
+	ScopedLock<Mutex> lock(mutexVariables);
 	variables.clear();
 	return 0;
 }
@@ -764,7 +776,7 @@ void ScriptExec::Run(const char* script)
 
 
 	// add library
-	luaL_requiref(L, "jsonedit_winapi", luaopen_jsonedit_winapi, 0);
+	luaL_requiref(L, "vp_winapi", luaopen_vp_winapi, 0);
 
 	if (!globalsSetComplete)
 	{
@@ -778,11 +790,27 @@ void ScriptExec::Run(const char* script)
 	}
 	globalsSetComplete = true;
 
-	int res = luaL_dostring(L, script);
+	int res;
+	AnsiString exceptionText;
+	try
+	{
+		res = luaL_dostring(L, script);
+	}
+	catch (Exception &e)
+	{
+		// e.g. VCL exception from function called by script - make sure state below is cleaned up
+		res = -1;
+		exceptionText = e.Message;
+	}
 	if(res != 0)
 	{
 		AnsiString txt;
-		txt.sprintf("Execution error:\n%s", lua_tostring(L, -1));
+		const char *err;
+		if (exceptionText == "")
+			err = lua_tostring(L, -1);
+		else
+			err = exceptionText.c_str();
+		txt.sprintf("Execution error:\n%s", err ? err : "unknown error (error object is not a string)");
 		MessageBox(NULL, txt.c_str(), "Lua", MB_ICONINFORMATION);
 	}
 	running = false;

@@ -125,6 +125,9 @@ object frmPlaylist: TfrmPlaylist
       ShortCut = 16452
       OnClick = miDeleteFilesClick
     end
+    object miMoveToPlaylist: TMenuItem
+      Caption = 'Move to playlist'
+    end
     object miResetBitrateInfo: TMenuItem
       Caption = 'Reset bitrate info'
       OnClick = miResetBitrateInfoClick
@@ -157,6 +160,28 @@ object frmPlaylist: TfrmPlaylist
     object miRemoveMissingFromList: TMenuItem
       Caption = 'Remove missing files from list'
       OnClick = miRemoveMissingFromListClick
+    end
+    object miPaths: TMenuItem
+      Caption = 'Paths'
+      object miPathsAllRelative: TMenuItem
+        Caption = 'Convert all to relative'
+        OnClick = miPathsAllRelativeClick
+      end
+      object miPathsAllAbsolute: TMenuItem
+        Caption = 'Convert all to absolute'
+        OnClick = miPathsAllAbsoluteClick
+      end
+      object N6: TMenuItem
+        Caption = '-'
+      end
+      object miPathsSelectedRelative: TMenuItem
+        Caption = 'Convert selected to relative'
+        OnClick = miPathsSelectedRelativeClick
+      end
+      object miPathsSelectedAbsolute: TMenuItem
+        Caption = 'Convert selected to absolute'
+        OnClick = miPathsSelectedAbsoluteClick
+      end
     end
     object N3: TMenuItem
       Caption = '-'

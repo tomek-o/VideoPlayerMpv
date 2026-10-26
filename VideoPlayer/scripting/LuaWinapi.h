@@ -8,6 +8,6 @@
 
 struct lua_State;
 
-extern "C" int luaopen_jsonedit_winapi (lua_State *L);
+extern "C" int luaopen_vp_winapi (lua_State *L);
 
 #endif

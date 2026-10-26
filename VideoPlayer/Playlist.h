@@ -28,6 +28,8 @@ private:
 	std::vector<PlaylistEntry> entries;
 	std::vector<FilteredPlaylistEntry> filteredEntries;
 	AnsiString filterText;
+	AnsiString baseDir;	///< directory of playlist file, base for relative paths
+	AnsiString toAbsolute(const AnsiString &path) const;
 public:
 	Playlist(void);
 	int loadFromFile(AnsiString fileName);
@@ -52,6 +54,7 @@ public:
     	return entries[id];
 	}
 	void add(const std::vector<AnsiString>& fileNames);
+	void addEntries(const std::vector<PlaylistEntry>& newEntries);
 	void remove(const std::set<unsigned int>& ids);
 	int rename(unsigned int id, AnsiString newFileName);
 	int setMplayerExtraParams(unsigned int id, AnsiString params);
@@ -60,6 +63,19 @@ public:
 	void filter(AnsiString text);
 	void removeDuplicates(void);
 	void removeMissingFiles(void);
+	void setBaseDir(AnsiString dir) {
+		baseDir = dir;
+	}
+	/** \brief Check if path is absolute (drive letter, UNC/root path or URL)
+	*/
+	static bool isAbsolutePath(const AnsiString &path);
+	/** \brief Get path that can be used to access file
+		Relative path is resolved against playlist directory if such file exists,
+		otherwise path is returned unchanged.
+	*/
+	AnsiString getFullPath(const AnsiString &path) const;
+	int makePathsRelative(const std::set<unsigned int>& ids);
+	int makePathsAbsolute(const std::set<unsigned int>& ids);
 	void markSet(unsigned int id);
 	void markClear(unsigned int id);
 	void markDuplicatesBySize(void);

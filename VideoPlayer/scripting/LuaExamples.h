@@ -164,7 +164,7 @@ const LuaExample luaExamples [] =
 	"\n"
 	"}\n"
 	"\n"
-	"local winapi = require(\"jsonedit_winapi\")\n"
+	"local winapi = require(\"vp_winapi\")\n"
 	"\n"
 	"for i = 1, #pattern do\n"
 	"\twinapi.Beep(pattern[i][1], pattern[i][2])\n"

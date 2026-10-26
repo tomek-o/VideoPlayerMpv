@@ -54,6 +54,7 @@ public:
 	{
 		int softVolLevel;
 		int softVolMax;
+		int backgroundColor;	///< TColor value (0x00BBGGRR)
 	};
 	int configure(const Cfg& cfg);
 	const Cfg& getCfg(void)
@@ -121,6 +122,7 @@ private:
 	bool fileStarted;
 	bool useStopCallback;
 	double absoluteSeekRequested;
+	bool outroSkipRequested;
 };
 
 extern class MPlayer mplayer;

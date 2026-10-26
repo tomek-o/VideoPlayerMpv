@@ -155,7 +155,7 @@ void TfrmTextEditor::Search(AnsiString text, const TStringSearchOptions &so)
 		m_se->SendEditor(SCI_CHARRIGHT);
 		m_se->SendEditor(SCI_SEARCHANCHOR);
 		m_se->SendEditor(SCI_SEARCHNEXT,
-			so.Contains(soMatchCase)?SCFIND_MATCHCASE:0 | so.Contains(soWholeWord)?SCFIND_WHOLEWORD:0,
+			(so.Contains(soMatchCase)?SCFIND_MATCHCASE:0) | (so.Contains(soWholeWord)?SCFIND_WHOLEWORD:0),
 			(LPARAM)text.c_str());
 		m_se->SendEditor(SCI_SCROLLCARET);
 	}
@@ -163,7 +163,7 @@ void TfrmTextEditor::Search(AnsiString text, const TStringSearchOptions &so)
 	{
 		m_se->SendEditor(SCI_SEARCHANCHOR);
 		m_se->SendEditor(SCI_SEARCHPREV,
-			so.Contains(soMatchCase)?SCFIND_MATCHCASE:0 | so.Contains(soWholeWord)?SCFIND_WHOLEWORD:0,
+			(so.Contains(soMatchCase)?SCFIND_MATCHCASE:0) | (so.Contains(soWholeWord)?SCFIND_WHOLEWORD:0),
 			(LPARAM)text.c_str());
 		m_se->SendEditor(SCI_SCROLLCARET);
 	}

@@ -40,7 +40,10 @@ WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		Application->CreateForm(__classid(TfrmMpvSetProperty), &frmMpvSetProperty);
 		Application->CreateForm(__classid(TfrmIntroOutroSkip), &frmIntroOutroSkip);
 		Application->CreateForm(__classid(TfrmAddUrl), &frmAddUrl);
-		
+
+		// initialize also when not showing window (starting minimized to tray)
+		frmMain->Initialize();
+
 		if (!appSettings.gui.showTrayIcon || !appSettings.gui.startMinimizedToTray)
 		{
 			frmMain->Show();

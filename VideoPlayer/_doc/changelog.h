@@ -134,5 +134,63 @@ Version 3.5
 - added option to exit fullscreen when suspending to RAM or hibernating
 - player asks if new playlist should be created if single folder is dropped into application
 - files from dropped folders are added recursively to playlist
+- added "Previous" and "Next" to tray menu
+- added "Move to playlist" to playlist context menu (moves selected entries with their playback info)
+- added option to start with Windows (current user, HKCU Run registry key)
+- added option to resume playback of last file on application start
+- added option to set video background color (video panel and mpv), e.g. for seamless transitions between files
+- added option to loop playlist (Next after last item goes to first one, Prev on first item goes to last one)
+- Shift + mouse wheel seeks +/-3 s (wheel up = forward), with option to swap it with volume control (plain wheel)
+- added "Paths" to playlist context menu: converting paths of all or selected entries to relative (to playlist file directory) or absolute
+	- note: paths are relative to playlist file directory (common convention, e.g. m3u), not to executable directory;
+	  as playlists are always stored in "playlists" subfolder both would differ only by one level ("..\Videos\a.mp4" vs "Videos\a.mp4")
+	  and both survive moving whole application folder
+- relative paths in playlist are resolved against playlist file directory (if file exists there) when playing and for file operations (go to file, rename, delete, remove missing); paths starting with drive letter, backslash/slash (UNC) or URLs are treated as absolute
+- FIXED: "Remove missing files from list" was removing URL entries
+- FIXED: last playback position could be assigned to wrong file when playlist was saved with active filter (file name with last position is now stored in playlist)
+- FIXED: main window position was limited to primary monitor (multi-monitor support, window is moved to first monitor only if it is not visible on any monitor)
+- FIXED: dragging playlist tab to new position was not working correctly with hidden playlists
+- FIXED: "Default" playlist protection (rename/delete/hide) depended on tab position instead of playlist name
+- FIXED: default playlist file with different letter case (e.g. default.json) was loaded as second playlist
+- FIXED: "Unhide playlist" menu could point to wrong playlist after deleting or moving tabs
+- FIXED: hidden playlist could be selected at startup if it was the last used one
+- FIXED: new playlist with name of already existing one was opened twice on the same file
+- FIXED: playlist selected after deleting active playlist was not loaded
+- FIXED: playlist tab was removed even if deleting playlist file failed
+- FIXED: application could hang forever when stopping playback (stop timeout was not counting)
+- FIXED: crashes when starting minimized to tray (playlist autosave, tray Exit/Play before showing window); also "Resume playback on start" works now in this mode
+- FIXED: possible memory corruption when changing volume with playlist filter active
+- FIXED: crash when log file could not be created
+- FIXED: crash on play when mpv failed to initialize
+- FIXED: Lua: FindWindowByCaptionAndExeName could use freed memory; _ALERT with non-string argument crashed
+- FIXED: Lua: ShowMessage, Sleep, SetClipboardText, ForceDirectories used last instead of first argument; Sleep with non-integer value did not wait
+- Lua: WinAPI module renamed from "jsonedit_winapi" to "vp_winapi" - scripts need to use local winapi = require("vp_winapi")
+- FIXED: Lua: missing locks for queues and ClearAllVariables (possible data corruption with plugins)
+- FIXED: Lua: FindWindowByCaptionAndExeName could freeze on not responding window
+- FIXED: Lua: exception from function called by script could leave script window in "running" state; error message for non-string error objects
+- FIXED: Lua: ForceDirectories with empty path
+- FIXED: script window: "Save As" with "All files" filter did not save; "Save As" did not clear modified flag; cancelling save after "Save current file?" discarded text
+- FIXED: script window: handle leaks when running luacheck
+- FIXED: quick Next/Prev while file was still loading could skip additional playlist entry (next file is started only if previous one ended by itself)
+- FIXED: resume position from file that failed to load could be applied to next file
+- FIXED: skipping outro could be triggered by length of previous file; outro skip no longer stops playback from inside mpv event handler
+- FIXED: volume changed before first playback was lost
+- FIXED: UI stayed in playing state if playback failed to start
+- FIXED: "Delete file" action did not stop playback of last file when "ignore Next on last item" was enabled
+- FIXED: possible crash on global fullscreen/minimize hotkey when application was not active
+- FIXED: with playlist filter active: "Set mpv extra params" showed values of other entry, opening file already present in playlist selected wrong entry
+- FIXED: file already present in playlist as relative path was added again when opened
+- FIXED: "Mark duplicates by size" could mark wrong entry if playlist contained duplicated file names
+- FIXED: intro/outro skip dialog showed old values after change
+- FIXED: audio bitrate from older playlist format could be reset to 0
+- FIXED: script editor search ignored "Whole word" when "Match case" was also set
+- FIXED: file added or opened with playlist filter active could be not selected (or other entry selected and played)
+- FIXED: renamed active playlist was not restored after restart
+- FIXED: restoring maximized (fullscreen) window from tray could move it to first monitor
+- FIXED: renaming file with relative path without directory part moved it to drive root; renaming URL entry is ignored
+- FIXED: last playback position was lost after renaming file
+- FIXED: "Add remaining files from last folder" and "Add file(s)" dialog did not handle relative paths and URL as last entry; files already in playlist (relative paths, different letter case) were added again; uppercase extensions were ignored
+- playlist names are checked for empty value and characters not allowed in file names
+- playlist name duplicate check on rename is case-insensitive
 */
 

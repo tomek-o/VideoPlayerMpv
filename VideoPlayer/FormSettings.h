@@ -31,6 +31,11 @@ __published:	// IDE-managed Components
 	TCheckBox *chbLogToFile;
 	TTabSheet *tsMplayer;
 	TOpenDialog *OpenDialog;
+	TColorDialog *ColorDialog;
+	TLabel *lblBackgroundColor;
+	TPanel *pnlBackgroundColor;
+	TButton *btnBackgroundColor;
+	TButton *btnBackgroundColorDefault;
 	TButton *btnShowLogWindow;
 	TCheckBox *chbExitFullscreenOnStop;
 	TLabel *lblSoftVolMax;
@@ -39,6 +44,10 @@ __published:	// IDE-managed Components
 	TButton *btnAbout;
 	TCheckBox *chbMplayerShowFileNameOnPlayStart;
 	TTabSheet *tsHotkeys;
+	TTabSheet *tsPlayback;
+	TCheckBox *chbResumePlaybackOnStart;
+	TCheckBox *chbLoopPlaylist;
+	TCheckBox *chbMouseWheelSeekWithoutShift;
 	TLabel *lblControlPanelPosition;
 	TComboBox *cbControlPanelPosition;
 	TCheckBox *chbUseSeparateVolumeForEachFile;
@@ -46,6 +55,7 @@ __published:	// IDE-managed Components
 	TCheckBox *chbIgnoreMouseMovementInFullScreenPlayback;
 	TCheckBox *chbShowTrayIcon;
 	TCheckBox *chbStartMinimizedToTray;
+	TCheckBox *chbAutostart;
 	TCheckBox *chbShowTrayBalloonOnPlayStart;
 	TCheckBox *chbIgnorePrevCommandWhenPlayingFirstItem;
 	TCheckBox *chbIgnoreNextCommandWhenPlayingLastItem;
@@ -54,6 +64,8 @@ __published:	// IDE-managed Components
 	void __fastcall FormShow(TObject *Sender);
 	void __fastcall btnCancelClick(TObject *Sender);
 	void __fastcall btnApplyClick(TObject *Sender);
+	void __fastcall btnBackgroundColorClick(TObject *Sender);
+	void __fastcall btnBackgroundColorDefaultClick(TObject *Sender);
 	void __fastcall chbAlwaysOnTopClick(TObject *Sender);
 	void __fastcall cmbMaxUiLogLinesChange(TObject *Sender);
 	void __fastcall btnShowLogWindowClick(TObject *Sender);

@@ -128,7 +128,7 @@ void TfrmLuaScript::SetScript(AnsiString asString)
 
 void TfrmLuaScript::AddOutputText(const char* text)
 {
-	if (text[0] == '\0')
+	if (text == NULL || text[0] == '\0')
 	{
 		return;
 	}
@@ -295,8 +295,9 @@ void __fastcall TfrmLuaScript::actFileSaveAsExecute(TObject *Sender)
 			asFileName = ChangeFileExt(SaveDialog->FileName, ".lua");
 		else if (SaveDialog->FilterIndex == 2)
 			asFileName = ChangeFileExt(SaveDialog->FileName, ".txt");
+		else
+			asFileName = SaveDialog->FileName;	// "All files" - keep name as entered
 
-		AddMruItem(asFileName);
 		if (FileExists(asFileName))
 		{
 			if (MessageBox(this->Handle, "File already exists, file will be overwritten.\r\nAre you sure you want to continue?",
@@ -305,13 +306,15 @@ void __fastcall TfrmLuaScript::actFileSaveAsExecute(TObject *Sender)
 				return;
 			}
 		}
+		AddMruItem(asFileName);
 		asCurrentFile = asFileName;
-		SetTitle(asCurrentFile, false);
 		TStrings *strings = new TStringList();
 		strings->Text = frmEditor->GetText();
 		strings->SaveToFile(asFileName);
 		delete strings;
 		//frmJsonEditor->ClearFileChangedFlag();
+		modified = false;
+		SetTitle(asCurrentFile, modified);
 	}
 }
 
@@ -414,6 +417,8 @@ int TfrmLuaScript::CheckFileNotSavedDialog(void)
 		if (res == ID_YES)
 		{
 			actFileSaveAs->Execute();
+			if (modified)
+				return 1;	// save dialog cancelled - do not discard text
 		}
 		else if (res == ID_CANCEL)
 		{
@@ -525,6 +530,7 @@ void __fastcall TfrmLuaScript::btnLuacheckClick(TObject *Sender)
 	{
 		MessageBox(this->Handle, "Failed to create pipe.", this->Caption.c_str(), MB_ICONEXCLAMATION);
 		CloseHandle(hStdInPipeRead);
+		CloseHandle(hStdInPipeWrite);
 		return;
 	}
 
@@ -575,6 +581,8 @@ void __fastcall TfrmLuaScript::btnLuacheckClick(TObject *Sender)
 	{
 		MessageBox(this->Handle, "Failed to start luacheck.exe.", this->Caption.c_str(), MB_ICONEXCLAMATION);
 		CloseHandle(hStdOutPipeRead);
+		CloseHandle(hStdOutPipeWrite);
+		CloseHandle(hStdInPipeRead);
 		CloseHandle(hStdInPipeWrite);
 		return;
 	}
@@ -604,7 +612,10 @@ void __fastcall TfrmLuaScript::btnLuacheckClick(TObject *Sender)
 	CloseHandle(hStdOutPipeRead);
 	CloseHandle(hStdInPipeWrite);
     DWORD dwExitCode = 0;
+	WaitForSingleObject(pi.hProcess, 2000);	// output pipe closed - process is finishing
 	GetExitCodeProcess(pi.hProcess, &dwExitCode);
+	CloseHandle(pi.hProcess);
+	CloseHandle(pi.hThread);
 
 	validationEntries.clear();
 

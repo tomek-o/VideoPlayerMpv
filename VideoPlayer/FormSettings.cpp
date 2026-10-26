@@ -9,6 +9,38 @@
 #include "FormAbout.h"
 #include <SysUtils.hpp>
 #include <FileCtrl.hpp>
+#include "common/Autostart.h"
+
+namespace {
+
+AnsiString GetAutostartValueName(void)
+{
+	return ChangeFileExt(ExtractFileName(Application->ExeName), "");
+}
+
+AnsiString GetAutostartCommand(void)
+{
+	return "\"" + Application->ExeName + "\"";
+}
+
+/** \brief Check if HKCU Run entry exists and points to this executable
+*/
+bool IsAutostartEnabled(void)
+{
+	return Autostart::IsEnabled(GetAutostartValueName(), GetAutostartCommand());
+}
+
+int SetAutostart(bool state)
+{
+	bool ok;
+	if (state)
+		ok = Autostart::Enable(GetAutostartValueName(), GetAutostartCommand());
+	else
+		ok = Autostart::Disable(GetAutostartValueName());
+	return ok ? 0 : -1;
+}
+
+}	// namespace
 
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
@@ -39,11 +71,15 @@ void __fastcall TfrmSettings::FormShow(TObject *Sender)
 	chbIgnoreMouseMovementInFullScreenPlayback->Checked = tmpSettings.frmMain.ignoreMouseMovementInFullScreenPlayback;
 	chbShowTrayIcon->Checked = tmpSettings.gui.showTrayIcon;
 	chbStartMinimizedToTray->Checked = tmpSettings.gui.startMinimizedToTray;
+	chbAutostart->Checked = IsAutostartEnabled();
 	chbShowTrayBalloonOnPlayStart->Checked = tmpSettings.gui.showTrayBalloonOnPlayStart;
 	chbIgnorePrevCommandWhenPlayingFirstItem->Checked = tmpSettings.frmMain.ignorePrevCommandWhenPlayingFirstItem;
 	chbIgnoreNextCommandWhenPlayingLastItem->Checked = tmpSettings.frmMain.ignoreNextCommandWhenPlayingLastItem;
 	chbPauseOnSuspend->Checked = tmpSettings.frmMain.pauseOnSuspend;
 	chbExitFullscreenOnSuspend->Checked = tmpSettings.frmMain.exitFullScreenOnSuspend;
+	chbResumePlaybackOnStart->Checked = tmpSettings.frmMain.resumePlaybackOnStart;
+	chbLoopPlaylist->Checked = tmpSettings.frmMain.loopPlaylist;
+	chbMouseWheelSeekWithoutShift->Checked = tmpSettings.frmMain.mouseWheelSeekWithoutShift;
 
 	chbLogToFile->Checked = tmpSettings.Logging.bLogToFile;
 	cmbMaxUiLogLines->ItemIndex = -1;
@@ -65,6 +101,7 @@ void __fastcall TfrmSettings::FormShow(TObject *Sender)
 	chbUseSeparateVolumeForEachFile->Checked = tmpSettings.Mplayer.useSeparateVolumeForEachFile;
 	chbMplayerShowFileNameOnPlayStart->Checked = tmpSettings.Mplayer.showFileNameOnPlayStart;
 	chbMpvShowPropertyEditor->Checked = tmpSettings.Mplayer.showPropertyEditor;
+	pnlBackgroundColor->Color = static_cast<TColor>(tmpSettings.Mplayer.backgroundColor);
 
 	frmHotkeys->SetCfg(&tmpSettings.hotKeyConf);
 }
@@ -86,6 +123,9 @@ void __fastcall TfrmSettings::btnApplyClick(TObject *Sender)
 	tmpSettings.frmMain.ignoreNextCommandWhenPlayingLastItem = chbIgnoreNextCommandWhenPlayingLastItem->Checked;
 	tmpSettings.frmMain.pauseOnSuspend = chbPauseOnSuspend->Checked;
 	tmpSettings.frmMain.exitFullScreenOnSuspend = chbExitFullscreenOnSuspend->Checked;
+	tmpSettings.frmMain.resumePlaybackOnStart = chbResumePlaybackOnStart->Checked;
+	tmpSettings.frmMain.loopPlaylist = chbLoopPlaylist->Checked;
+	tmpSettings.frmMain.mouseWheelSeekWithoutShift = chbMouseWheelSeekWithoutShift->Checked;
 
 	tmpSettings.Logging.bLogToFile = chbLogToFile->Checked;
 
@@ -97,8 +137,35 @@ void __fastcall TfrmSettings::btnApplyClick(TObject *Sender)
 	tmpSettings.Mplayer.showFileNameOnPlayStart = chbMplayerShowFileNameOnPlayStart->Checked;
 	tmpSettings.Mplayer.showPropertyEditor = chbMpvShowPropertyEditor->Checked;
 
+	if (chbAutostart->Checked != IsAutostartEnabled())
+	{
+		if (SetAutostart(chbAutostart->Checked) != 0)
+		{
+			MessageBox(this->Handle, "Failed to update autostart setting in registry.",
+				Application->Title.c_str(), MB_ICONEXCLAMATION);
+		}
+	}
+
 	*appSettings = tmpSettings;
 	this->Close();	
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TfrmSettings::btnBackgroundColorClick(TObject *Sender)
+{
+	ColorDialog->Color = static_cast<TColor>(tmpSettings.Mplayer.backgroundColor);
+	if (ColorDialog->Execute())
+	{
+		tmpSettings.Mplayer.backgroundColor = ColorToRGB(ColorDialog->Color) & 0xFFFFFF;
+		pnlBackgroundColor->Color = static_cast<TColor>(tmpSettings.Mplayer.backgroundColor);
+	}
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TfrmSettings::btnBackgroundColorDefaultClick(TObject *Sender)
+{
+	tmpSettings.Mplayer.backgroundColor = Settings::_Mplayer::BACKGROUND_COLOR_DEF;
+	pnlBackgroundColor->Color = static_cast<TColor>(tmpSettings.Mplayer.backgroundColor);
 }
 //---------------------------------------------------------------------------
 

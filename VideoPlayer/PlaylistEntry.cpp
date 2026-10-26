@@ -41,7 +41,7 @@ void PlaylistEntry::fromJson(const Json::Value &jv)
 		}
 
 		const Json::Value &jba = jv["bitrateAudio"];
-		if (jba.type() == Json::intValue || jbv.type() == Json::uintValue) {
+		if (jba.type() == Json::intValue || jba.type() == Json::uintValue) {
 			bitrateAudioMin = bitrateAudioMax = jba.asInt();
 		}
 	}
